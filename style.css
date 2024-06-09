@@ -1,53 +1,48 @@
-@import url("https://fonts.googleapis.com/css?family=Montserrat:700");
-
-* {
-	box-sizing: border-box;
+body, html{
+  height: 100%;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #040509;
+  overflow: hidden;
+  font-size: 62.5%
 }
 
-body {
-	font-family: Montserrat, sans-serif;
-	min-height: 100vh;
-	margin: 0;
-	padding: 0;
-	background-color: rgb(9, 14, 23);
-	color: #ffffff;
+@property --angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
 }
 
-svg {
-	opacity: 0;
-	position: absolute;
+.spiral{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: absolute;
+  color: #e0ecef;
+  font-family: "sans-serif";
 }
 
-.wrapper {
-	position: relative;
+@keyframes spiral{
+  0%{
+    --angle: 0deg;
+  }
+  100%{
+    --angle: 360deg;
+  }
 }
 
-.hero {
-	min-height: 100vh;
-	padding: clamp(1rem, 2vw, 5rem);
-	display: flex;
-	align-items: center;
+.character{
+  font-size: 2.8rem;
+  color: white;
+  text-transform: uppercase;
+  transform: translateY(calc(sin(var(--angle)) * 100px)) scale(calc(cos(var(--angle)) * 0.5 + 0.5));
+  animation: spiral 4s linear infinite;
 }
 
-.hero--secondary {
-	--mask: radial-gradient(circle at var(--x, 70%) var(--y, 50%), black 25%, transparent 0);
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	background: linear-gradient(45deg, #482EF4, #5FF4C2, #ffffff);
-	color: rgb(9, 14, 23);
-	-webkit-mask-image: var(--mask);
-	mask-image: var(--mask);
+@media (max-width: 490px){
+  .character{
+    font-size: 2.2rem
+  }
 }
-
-.hero__heading {
-	font-size: clamp(2rem, 5vw, 8rem);
-	text-transform: uppercase;
-	margin: 0;
-  max-width: fit-content;
-  margin-left: auto;
-  margin-right: auto;
-}
-
