@@ -1,481 +1,118 @@
-*{
+* {
   margin: 0;
   padding: 0;
 }
 
 body {
-  background: #fba919;
+  overflow: hidden;
 }
 
-.garfield {
+#wrapper {
+  position: relative;
+  height: 100vh;
+  background: #000;
+  font-family: 'Comfortaa', cursive;
+}
+
+#canvas_container {
   position: absolute;
-  margin: 0;
+  left: 0;
   top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
   width: 100%;
-  height: 100%;
-  background: #fba919;
-  transform: scale(1.3);
-}
-
-.face {
-  width: 350px;
-  height: 350px;
-  position: absolute;
-  top:0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  margin: auto;
+  height: 100vh;
   z-index: 0;
-  overflow: hidden;
 }
 
-#triangle-right{
-  position: absolute;
-  z-index: 999;
-  top: 244px;
-  left: 240px;
-}
-
-#triangle-left{
-  position: absolute;
-  z-index: 999;
-  top: 244px;
-  left: 110px;
-  transform: scaleX(-1);
-}
-
-.triangle1 {
-  width: 0;
-  height: 0;
-  border-left: 3px solid transparent;
-  border-right: 3px solid transparent;
-  border-top: 5px solid #010101;
-  position: absolute;
-  z-index: 999;
-}
-
-.triangle2 {
-  width: 0;
-  height: 0;
-  left: 12px;
-  top: 10px;
-  border-left: 3px solid transparent;
-  border-right: 3px solid transparent;
-  border-top: 5px solid #010101;
-  position: absolute;
-  z-index: 999;
-}
-.triangle3 {
-  width: 0;
-  height: 0;
-  left: 8px;
-  top: 22px;
-  border-left: 3px solid transparent;
-  border-right: 3px solid transparent;
-  border-top: 5px solid #010101;
-  position: absolute;
-  z-index: 999;
-}
-
-.eye.left {
-  position: absolute;
-  top: 38px;
-  left: 62px;
-  width: 110px;
-  height: 196px;
-  background: #fba919;
-  border-radius: 65% 35% 0% 55%/50% 15% 50% 50%;
-  border: 3px solid #010101;
-  overflow: hidden;
-  z-index: 1;
-}
-
-  .eye.left::after{
+canvas {
   display: block;
-  position: relative;
-  width: 150px;
-  height: 210px;
-  content: "";
-  top: -50px;
-  left: 5px;
-  border:solid 3px #010101;
-  border-color:#000 transparent transparent transparent;
-  border-radius: 100px 100px 0% 0%/5%;
-  transform: rotate(185deg);
 }
 
-  .eye.left::before{
-  content: "";
+.text {
+  width: 100%;
+  height: 100px;
+  text-align: center;
   position: absolute;
-  top: 163px;
-  width: 150px;
-  height: 210px;
-  border-radius: 100px 100px 0% 0%/0%;
-  transform: rotate(5deg);
-  background: #fff;
-}
-
-  .eyeball1{
-  background-color: #010101;
-  display: block;
-  left: 83px;
-  content: "";
-  position: absolute;
-  top: 166px;
-  width: 24px;
-  height: 10px;
-  border-radius: 0% 0% 50% 50%/0 0 100% 100%;
-}
-
-  .eyeball2{
-  background-color: #010101;
-  display: block;
-  left: 3px;
-  position: absolute;
-  top: 166px;
-  width: 24px;
-  height: 10px;
-  border-radius: 0% 0% 50% 50%/0 0 100% 100%;
-  z-index: 1;
-}
-
-.eye.right::after{
-  display: block;
-  position: relative;
-  width: 150px;
-  height: 210px;
-  content: "";
-  top: -50px;
-  left:-25px;
-  border:solid 3px #010101;
-  border-color:#000 transparent transparent transparent;
-  border-radius: 100px 100px 0% 0%/5%;
-  transform: rotate(-185deg);
-}
-
-  .eye.right::before{
-  content: "";
-  position: absolute;
-  top: 162px;
-  width: 150px;
-  height: 210px;
-  border-radius: 100px 100px 0% 0%/0%;
-  transform: rotate(-4deg);
-  background: #fff;
-}
-
-.eye.right {
-  position: absolute;
-  left: 175px;
-  top: 38px;
-  width: 110px;
-  height: 196px;
-  border-radius: 35% 65% 55% 0%/15% 50% 50% 50%;
-  background: #fba919;
-  border: 3px solid #010101;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  cursor: pointer;
+  color: rgb(255, 255, 255);
+  background-color: rgba(0, 0, 0, 0.81);
+  font-size: 1.6rem;
+  line-height: 1.5;
+  user-select: none;
   overflow: hidden;
-  z-index: 1;
+  display: flex;
+  align-items:center;
 }
 
-.nose {
+.text span {
+  color: #e7aa27;
+}
+
+.text .quoteText {
+  width: 85%;
+  margin: 0 auto;
+}
+
+.text .quoteText span {
+  font-weight: 700;
+}
+
+.clickInfo {
+  width: 100%;
+  text-align: center;
   position: absolute;
-  top: 225px;
-  left: 150px;
-  width: 45px;
-  height: 25px;
-  background: #fbbfcb;
-  border-radius: 100%;
-  border: 3px solid #000200;
-  z-index: 1;
+  left: 0;
+  top: -80px;
+  z-index: 11;
+  cursor: pointer;
+  color: #F9B31C;
+  background-color: rgba(23, 23, 23, 0.9);
+  padding: 10px 0;
+  font-size: 20px;
 }
 
-.snout1 {
-  width:80px;
-  height:50px;
-  background-color:#fffd78;
-  border:3px solid #010101;
-  position:absolute;
-  top:220px;
-  left:80px;
-  border-right-color:transparent;
-  border-radius:50%;
-  transform: rotate(-25deg);
-  border-top-left-radius: 100% 100%;
-  border-top-right-radius: 100% 40%;
-  border-bottom-left-radius: 100% 100%;
-  border-bottom-right-radius: 12% 100%;
-}
-
-  .snout1small {
-  width:60px;
-  height:15px;
-  background-color:#fffd78;
-  position:absolute;
-  top:255px;
-  left:122px;
-  border-radius:50%;
-  transform: rotate(140deg) scaleX(-1);
-  border-top-left-radius: 50% 100%;
-  border-top-right-radius: 0% 50%;
-  border-bottom-left-radius: 50% 100%;
-  border-bottom-right-radius: 0% 100%;
-  border-left: 3px solid #010101;
-  border-right-color:transparent;
-  border-top-color:transparent;
-  border-bottom-color:transparent;
-  overflow: hidden;
-}
-
-.snout2 {
-  width:80px;
-  height:50px;
-  background-color:#fffd78;
-  position:absolute;
-  top:220px;
-  left:185px;
-  border-radius:50%;
-  transform: rotate(205deg);
-  border-top-left-radius: 100% 100%;
-  border-top-right-radius: 0% 100%;
-  border-bottom-left-radius: 100% 100%;
-  border-bottom-right-radius: 0% 100%;
-  border: 3px solid #010101;
-  border-right-color:transparent;
-}
-
-  .snout2small {
-  width:60px;
-  height:15px;
-  background-color:#fffd78;
-  position:absolute;
-  top:255px;
-  left:165px;
-  border-radius:50%;
-  transform: rotate(220deg);
-  border-top-left-radius: 50% 100%;
-  border-top-right-radius: 0% 50%;
-  border-bottom-left-radius: 50% 100%;
-  border-bottom-right-radius: 0% 100%;
-  border-left: 3px solid #010101;
-  border-right-color:transparent;
-  border-top-color:transparent;
-  border-bottom-color:transparent;
-  overflow: hidden;
-}
-
-.whisker8{
-  transform: scaleX(-1) scale(0.7) rotate(30deg);
-  top: -145px;
-  left: 435px;
+.btn {
   position: absolute;
-  z-index: 999;
-  -moz-transform: scaleX(-1);
-  -o-transform: scaleX(-1);
-  -webkit-transform: scaleX(-1) scale(0.7) rotate(30deg);
-  filter: FlipH;
-  -ms-filter: “FlipH”;
+  bottom: 5%;
+  right: 0px;
+  transform: translateX(-50%);
+  border: 1px solid white;
+  border-radius: 5px;
+  font-size: 0.9rem;
+  padding: 0.5rem 0.7em;
+  background: transparent;
+  color: #F9B31C;
+  -webkit-font-smoothing: antialiased;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .3s;
+  z-index: 11;
 }
 
-.whisker7{
-  transform: scaleX(-1) rotate(5deg);
-  top: -85px;
-  left: 640px;
-  position: absolute;
-  z-index: 999;
+.btn_works {
+  left: 100px;
+  right: unset;
+  text-decoration: none;
 }
 
-.whisker6{
-  transform:  scaleX(-1) rotate(-15deg);
-  top: 100px;
-  left: 700px;
-  position: absolute;
-  z-index: 999;
+.btn:hover {
+  background: #ffffff;
+  color: #2a2b2f;
 }
 
-.whisker5{
-  transform: scaleX(-1) rotate(-45deg);
-  top: 375px;
-  left: 675px;
-  position: absolute;
-  z-index: 999;
-}
+@media only screen and (max-width:815px) {
+  .text {
+    font-size: 1.2rem;
+  }
 
-.whisker4{
-  transform: rotate(30deg) scale(0.7);
-  top: -145px;
-  left: -85px;
-  position: absolute;
-  z-index: 999;
-}
+  .text span {
+    afont-size: 0.8rem !important;
+  }
 
-.whisker3{
-  transform: rotate(5deg);
-  top: -85px;
-  left: -290px;
-  position: absolute;
-  z-index: 999;
-}
-
-.whisker2{
-  transform: rotate(-15deg);
-  top: 100px;
-  left: -350px;
-  position: absolute;
-  z-index: 999;
-}
-
-.whisker1{
-  transform: rotate(-45deg);
-  top: 375px;
-  left: -325px;
-  position: absolute;
-  z-index: 999;
-}
-
-.stripes1{
-  position: absolute;
-}
-.stripe1{
-  width:12px;
-  height: 40px;
-  border-top: 10px solid #010101;
-  background: #010101;
-  border-radius: 60px 0% 100% 100%/200px 0% 100% 100%;
-  position: absolute;
-  left: 319px;
-  top: 180px;
-  overflow: hidden;
-}
-.stripeA{
-  background-color: #010101;
-  display: block;
-  left: 320px;
-  position: absolute;
-  top: 225px;
-  width: 11px;
-  height: 10px;
-  border-radius: 0 0 50% 50%/0 0 100% 100%;
-  transform: rotate(355deg);
-}
-
-.stripes2{
-  transform: scale(0.8);
-  position: absolute;
-  left: 78px;
-  top: 42px;
-}
-
-.stripe2{
-  width:12px;
-  height: 40px;
-  border-top: 10px solid #010101;
-  background: #010101;
-  border-radius: 60px 0% 100% 100%/200px 0% 100% 100%;
-  position: absolute;
-  left: 319px;
-  top: 180px;
-  overflow: hidden;
-}
-.stripeB{
-  background-color: #010101;
-  display: block;
-  left: 320px;
-  position: absolute;
-  top: 225px;
-  width: 11px;
-  height: 10px;
-  border-radius: 0 0 50% 50%/0 0 100% 100%;
-  transform: rotate(355deg);
-}
-
-.stripes3{
-  transform: scale(0.6);
-  position: absolute;
-  left: 154px;
-  top: 84px;
-}
-
-.stripe3{
-  width:12px;
-  height: 40px;
-  border-top: 10px solid #010101;
-  background: #010101;
-  border-radius: 60px 0% 100% 100%/200px 0% 100% 100%;
-  position: absolute;
-  left: 319px;
-  top: 180px;
-  overflow: hidden;
-}
-
-.stripeC{
-  background-color: #010101;
-  display: block;
-  left: 320px;
-  position: absolute;
-  top: 225px;
-  width: 11px;
-  height: 10px;
-  border-radius: 0 0 50% 50%/0 0 100% 100%;
-  transform: rotate(355deg);
-}
-
-.stripes4{
-  transform: scale(0.3);
-  position: absolute;
-  left: 260px;
-  top: 148px;
-}
-
-.stripe4{
-  width:12px;
-  height: 40px;
-  border-top: 10px solid #010101;
-  background: #010101;
-  border-radius: 60px 0% 100% 100%/200px 0% 100% 100%;
-  position: absolute;
-  left: 319px;
-  top: 180px;
-  overflow: hidden;
-}
-
-.stripeD{
-  background-color: #010101;
-  display: block;
-  left: 320px;
-  position: absolute;
-  top: 225px;
-  width: 11px;
-  height: 10px;
-  border-radius: 0 0 50% 50%/0 0 100% 100%;
-  transform: rotate(355deg);
-}
-
-.whisker.right{
-  transform: rotate(-1deg);
-  background:#010101;
-  width: 30px;
-  height: 3px;
-  position: absolute;
-  left: 20px;
-  border-top-right-radius: 50% 100%;
-  border-top-left-radius: 50% 100%;
-  border-bottom-left-radius: 50% 100%;
-  border-bottom-right-radius: 50% 100%;
-}
-
-.whisker.left{
-  transform: rotate(-1deg);
-  background:#010101;
-  width: 30px;
-  height: 3px;
-  position: absolute;
-  left: 20px;
-  border-top-right-radius: 50% 100%;
-  border-top-left-radius: 50% 100%;
-  border-bottom-left-radius: 50% 100%;
-  border-bottom-right-radius: 50% 100%;
+  .clickInfo {
+    font-size: 1rem;
+  }
 }
