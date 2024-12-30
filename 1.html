@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clash Royale - Elixir Load</title>
+    <style>
+        /* Variáveis de cores */
+        :root {
+            --pink: #A033C7;
+            --dark-pink: #782097;
+            --brown: #473324;
+        }
+
+        html {
+            background: linear-gradient(-179deg, transparent 0%, rgba(0, 0, 0, 0.05) 100%) no-repeat;
+            min-height: 100vh;
+        }
+
+        body {
+            box-sizing: border-box;
+            width: 600px;
+            height: 200px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            margin: auto;
+        }
+
+        .elixirs-container {
+            position: relative;
+        }
+
+        .elixirs {
+            display: flex;
+            width: 600px;
+            height: 30px;
+            border: 3px solid #333;
+            border-radius: 3px;
+            overflow: hidden;
+            transition: all 1s;
+        }
+
+        .elixir {
+            position: relative;
+            width: calc(600px / 6);
+            height: 30px;
+            box-shadow: inset 0 1px var(--brown);
+            background-image: linear-gradient(lighten(var(--brown), 35%) 30%, var(--brown) 25%);
+        }
+
+        .elixir:first-child {
+            border-left: none;
+        }
+
+        .elixir > span {
+            box-shadow: inset 0 1px 0 var(--pink);
+            display: inline-block;
+            background-image: linear-gradient(lighten(var(--pink), 20%) 30%, var(--pink) 25%);
+            height: 30px;
+        }
+
+        .cards {
+            display: flex;
+            justify-content: space-between;
+            width: 600px;
+        }
+
+        .card {
+            width: 105px;
+            height: 130px;
+            border: 4px solid #eee;
+            border-radius: 15px;
+            background: grey;
+            box-shadow: 0 0 10px 10px rgba(0, 0, 0, 0.4);
+            transform: scale(0.95);
+            margin-bottom: 40px;
+        }
+
+        .drop {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: absolute;
+            top: -5px;
+            left: -10px;
+            width: 40px;
+            height: 40px;
+            background-image: radial-gradient(circle at 30px 20px, white 1%, white 5%, var(--pink) 30%);
+            border-radius: 9em;
+            border: 3px solid var(--dark-pink);
+            font-size: 1.5em;
+            font-family: 'Arial', sans-serif;
+            color: white;
+            text-shadow: 1px 1px 1px black;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+    <div class="cards"></div>
+
+    <div class="elixirs-container">
+        <div class="elixirs"></div>
+        <div class="drop"></div>
+    </div>
+
+    <script>
+        const Load = {
+            MAX_PROGRESS: 100,
+
+            init($element) {
+                this.$element = $element;
+                this.$elixirs = this.$element.querySelectorAll('.elixir');
+                this.$cards = document.querySelector('.cards');
+                this.$drop = document.querySelector('.drop');
+                this.loaded = false;
+
+                this.cards = [
+                    { id: 1, name: 'espiritu-de-fuego', power: 10, off: 1, state: 'off' },
+                    { id: 2, name: 'horno', power: 30, off: 1, state: 'off' },
+                    { id: 3, name: 'guardias', power: 100, off: 1, state: 'off' },
+                    { id: 4, name: 'mosqueteras', power: 50, off: 1, state: 'off' }
+                ];
+
+                this.elixirs = Array.from({ length: 10 }, (_, i) => ({
+                    id: i + 1,
+                    power: (i + 1) * 10,
+                    progress: 0,
+                    loaded: false,
+                    speed: (i + 1) * 10
+                }));
+
+                this._renderElixirs();
+                this._renderCards();
+                this._loadElixir(0, 0);
+                this._updateDrop();
+            },
+
+            _renderElixirs() {
+                let tpl = '';
+                this.elixirs.forEach(elx => {
+                    tpl += `<div class="elixir" data-id=${elx.id} data-power=${elx.power}>
+                        <span style="width: ${elx.progress}%"></span>
+                    </div>`;
+                });
+                this.$element.innerHTML = tpl;
+            },
+
+            _renderCards() {
+                let tpl = '';
+                this.cards.forEach(card => {
+                    tpl += `<div class="card card--${card.name} card--${card.state}" data-id=${card.id} data-power=${card.power}></div>`;
+                });
+                this.$cards.innerHTML = tpl;
+            },
+
+            _loadElixir(num, position) {
+                if (num === this.MAX_PROGRESS) {
+                    this._changeElixirState(position);
+                    this._changeCardState(position);
+                    this._updateDrop(this.elixirs[position].id);
+                    if (position + 1 < this.elixirs.length) this._loadElixir(0, position + 1);
+                    return;
+                }
+
+                setTimeout(() => {
+                    this.elixirs[position].progress = num;
+                    this._renderElixirs();
+                    this._loadElixir(num + 1, position);
+                }, this.elixirs[position].speed);
+            },
+
+            _updateDrop(id = 0) {
+                this.$drop.innerHTML = id;
+            },
+
+            _changeElixirState(pos) {
+                this.elixirs[pos].loaded = true;
+            },
+
+            _changeCardState(pos) {
+                const card = this.cards.find(card => card.power === this.elixirs[pos].power);
+                if (card) {
+                    card.off = 0;
+                    card.state = 'on';
+                    this._renderCards();
+                }
+            }
+        };
+
+        const $elixirs = document.querySelector('.elixirs');
+        Load.init($elixirs);
+    </script>
+</body>
+</html>
