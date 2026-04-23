@@ -6,11 +6,12 @@ function ajustarEscala() {
     if (!inner) return;
     const vw = window.innerWidth;
     const vh = window.innerHeight;
-    // O rosto ocupa aprox 350px + bigodes estendem ~350px pra cada lado
-    // Área total do desenho: ~1050px de largura, ~500px de altura
-    const escalaW = vw / 1050;
-    const escalaH = vh / 520;
-    const escala = Math.min(escalaW, escalaH, 1.3); // máx 1.3 como original
+    let escala;
+    if (vw < 600) {
+        escala = Math.min(vw / 360, vh / 420);
+    } else {
+        escala = Math.min(vw / 1050, vh / 520);
+    }
     inner.style.transform = `scale(${escala})`;
     inner.style.transformOrigin = 'center center';
 }
@@ -40,6 +41,21 @@ agendarPiscar();
 
 
 // =============================================
+// DICA DO NARIZ — some após primeiro clique
+// =============================================
+const dicaNariz = document.getElementById('dica-nariz');
+let dicaSumiu = false;
+
+function esconderDica() {
+    if (!dicaSumiu) {
+        dicaSumiu = true;
+        dicaNariz.classList.add('sumiu');
+        setTimeout(() => dicaNariz.style.display = 'none', 500);
+    }
+}
+
+
+// =============================================
 // CLIQUE NO NARIZ — FRASES DO GARFIELD
 // =============================================
 const frases = [
@@ -63,6 +79,8 @@ const textoBalao = document.getElementById('texto-balao');
 let balaoTimeout;
 
 nariz.addEventListener('click', () => {
+    esconderDica();
+
     const frase = frases[Math.floor(Math.random() * frases.length)];
     textoBalao.textContent = frase;
     balao.classList.remove('escondido');
@@ -101,7 +119,7 @@ const timer = setInterval(() => {
 
 
 // =============================================
-// HORA ATUAL — RECLAMAÇÃO DO GARFIELD
+// HORA ATUAL EM TEMPO REAL
 // =============================================
 function frasePorHora(hora) {
     if (hora >= 0 && hora < 6)   return `São ${hora}h da manhã?! Isso é ilegal.`;
@@ -119,8 +137,9 @@ function atualizarHora() {
     const agora = new Date();
     const hora = agora.getHours();
     const min = String(agora.getMinutes()).padStart(2, '0');
+    const seg = String(agora.getSeconds()).padStart(2, '0');
     document.getElementById('hora-garfield').textContent =
-        `🕐 ${hora}:${min} — ${frasePorHora(hora)}`;
+        `🕐 ${hora}:${min}:${seg} — ${frasePorHora(hora)}`;
 }
 atualizarHora();
-setInterval(atualizarHora, 60000);
+setInterval(atualizarHora, 1000);
