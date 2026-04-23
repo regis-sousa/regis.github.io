@@ -610,3 +610,41 @@ body {
     border-bottom: 3px solid #010101;
     border-radius: 0 0 50% 50%;
 }
+
+/* =============================================
+   DICA DO NARIZ
+   ============================================= */
+#dica-nariz {
+    position: fixed;
+    bottom: 90px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255,255,255,0.28);
+    border: 2px solid rgba(0,0,0,0.12);
+    border-radius: 30px;
+    padding: 7px 18px;
+    font-family: 'Permanent Marker', cursive;
+    font-size: clamp(11px, 2.5vw, 14px);
+    color: #3a1a00;
+    white-space: nowrap;
+    z-index: 9999;
+    backdrop-filter: blur(4px);
+    animation: flutuarDica 3s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes flutuarDica {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(-6px); }
+}
+
+#dica-nariz.sumiu {
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    pointer-events: none;
+}
+
+/* Redes sociais em coluna (Instagram + Spotify) */
+#redes-sociais {
+    flex-direction: column;
+}
