@@ -6,149 +6,57 @@
     box-sizing: border-box;
 }
 
-/* =============================================
-   TRANSIÇÃO DIA / NOITE
-   ============================================= */
 body {
     background: #fba919;
-    transition: background 2s ease;
     font-family: 'Patrick Hand', cursive;
     overflow: hidden;
+    width: 100vw;
+    height: 100vh;
 }
-
-body.modo-dia {
-    background: #fba919;
-}
-
-body.modo-crepusculo {
-    background: #e8742a;
-}
-
-body.modo-noite {
-    background: #1a1035;
-}
-
-body.modo-noite .garfield,
-body.modo-noite .face {
-    background: #1a1035 !important;
-}
-
-body.modo-noite .eye.left,
-body.modo-noite .eye.right {
-    background: #1a1035 !important;
-}
-
-body.modo-noite .snout1,
-body.modo-noite .snout2 {
-    background-color: #c4a830 !important;
-}
-
-body.modo-noite .snout1small,
-body.modo-noite .snout2small {
-    background-color: #c4a830 !important;
-}
-
-body.modo-noite #contador-segundas {
-    background: rgba(255,255,255,0.08);
-    border-color: rgba(255,255,255,0.2);
-    color: #ccc;
-}
-
-body.modo-noite #hora-garfield {
-    background: rgba(255,255,255,0.08);
-    border-color: rgba(255,255,255,0.15);
-    color: #e0d0ff;
-}
-
-body.modo-noite .rede-link {
-    background: rgba(255,255,255,0.1);
-    color: #ccc;
-}
-
-body.modo-noite .rede-link:hover {
-    background: rgba(255,255,255,0.2);
-    color: #fff;
-}
-
-/* Estrelinhas à noite */
-body.modo-noite::before {
-    content: '★ ✦ ★ ✦ ★ ✦ ★ ✦ ★ ✦ ★ ✦ ★ ✦ ★ ✦ ★';
-    position: fixed;
-    top: 20px;
-    left: 0;
-    right: 0;
-    text-align: center;
-    color: rgba(255,255,255,0.25);
-    font-size: 12px;
-    letter-spacing: 20px;
-    pointer-events: none;
-}
-
-body.modo-crepusculo .garfield,
-body.modo-crepusculo .face {
-    background: #e8742a !important;
-}
-
-body.modo-crepusculo .eye.left,
-body.modo-crepusculo .eye.right {
-    background: #e8742a !important;
-}
-
-body.modo-crepusculo .snout1,
-body.modo-crepusculo .snout2 {
-    background-color: #f5e87a !important;
-}
-
-body.modo-crepusculo .snout1small,
-body.modo-crepusculo .snout2small {
-    background-color: #f5e87a !important;
-}
-
 
 /* =============================================
    HORA ATUAL
    ============================================= */
 #hora-garfield {
     position: fixed;
-    top: 20px;
+    top: 16px;
     left: 50%;
     transform: translateX(-50%);
-    background: rgba(255,255,255,0.25);
-    border: 2px solid rgba(0,0,0,0.15);
+    background: rgba(255,255,255,0.28);
+    border: 2px solid rgba(0,0,0,0.12);
     border-radius: 30px;
-    padding: 8px 22px;
+    padding: 7px 18px;
     font-family: 'Permanent Marker', cursive;
-    font-size: 15px;
+    font-size: clamp(10px, 2.5vw, 15px);
     color: #3a1a00;
     white-space: nowrap;
     z-index: 9999;
     backdrop-filter: blur(4px);
-    letter-spacing: 0.3px;
-    transition: color 2s ease, background 2s ease, border-color 2s ease;
+    max-width: 90vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
-
 
 /* =============================================
    CONTADOR DE SEGUNDAS
    ============================================= */
 #contador-segundas {
     position: fixed;
-    bottom: 30px;
-    left: 30px;
-    background: rgba(255,255,255,0.25);
-    border: 2px solid rgba(0,0,0,0.15);
+    bottom: 24px;
+    left: 20px;
+    background: rgba(255,255,255,0.28);
+    border: 2px solid rgba(0,0,0,0.12);
     border-radius: 16px;
-    padding: 12px 20px;
+    padding: 10px 16px;
     z-index: 9999;
     text-align: center;
     backdrop-filter: blur(4px);
-    transition: background 2s ease, border-color 2s ease;
 }
 
 #num-segundas {
     display: block;
     font-family: 'Permanent Marker', cursive;
-    font-size: 28px;
+    font-size: clamp(20px, 5vw, 28px);
     color: #3a1a00;
     line-height: 1;
 }
@@ -156,29 +64,20 @@ body.modo-crepusculo .snout2small {
 #label-segundas {
     display: block;
     font-family: 'Patrick Hand', cursive;
-    font-size: 11px;
+    font-size: clamp(9px, 2vw, 11px);
     color: #3a1a00cc;
     margin-top: 3px;
     text-transform: uppercase;
     letter-spacing: 1px;
 }
 
-body.modo-noite #num-segundas,
-body.modo-noite #label-segundas {
-    color: #ddd;
-}
-
-
 /* =============================================
-   REDES SOCIAIS
+   REDES SOCIAIS (só Instagram)
    ============================================= */
 #redes-sociais {
     position: fixed;
-    bottom: 30px;
-    right: 30px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+    bottom: 24px;
+    right: 20px;
     z-index: 9999;
 }
 
@@ -193,13 +92,13 @@ body.modo-noite #label-segundas {
     justify-content: center;
     color: #3a1a00;
     text-decoration: none;
-    transition: transform 0.2s ease, background 0.2s ease, color 2s ease, border-color 2s ease;
+    transition: transform 0.2s ease, background 0.2s ease;
     backdrop-filter: blur(4px);
 }
 
 .rede-link svg {
-    width: 20px;
-    height: 20px;
+    width: 22px;
+    height: 22px;
 }
 
 .rede-link:hover {
@@ -207,24 +106,23 @@ body.modo-noite #label-segundas {
     background: rgba(255,255,255,0.55);
 }
 
-
 /* =============================================
    BALÃO DE FALA
    ============================================= */
 #balao-fala {
     position: fixed;
-    top: 70px;
+    top: 64px;
     left: 50%;
     transform: translateX(-50%);
     background: #fffde7;
     border: 3px solid #1a1a1a;
     border-radius: 20px;
-    padding: 14px 22px;
-    max-width: 320px;
-    min-width: 160px;
+    padding: 12px 20px;
+    max-width: min(320px, 85vw);
+    min-width: 140px;
     text-align: center;
     font-family: 'Permanent Marker', cursive;
-    font-size: 15px;
+    font-size: clamp(12px, 3.5vw, 15px);
     color: #1a1a1a;
     z-index: 99999;
     box-shadow: 4px 4px 0 #1a1a1a;
@@ -266,7 +164,6 @@ body.modo-noite #label-segundas {
     border-top: 16px solid #fffde7;
 }
 
-
 /* =============================================
    NARIZ CLICÁVEL
    ============================================= */
@@ -275,25 +172,12 @@ body.modo-noite #label-segundas {
     transition: transform 0.15s ease;
 }
 
-.nose:hover {
-    transform: scale(1.15);
-}
-
-.nose:active {
-    transform: scale(0.92);
-}
-
+.nose:hover { transform: scale(1.15); }
+.nose:active { transform: scale(0.92); }
 
 /* =============================================
    PISCAR PREGUIÇOSO
    ============================================= */
-@keyframes piscar {
-    0%   { clip-path: inset(0 0 0 0); }
-    30%  { clip-path: inset(0 0 100% 0); }
-    60%  { clip-path: inset(0 0 100% 0); }
-    100% { clip-path: inset(0 0 0 0); }
-}
-
 .eye.left.piscando::before,
 .eye.right.piscando::before {
     animation: piscar-palpebra 0.4s ease forwards;
@@ -306,22 +190,27 @@ body.modo-noite #label-segundas {
     100% { top: 163px; }
 }
 
-
 /* =============================================
-   GARFIELD — CSS ORIGINAL (sem alterações)
+   GARFIELD — WRAPPER RESPONSIVO
    ============================================= */
 .garfield {
-    position: absolute;
-    margin: 0;
+    position: fixed;
     top: 0;
     left: 0;
-    bottom: 0;
-    right: 0;
     width: 100%;
     height: 100%;
     background: #fba919;
-    transform: scale(1.3);
-    transition: background 2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* O rosto tem tamanho fixo em px (CSS original)
+   mas o wrapper .garfield-inner vai escalar via JS */
+.garfield-inner {
+    position: relative;
+    width: 350px;
+    height: 350px;
 }
 
 .face {
@@ -329,10 +218,7 @@ body.modo-noite #label-segundas {
     height: 350px;
     position: absolute;
     top: 0;
-    bottom: 0;
     left: 0;
-    right: 0;
-    margin: auto;
     z-index: 0;
     overflow: hidden;
 }
@@ -353,8 +239,7 @@ body.modo-noite #label-segundas {
 }
 
 .triangle1 {
-    width: 0;
-    height: 0;
+    width: 0; height: 0;
     border-left: 3px solid transparent;
     border-right: 3px solid transparent;
     border-top: 5px solid #010101;
@@ -363,10 +248,8 @@ body.modo-noite #label-segundas {
 }
 
 .triangle2 {
-    width: 0;
-    height: 0;
-    left: 12px;
-    top: 10px;
+    width: 0; height: 0;
+    left: 12px; top: 10px;
     border-left: 3px solid transparent;
     border-right: 3px solid transparent;
     border-top: 5px solid #010101;
@@ -375,10 +258,8 @@ body.modo-noite #label-segundas {
 }
 
 .triangle3 {
-    width: 0;
-    height: 0;
-    left: 8px;
-    top: 22px;
+    width: 0; height: 0;
+    left: 8px; top: 22px;
     border-left: 3px solid transparent;
     border-right: 3px solid transparent;
     border-top: 5px solid #010101;
@@ -388,26 +269,21 @@ body.modo-noite #label-segundas {
 
 .eye.left {
     position: absolute;
-    top: 38px;
-    left: 62px;
-    width: 110px;
-    height: 196px;
+    top: 38px; left: 62px;
+    width: 110px; height: 196px;
     background: #fba919;
     border-radius: 65% 35% 0% 55%/50% 15% 50% 50%;
     border: 3px solid #010101;
     overflow: hidden;
     z-index: 1;
-    transition: background 2s ease;
 }
 
 .eye.left::after {
     display: block;
     position: relative;
-    width: 150px;
-    height: 210px;
+    width: 150px; height: 210px;
     content: "";
-    top: -50px;
-    left: 5px;
+    top: -50px; left: 5px;
     border: solid 3px #010101;
     border-color: #000 transparent transparent transparent;
     border-radius: 100px 100px 0% 0%/5%;
@@ -418,8 +294,7 @@ body.modo-noite #label-segundas {
     content: "";
     position: absolute;
     top: 163px;
-    width: 150px;
-    height: 210px;
+    width: 150px; height: 210px;
     border-radius: 100px 100px 0% 0%/0%;
     transform: rotate(5deg);
     background: #fff;
@@ -430,11 +305,9 @@ body.modo-noite #label-segundas {
     background-color: #010101;
     display: block;
     left: 83px;
-    content: "";
     position: absolute;
     top: 166px;
-    width: 24px;
-    height: 10px;
+    width: 24px; height: 10px;
     border-radius: 0% 0% 50% 50%/0 0 100% 100%;
 }
 
@@ -444,8 +317,7 @@ body.modo-noite #label-segundas {
     left: 3px;
     position: absolute;
     top: 166px;
-    width: 24px;
-    height: 10px;
+    width: 24px; height: 10px;
     border-radius: 0% 0% 50% 50%/0 0 100% 100%;
     z-index: 1;
 }
@@ -453,11 +325,9 @@ body.modo-noite #label-segundas {
 .eye.right::after {
     display: block;
     position: relative;
-    width: 150px;
-    height: 210px;
+    width: 150px; height: 210px;
     content: "";
-    top: -50px;
-    left: -25px;
+    top: -50px; left: -25px;
     border: solid 3px #010101;
     border-color: #000 transparent transparent transparent;
     border-radius: 100px 100px 0% 0%/5%;
@@ -468,8 +338,7 @@ body.modo-noite #label-segundas {
     content: "";
     position: absolute;
     top: 162px;
-    width: 150px;
-    height: 210px;
+    width: 150px; height: 210px;
     border-radius: 100px 100px 0% 0%/0%;
     transform: rotate(-4deg);
     background: #fff;
@@ -478,24 +347,19 @@ body.modo-noite #label-segundas {
 
 .eye.right {
     position: absolute;
-    left: 175px;
-    top: 38px;
-    width: 110px;
-    height: 196px;
+    left: 175px; top: 38px;
+    width: 110px; height: 196px;
     border-radius: 35% 65% 55% 0%/15% 50% 50% 50%;
     background: #fba919;
     border: 3px solid #010101;
     overflow: hidden;
     z-index: 1;
-    transition: background 2s ease;
 }
 
 .nose {
     position: absolute;
-    top: 225px;
-    left: 150px;
-    width: 45px;
-    height: 25px;
+    top: 225px; left: 150px;
+    width: 45px; height: 25px;
     background: #fbbfcb;
     border-radius: 100%;
     border: 3px solid #000200;
@@ -503,13 +367,11 @@ body.modo-noite #label-segundas {
 }
 
 .snout1 {
-    width: 80px;
-    height: 50px;
+    width: 80px; height: 50px;
     background-color: #fffd78;
     border: 3px solid #010101;
     position: absolute;
-    top: 220px;
-    left: 80px;
+    top: 220px; left: 80px;
     border-right-color: transparent;
     border-radius: 50%;
     transform: rotate(-25deg);
@@ -520,12 +382,10 @@ body.modo-noite #label-segundas {
 }
 
 .snout1small {
-    width: 60px;
-    height: 15px;
+    width: 60px; height: 15px;
     background-color: #fffd78;
     position: absolute;
-    top: 255px;
-    left: 122px;
+    top: 255px; left: 122px;
     border-radius: 50%;
     transform: rotate(140deg) scaleX(-1);
     border-top-left-radius: 50% 100%;
@@ -540,12 +400,10 @@ body.modo-noite #label-segundas {
 }
 
 .snout2 {
-    width: 80px;
-    height: 50px;
+    width: 80px; height: 50px;
     background-color: #fffd78;
     position: absolute;
-    top: 220px;
-    left: 185px;
+    top: 220px; left: 185px;
     border-radius: 50%;
     transform: rotate(205deg);
     border-top-left-radius: 100% 100%;
@@ -557,12 +415,10 @@ body.modo-noite #label-segundas {
 }
 
 .snout2small {
-    width: 60px;
-    height: 15px;
+    width: 60px; height: 15px;
     background-color: #fffd78;
     position: absolute;
-    top: 255px;
-    left: 165px;
+    top: 255px; left: 165px;
     border-radius: 50%;
     transform: rotate(220deg);
     border-top-left-radius: 50% 100%;
@@ -578,8 +434,7 @@ body.modo-noite #label-segundas {
 
 .whisker8 {
     transform: scaleX(-1) scale(0.7) rotate(30deg);
-    top: -145px;
-    left: 435px;
+    top: -145px; left: 435px;
     position: absolute;
     z-index: 999;
     -webkit-transform: scaleX(-1) scale(0.7) rotate(30deg);
@@ -587,56 +442,49 @@ body.modo-noite #label-segundas {
 
 .whisker7 {
     transform: scaleX(-1) rotate(5deg);
-    top: -85px;
-    left: 640px;
+    top: -85px; left: 640px;
     position: absolute;
     z-index: 999;
 }
 
 .whisker6 {
     transform: scaleX(-1) rotate(-15deg);
-    top: 100px;
-    left: 700px;
+    top: 100px; left: 700px;
     position: absolute;
     z-index: 999;
 }
 
 .whisker5 {
     transform: scaleX(-1) rotate(-45deg);
-    top: 375px;
-    left: 675px;
+    top: 375px; left: 675px;
     position: absolute;
     z-index: 999;
 }
 
 .whisker4 {
     transform: rotate(30deg) scale(0.7);
-    top: -145px;
-    left: -85px;
+    top: -145px; left: -85px;
     position: absolute;
     z-index: 999;
 }
 
 .whisker3 {
     transform: rotate(5deg);
-    top: -85px;
-    left: -290px;
+    top: -85px; left: -290px;
     position: absolute;
     z-index: 999;
 }
 
 .whisker2 {
     transform: rotate(-15deg);
-    top: 100px;
-    left: -350px;
+    top: 100px; left: -350px;
     position: absolute;
     z-index: 999;
 }
 
 .whisker1 {
     transform: rotate(-45deg);
-    top: 375px;
-    left: -325px;
+    top: 375px; left: -325px;
     position: absolute;
     z-index: 999;
 }
@@ -644,14 +492,12 @@ body.modo-noite #label-segundas {
 .stripes1 { position: absolute; }
 
 .stripe1 {
-    width: 12px;
-    height: 40px;
+    width: 12px; height: 40px;
     border-top: 10px solid #010101;
     background: #010101;
     border-radius: 60px 0% 100% 100%/200px 0% 100% 100%;
     position: absolute;
-    left: 319px;
-    top: 180px;
+    left: 319px; top: 180px;
     overflow: hidden;
 }
 
@@ -661,8 +507,7 @@ body.modo-noite #label-segundas {
     left: 320px;
     position: absolute;
     top: 225px;
-    width: 11px;
-    height: 10px;
+    width: 11px; height: 10px;
     border-radius: 0 0 50% 50%/0 0 100% 100%;
     transform: rotate(355deg);
 }
@@ -670,19 +515,16 @@ body.modo-noite #label-segundas {
 .stripes2 {
     transform: scale(0.8);
     position: absolute;
-    left: 78px;
-    top: 42px;
+    left: 78px; top: 42px;
 }
 
 .stripe2 {
-    width: 12px;
-    height: 40px;
+    width: 12px; height: 40px;
     border-top: 10px solid #010101;
     background: #010101;
     border-radius: 60px 0% 100% 100%/200px 0% 100% 100%;
     position: absolute;
-    left: 319px;
-    top: 180px;
+    left: 319px; top: 180px;
     overflow: hidden;
 }
 
@@ -692,8 +534,7 @@ body.modo-noite #label-segundas {
     left: 320px;
     position: absolute;
     top: 225px;
-    width: 11px;
-    height: 10px;
+    width: 11px; height: 10px;
     border-radius: 0 0 50% 50%/0 0 100% 100%;
     transform: rotate(355deg);
 }
@@ -701,19 +542,16 @@ body.modo-noite #label-segundas {
 .stripes3 {
     transform: scale(0.6);
     position: absolute;
-    left: 154px;
-    top: 84px;
+    left: 154px; top: 84px;
 }
 
 .stripe3 {
-    width: 12px;
-    height: 40px;
+    width: 12px; height: 40px;
     border-top: 10px solid #010101;
     background: #010101;
     border-radius: 60px 0% 100% 100%/200px 0% 100% 100%;
     position: absolute;
-    left: 319px;
-    top: 180px;
+    left: 319px; top: 180px;
     overflow: hidden;
 }
 
@@ -723,8 +561,7 @@ body.modo-noite #label-segundas {
     left: 320px;
     position: absolute;
     top: 225px;
-    width: 11px;
-    height: 10px;
+    width: 11px; height: 10px;
     border-radius: 0 0 50% 50%/0 0 100% 100%;
     transform: rotate(355deg);
 }
@@ -732,19 +569,16 @@ body.modo-noite #label-segundas {
 .stripes4 {
     transform: scale(0.3);
     position: absolute;
-    left: 260px;
-    top: 148px;
+    left: 260px; top: 148px;
 }
 
 .stripe4 {
-    width: 12px;
-    height: 40px;
+    width: 12px; height: 40px;
     border-top: 10px solid #010101;
     background: #010101;
     border-radius: 60px 0% 100% 100%/200px 0% 100% 100%;
     position: absolute;
-    left: 319px;
-    top: 180px;
+    left: 319px; top: 180px;
     overflow: hidden;
 }
 
@@ -754,27 +588,16 @@ body.modo-noite #label-segundas {
     left: 320px;
     position: absolute;
     top: 225px;
-    width: 11px;
-    height: 10px;
+    width: 11px; height: 10px;
     border-radius: 0 0 50% 50%/0 0 100% 100%;
     transform: rotate(355deg);
 }
 
-.whisker.right {
-    transform: rotate(-1deg);
-    background: #010101;
-    width: 30px;
-    height: 3px;
-    position: absolute;
-    left: 20px;
-    border-radius: 50%;
-}
-
+.whisker.right,
 .whisker.left {
     transform: rotate(-1deg);
     background: #010101;
-    width: 30px;
-    height: 3px;
+    width: 30px; height: 3px;
     position: absolute;
     left: 20px;
     border-radius: 50%;
@@ -782,10 +605,8 @@ body.modo-noite #label-segundas {
 
 .mouth {
     position: absolute;
-    top: 260px;
-    left: 143px;
-    width: 60px;
-    height: 20px;
+    top: 260px; left: 143px;
+    width: 60px; height: 20px;
     border-bottom: 3px solid #010101;
     border-radius: 0 0 50% 50%;
 }
