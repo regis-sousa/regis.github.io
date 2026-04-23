@@ -1,4 +1,24 @@
 // =============================================
+// ESCALA RESPONSIVA DO GARFIELD
+// =============================================
+function ajustarEscala() {
+    const inner = document.querySelector('.garfield-inner');
+    if (!inner) return;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    // O rosto ocupa aprox 350px + bigodes estendem ~350px pra cada lado
+    // Área total do desenho: ~1050px de largura, ~500px de altura
+    const escalaW = vw / 1050;
+    const escalaH = vh / 520;
+    const escala = Math.min(escalaW, escalaH, 1.3); // máx 1.3 como original
+    inner.style.transform = `scale(${escala})`;
+    inner.style.transformOrigin = 'center center';
+}
+ajustarEscala();
+window.addEventListener('resize', ajustarEscala);
+
+
+// =============================================
 // PISCAR PREGUIÇOSO
 // =============================================
 function piscarOlhos() {
@@ -10,7 +30,7 @@ function piscarOlhos() {
 }
 
 function agendarPiscar() {
-    const espera = Math.random() * 5000 + 3000; // entre 3s e 8s
+    const espera = Math.random() * 5000 + 3000;
     setTimeout(() => {
         piscarOlhos();
         agendarPiscar();
@@ -58,25 +78,20 @@ nariz.addEventListener('click', () => {
 
 // =============================================
 // CONTADOR DE SEGUNDAS-FEIRAS ODIADAS
+// desde 10/07/1999
 // =============================================
 function calcularSegundas() {
-    // Garfield surgiu em 19/06/1978
-    const inicio = new Date('1978-06-19');
+    const inicio = new Date('1999-07-10');
     const hoje = new Date();
     const diffMs = hoje - inicio;
     const diffDias = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-    const segundas = Math.floor(diffDias / 7);
-    return segundas;
+    return Math.floor(diffDias / 7);
 }
 
 const numEl = document.getElementById('num-segundas');
 const total = calcularSegundas();
-
-// Animação contando até o número
 let atual = 0;
-const duracao = 2000;
-const intervalo = duracao / total;
-const passo = Math.max(1, Math.floor(total / 100));
+const passo = Math.max(1, Math.floor(total / 80));
 
 const timer = setInterval(() => {
     atual = Math.min(atual + passo, total);
@@ -104,30 +119,8 @@ function atualizarHora() {
     const agora = new Date();
     const hora = agora.getHours();
     const min = String(agora.getMinutes()).padStart(2, '0');
-    const horaEl = document.getElementById('hora-garfield');
-    horaEl.textContent = `🕐 ${hora}:${min} — ${frasePorHora(hora)}`;
+    document.getElementById('hora-garfield').textContent =
+        `🕐 ${hora}:${min} — ${frasePorHora(hora)}`;
 }
 atualizarHora();
 setInterval(atualizarHora, 60000);
-
-
-// =============================================
-// TRANSIÇÃO DIA / NOITE
-// =============================================
-function aplicarModo() {
-    const hora = new Date().getHours();
-    const isNoite = hora >= 20 || hora < 6;
-    const isCrepusculo = (hora >= 18 && hora < 20) || (hora >= 6 && hora < 8);
-
-    document.body.classList.remove('modo-dia', 'modo-noite', 'modo-crepusculo');
-
-    if (isNoite) {
-        document.body.classList.add('modo-noite');
-    } else if (isCrepusculo) {
-        document.body.classList.add('modo-crepusculo');
-    } else {
-        document.body.classList.add('modo-dia');
-    }
-}
-aplicarModo();
-setInterval(aplicarModo, 60000);
