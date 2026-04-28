@@ -146,7 +146,7 @@ setInterval(atualizarHora, 1000);
 // =============================================
 // POPUP SPOTIFY
 // =============================================
-const SPOTIFY_URL = 'https://spotify-github-profile.kittinanx.com/api/view?uid=tpnafc14jlu52tv13awuftc0w&cover_image=true&theme=default&show_offline=false&background_color=121212&interchange=false&profanity=false&bar_color=53b14f&bar_color_cover=false';
+const SPOTIFY_URL = 'https://spotify-github-profile.kittinanx.com/api/view?uid=tpnafc14jlu52tv13awuftc0w&cover_image=true&theme=default&show_offline=true&background_color=121212&interchange=false&profanity=false&bar_color=53b14f&bar_color_cover=false';
 
 const btnSpotify = document.getElementById('btn-spotify');
 const overlay = document.getElementById('spotify-overlay');
