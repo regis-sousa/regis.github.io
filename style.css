@@ -72,13 +72,16 @@ body {
 }
 
 /* =============================================
-   REDES SOCIAIS (só Instagram)
+   REDES SOCIAIS
    ============================================= */
 #redes-sociais {
     position: fixed;
     bottom: 24px;
     right: 20px;
     z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
 .rede-link {
@@ -92,6 +95,7 @@ body {
     justify-content: center;
     color: #3a1a00;
     text-decoration: none;
+    cursor: pointer;
     transition: transform 0.2s ease, background 0.2s ease;
     backdrop-filter: blur(4px);
 }
@@ -104,6 +108,104 @@ body {
 .rede-link:hover {
     transform: scale(1.15) rotate(-5deg);
     background: rgba(255,255,255,0.55);
+}
+
+/* =============================================
+   POPUP SPOTIFY
+   ============================================= */
+#spotify-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 99998;
+    backdrop-filter: blur(3px);
+    transition: opacity 0.3s ease;
+}
+
+#spotify-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.95);
+    background: #121212;
+    border-radius: 20px;
+    padding: 24px 24px 20px;
+    z-index: 99999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    min-width: 280px;
+    max-width: 90vw;
+}
+
+#spotify-popup.aparecendo {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+}
+
+#spotify-popup.escondido {
+    opacity: 0;
+    pointer-events: none;
+}
+
+#spotify-overlay.escondido {
+    opacity: 0;
+    pointer-events: none;
+}
+
+#popup-label {
+    font-family: 'Permanent Marker', cursive;
+    font-size: 14px;
+    color: #aaa;
+    letter-spacing: 1px;
+    text-transform: lowercase;
+}
+
+#spotify-img {
+    width: 100%;
+    max-width: 300px;
+    border-radius: 12px;
+    display: block;
+}
+
+#fechar-popup {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    background: none;
+    border: none;
+    color: #666;
+    font-size: 18px;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.2s ease;
+}
+
+#fechar-popup:hover {
+    color: #fff;
+}
+
+#btn-perfil-spotify {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #1DB954;
+    color: #000;
+    text-decoration: none;
+    border-radius: 999px;
+    padding: 8px 20px;
+    font-family: 'Patrick Hand', cursive;
+    font-size: 14px;
+    font-weight: 600;
+    transition: transform 0.2s ease, background 0.2s ease;
+}
+
+#btn-perfil-spotify:hover {
+    background: #1ed760;
+    transform: scale(1.05);
 }
 
 /* =============================================
@@ -124,7 +226,7 @@ body {
     font-family: 'Permanent Marker', cursive;
     font-size: clamp(12px, 3.5vw, 15px);
     color: #1a1a1a;
-    z-index: 99999;
+    z-index: 99997;
     box-shadow: 4px 4px 0 #1a1a1a;
     transition: opacity 0.3s ease, transform 0.3s ease;
 }
@@ -176,442 +278,6 @@ body {
 .nose:active { transform: scale(0.92); }
 
 /* =============================================
-   PISCAR PREGUIÇOSO
-   ============================================= */
-.eye.left.piscando::before,
-.eye.right.piscando::before {
-    animation: piscar-palpebra 0.4s ease forwards;
-}
-
-@keyframes piscar-palpebra {
-    0%   { top: 163px; }
-    30%  { top: 30px; }
-    60%  { top: 30px; }
-    100% { top: 163px; }
-}
-
-/* =============================================
-   GARFIELD — WRAPPER RESPONSIVO
-   ============================================= */
-.garfield {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: #fba919;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* O rosto tem tamanho fixo em px (CSS original)
-   mas o wrapper .garfield-inner vai escalar via JS */
-.garfield-inner {
-    position: relative;
-    width: 350px;
-    height: 350px;
-}
-
-.face {
-    width: 350px;
-    height: 350px;
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 0;
-    overflow: hidden;
-}
-
-#triangle-right {
-    position: absolute;
-    z-index: 999;
-    top: 244px;
-    left: 240px;
-}
-
-#triangle-left {
-    position: absolute;
-    z-index: 999;
-    top: 244px;
-    left: 110px;
-    transform: scaleX(-1);
-}
-
-.triangle1 {
-    width: 0; height: 0;
-    border-left: 3px solid transparent;
-    border-right: 3px solid transparent;
-    border-top: 5px solid #010101;
-    position: absolute;
-    z-index: 999;
-}
-
-.triangle2 {
-    width: 0; height: 0;
-    left: 12px; top: 10px;
-    border-left: 3px solid transparent;
-    border-right: 3px solid transparent;
-    border-top: 5px solid #010101;
-    position: absolute;
-    z-index: 999;
-}
-
-.triangle3 {
-    width: 0; height: 0;
-    left: 8px; top: 22px;
-    border-left: 3px solid transparent;
-    border-right: 3px solid transparent;
-    border-top: 5px solid #010101;
-    position: absolute;
-    z-index: 999;
-}
-
-.eye.left {
-    position: absolute;
-    top: 38px; left: 62px;
-    width: 110px; height: 196px;
-    background: #fba919;
-    border-radius: 65% 35% 0% 55%/50% 15% 50% 50%;
-    border: 3px solid #010101;
-    overflow: hidden;
-    z-index: 1;
-}
-
-.eye.left::after {
-    display: block;
-    position: relative;
-    width: 150px; height: 210px;
-    content: "";
-    top: -50px; left: 5px;
-    border: solid 3px #010101;
-    border-color: #000 transparent transparent transparent;
-    border-radius: 100px 100px 0% 0%/5%;
-    transform: rotate(185deg);
-}
-
-.eye.left::before {
-    content: "";
-    position: absolute;
-    top: 163px;
-    width: 150px; height: 210px;
-    border-radius: 100px 100px 0% 0%/0%;
-    transform: rotate(5deg);
-    background: #fff;
-    transition: top 0.4s ease;
-}
-
-.eyeball1 {
-    background-color: #010101;
-    display: block;
-    left: 83px;
-    position: absolute;
-    top: 166px;
-    width: 24px; height: 10px;
-    border-radius: 0% 0% 50% 50%/0 0 100% 100%;
-}
-
-.eyeball2 {
-    background-color: #010101;
-    display: block;
-    left: 3px;
-    position: absolute;
-    top: 166px;
-    width: 24px; height: 10px;
-    border-radius: 0% 0% 50% 50%/0 0 100% 100%;
-    z-index: 1;
-}
-
-.eye.right::after {
-    display: block;
-    position: relative;
-    width: 150px; height: 210px;
-    content: "";
-    top: -50px; left: -25px;
-    border: solid 3px #010101;
-    border-color: #000 transparent transparent transparent;
-    border-radius: 100px 100px 0% 0%/5%;
-    transform: rotate(-185deg);
-}
-
-.eye.right::before {
-    content: "";
-    position: absolute;
-    top: 162px;
-    width: 150px; height: 210px;
-    border-radius: 100px 100px 0% 0%/0%;
-    transform: rotate(-4deg);
-    background: #fff;
-    transition: top 0.4s ease;
-}
-
-.eye.right {
-    position: absolute;
-    left: 175px; top: 38px;
-    width: 110px; height: 196px;
-    border-radius: 35% 65% 55% 0%/15% 50% 50% 50%;
-    background: #fba919;
-    border: 3px solid #010101;
-    overflow: hidden;
-    z-index: 1;
-}
-
-.nose {
-    position: absolute;
-    top: 225px; left: 150px;
-    width: 45px; height: 25px;
-    background: #fbbfcb;
-    border-radius: 100%;
-    border: 3px solid #000200;
-    z-index: 1;
-}
-
-.snout1 {
-    width: 80px; height: 50px;
-    background-color: #fffd78;
-    border: 3px solid #010101;
-    position: absolute;
-    top: 220px; left: 80px;
-    border-right-color: transparent;
-    border-radius: 50%;
-    transform: rotate(-25deg);
-    border-top-left-radius: 100% 100%;
-    border-top-right-radius: 100% 40%;
-    border-bottom-left-radius: 100% 100%;
-    border-bottom-right-radius: 12% 100%;
-}
-
-.snout1small {
-    width: 60px; height: 15px;
-    background-color: #fffd78;
-    position: absolute;
-    top: 255px; left: 122px;
-    border-radius: 50%;
-    transform: rotate(140deg) scaleX(-1);
-    border-top-left-radius: 50% 100%;
-    border-top-right-radius: 0% 50%;
-    border-bottom-left-radius: 50% 100%;
-    border-bottom-right-radius: 0% 100%;
-    border-left: 3px solid #010101;
-    border-right-color: transparent;
-    border-top-color: transparent;
-    border-bottom-color: transparent;
-    overflow: hidden;
-}
-
-.snout2 {
-    width: 80px; height: 50px;
-    background-color: #fffd78;
-    position: absolute;
-    top: 220px; left: 185px;
-    border-radius: 50%;
-    transform: rotate(205deg);
-    border-top-left-radius: 100% 100%;
-    border-top-right-radius: 0% 100%;
-    border-bottom-left-radius: 100% 100%;
-    border-bottom-right-radius: 0% 100%;
-    border: 3px solid #010101;
-    border-right-color: transparent;
-}
-
-.snout2small {
-    width: 60px; height: 15px;
-    background-color: #fffd78;
-    position: absolute;
-    top: 255px; left: 165px;
-    border-radius: 50%;
-    transform: rotate(220deg);
-    border-top-left-radius: 50% 100%;
-    border-top-right-radius: 0% 50%;
-    border-bottom-left-radius: 50% 100%;
-    border-bottom-right-radius: 0% 100%;
-    border-left: 3px solid #010101;
-    border-right-color: transparent;
-    border-top-color: transparent;
-    border-bottom-color: transparent;
-    overflow: hidden;
-}
-
-.whisker8 {
-    transform: scaleX(-1) scale(0.7) rotate(30deg);
-    top: -145px; left: 435px;
-    position: absolute;
-    z-index: 999;
-    -webkit-transform: scaleX(-1) scale(0.7) rotate(30deg);
-}
-
-.whisker7 {
-    transform: scaleX(-1) rotate(5deg);
-    top: -85px; left: 640px;
-    position: absolute;
-    z-index: 999;
-}
-
-.whisker6 {
-    transform: scaleX(-1) rotate(-15deg);
-    top: 100px; left: 700px;
-    position: absolute;
-    z-index: 999;
-}
-
-.whisker5 {
-    transform: scaleX(-1) rotate(-45deg);
-    top: 375px; left: 675px;
-    position: absolute;
-    z-index: 999;
-}
-
-.whisker4 {
-    transform: rotate(30deg) scale(0.7);
-    top: -145px; left: -85px;
-    position: absolute;
-    z-index: 999;
-}
-
-.whisker3 {
-    transform: rotate(5deg);
-    top: -85px; left: -290px;
-    position: absolute;
-    z-index: 999;
-}
-
-.whisker2 {
-    transform: rotate(-15deg);
-    top: 100px; left: -350px;
-    position: absolute;
-    z-index: 999;
-}
-
-.whisker1 {
-    transform: rotate(-45deg);
-    top: 375px; left: -325px;
-    position: absolute;
-    z-index: 999;
-}
-
-.stripes1 { position: absolute; }
-
-.stripe1 {
-    width: 12px; height: 40px;
-    border-top: 10px solid #010101;
-    background: #010101;
-    border-radius: 60px 0% 100% 100%/200px 0% 100% 100%;
-    position: absolute;
-    left: 319px; top: 180px;
-    overflow: hidden;
-}
-
-.stripeA {
-    background-color: #010101;
-    display: block;
-    left: 320px;
-    position: absolute;
-    top: 225px;
-    width: 11px; height: 10px;
-    border-radius: 0 0 50% 50%/0 0 100% 100%;
-    transform: rotate(355deg);
-}
-
-.stripes2 {
-    transform: scale(0.8);
-    position: absolute;
-    left: 78px; top: 42px;
-}
-
-.stripe2 {
-    width: 12px; height: 40px;
-    border-top: 10px solid #010101;
-    background: #010101;
-    border-radius: 60px 0% 100% 100%/200px 0% 100% 100%;
-    position: absolute;
-    left: 319px; top: 180px;
-    overflow: hidden;
-}
-
-.stripeB {
-    background-color: #010101;
-    display: block;
-    left: 320px;
-    position: absolute;
-    top: 225px;
-    width: 11px; height: 10px;
-    border-radius: 0 0 50% 50%/0 0 100% 100%;
-    transform: rotate(355deg);
-}
-
-.stripes3 {
-    transform: scale(0.6);
-    position: absolute;
-    left: 154px; top: 84px;
-}
-
-.stripe3 {
-    width: 12px; height: 40px;
-    border-top: 10px solid #010101;
-    background: #010101;
-    border-radius: 60px 0% 100% 100%/200px 0% 100% 100%;
-    position: absolute;
-    left: 319px; top: 180px;
-    overflow: hidden;
-}
-
-.stripeC {
-    background-color: #010101;
-    display: block;
-    left: 320px;
-    position: absolute;
-    top: 225px;
-    width: 11px; height: 10px;
-    border-radius: 0 0 50% 50%/0 0 100% 100%;
-    transform: rotate(355deg);
-}
-
-.stripes4 {
-    transform: scale(0.3);
-    position: absolute;
-    left: 260px; top: 148px;
-}
-
-.stripe4 {
-    width: 12px; height: 40px;
-    border-top: 10px solid #010101;
-    background: #010101;
-    border-radius: 60px 0% 100% 100%/200px 0% 100% 100%;
-    position: absolute;
-    left: 319px; top: 180px;
-    overflow: hidden;
-}
-
-.stripeD {
-    background-color: #010101;
-    display: block;
-    left: 320px;
-    position: absolute;
-    top: 225px;
-    width: 11px; height: 10px;
-    border-radius: 0 0 50% 50%/0 0 100% 100%;
-    transform: rotate(355deg);
-}
-
-.whisker.right,
-.whisker.left {
-    transform: rotate(-1deg);
-    background: #010101;
-    width: 30px; height: 3px;
-    position: absolute;
-    left: 20px;
-    border-radius: 50%;
-}
-
-.mouth {
-    position: absolute;
-    top: 260px; left: 143px;
-    width: 60px; height: 20px;
-    border-bottom: 3px solid #010101;
-    border-radius: 0 0 50% 50%;
-}
-
-/* =============================================
    DICA DO NARIZ
    ============================================= */
 #dica-nariz {
@@ -644,7 +310,183 @@ body {
     pointer-events: none;
 }
 
-/* Redes sociais em coluna (Instagram + Spotify) */
-#redes-sociais {
-    flex-direction: column;
+/* =============================================
+   PISCAR PREGUIÇOSO
+   ============================================= */
+.eye.left.piscando::before,
+.eye.right.piscando::before {
+    animation: piscar-palpebra 0.4s ease forwards;
 }
+
+@keyframes piscar-palpebra {
+    0%   { top: 163px; }
+    30%  { top: 30px; }
+    60%  { top: 30px; }
+    100% { top: 163px; }
+}
+
+/* =============================================
+   GARFIELD — WRAPPER RESPONSIVO
+   ============================================= */
+.garfield {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #fba919;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.garfield-inner {
+    position: relative;
+    width: 350px;
+    height: 350px;
+}
+
+.face {
+    width: 350px;
+    height: 350px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 0;
+    overflow: hidden;
+}
+
+#triangle-right {
+    position: absolute;
+    z-index: 999;
+    top: 244px;
+    left: 240px;
+}
+
+#triangle-left {
+    position: absolute;
+    z-index: 999;
+    top: 244px;
+    left: 110px;
+    transform: scaleX(-1);
+}
+
+.triangle1 { width: 0; height: 0; border-left: 3px solid transparent; border-right: 3px solid transparent; border-top: 5px solid #010101; position: absolute; z-index: 999; }
+.triangle2 { width: 0; height: 0; left: 12px; top: 10px; border-left: 3px solid transparent; border-right: 3px solid transparent; border-top: 5px solid #010101; position: absolute; z-index: 999; }
+.triangle3 { width: 0; height: 0; left: 8px; top: 22px; border-left: 3px solid transparent; border-right: 3px solid transparent; border-top: 5px solid #010101; position: absolute; z-index: 999; }
+
+.eye.left {
+    position: absolute;
+    top: 38px; left: 62px;
+    width: 110px; height: 196px;
+    background: #fba919;
+    border-radius: 65% 35% 0% 55%/50% 15% 50% 50%;
+    border: 3px solid #010101;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.eye.left::after {
+    display: block; position: relative;
+    width: 150px; height: 210px; content: "";
+    top: -50px; left: 5px;
+    border: solid 3px #010101;
+    border-color: #000 transparent transparent transparent;
+    border-radius: 100px 100px 0% 0%/5%;
+    transform: rotate(185deg);
+}
+
+.eye.left::before {
+    content: ""; position: absolute; top: 163px;
+    width: 150px; height: 210px;
+    border-radius: 100px 100px 0% 0%/0%;
+    transform: rotate(5deg);
+    background: #fff;
+    transition: top 0.4s ease;
+}
+
+.eyeball1 {
+    background-color: #010101; display: block;
+    left: 83px; position: absolute; top: 166px;
+    width: 24px; height: 10px;
+    border-radius: 0% 0% 50% 50%/0 0 100% 100%;
+}
+
+.eyeball2 {
+    background-color: #010101; display: block;
+    left: 3px; position: absolute; top: 166px;
+    width: 24px; height: 10px;
+    border-radius: 0% 0% 50% 50%/0 0 100% 100%;
+    z-index: 1;
+}
+
+.eye.right::after {
+    display: block; position: relative;
+    width: 150px; height: 210px; content: "";
+    top: -50px; left: -25px;
+    border: solid 3px #010101;
+    border-color: #000 transparent transparent transparent;
+    border-radius: 100px 100px 0% 0%/5%;
+    transform: rotate(-185deg);
+}
+
+.eye.right::before {
+    content: ""; position: absolute; top: 162px;
+    width: 150px; height: 210px;
+    border-radius: 100px 100px 0% 0%/0%;
+    transform: rotate(-4deg);
+    background: #fff;
+    transition: top 0.4s ease;
+}
+
+.eye.right {
+    position: absolute;
+    left: 175px; top: 38px;
+    width: 110px; height: 196px;
+    border-radius: 35% 65% 55% 0%/15% 50% 50% 50%;
+    background: #fba919;
+    border: 3px solid #010101;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.nose {
+    position: absolute;
+    top: 225px; left: 150px;
+    width: 45px; height: 25px;
+    background: #fbbfcb;
+    border-radius: 100%;
+    border: 3px solid #000200;
+    z-index: 1;
+}
+
+.snout1 { width: 80px; height: 50px; background-color: #fffd78; border: 3px solid #010101; position: absolute; top: 220px; left: 80px; border-right-color: transparent; border-radius: 50%; transform: rotate(-25deg); border-top-left-radius: 100% 100%; border-top-right-radius: 100% 40%; border-bottom-left-radius: 100% 100%; border-bottom-right-radius: 12% 100%; }
+.snout1small { width: 60px; height: 15px; background-color: #fffd78; position: absolute; top: 255px; left: 122px; border-radius: 50%; transform: rotate(140deg) scaleX(-1); border-top-left-radius: 50% 100%; border-top-right-radius: 0% 50%; border-bottom-left-radius: 50% 100%; border-bottom-right-radius: 0% 100%; border-left: 3px solid #010101; border-right-color: transparent; border-top-color: transparent; border-bottom-color: transparent; overflow: hidden; }
+.snout2 { width: 80px; height: 50px; background-color: #fffd78; position: absolute; top: 220px; left: 185px; border-radius: 50%; transform: rotate(205deg); border-top-left-radius: 100% 100%; border-top-right-radius: 0% 100%; border-bottom-left-radius: 100% 100%; border-bottom-right-radius: 0% 100%; border: 3px solid #010101; border-right-color: transparent; }
+.snout2small { width: 60px; height: 15px; background-color: #fffd78; position: absolute; top: 255px; left: 165px; border-radius: 50%; transform: rotate(220deg); border-top-left-radius: 50% 100%; border-top-right-radius: 0% 50%; border-bottom-left-radius: 50% 100%; border-bottom-right-radius: 0% 100%; border-left: 3px solid #010101; border-right-color: transparent; border-top-color: transparent; border-bottom-color: transparent; overflow: hidden; }
+
+.whisker8 { transform: scaleX(-1) scale(0.7) rotate(30deg); top: -145px; left: 435px; position: absolute; z-index: 999; -webkit-transform: scaleX(-1) scale(0.7) rotate(30deg); }
+.whisker7 { transform: scaleX(-1) rotate(5deg); top: -85px; left: 640px; position: absolute; z-index: 999; }
+.whisker6 { transform: scaleX(-1) rotate(-15deg); top: 100px; left: 700px; position: absolute; z-index: 999; }
+.whisker5 { transform: scaleX(-1) rotate(-45deg); top: 375px; left: 675px; position: absolute; z-index: 999; }
+.whisker4 { transform: rotate(30deg) scale(0.7); top: -145px; left: -85px; position: absolute; z-index: 999; }
+.whisker3 { transform: rotate(5deg); top: -85px; left: -290px; position: absolute; z-index: 999; }
+.whisker2 { transform: rotate(-15deg); top: 100px; left: -350px; position: absolute; z-index: 999; }
+.whisker1 { transform: rotate(-45deg); top: 375px; left: -325px; position: absolute; z-index: 999; }
+
+.stripes1 { position: absolute; }
+.stripe1 { width: 12px; height: 40px; border-top: 10px solid #010101; background: #010101; border-radius: 60px 0% 100% 100%/200px 0% 100% 100%; position: absolute; left: 319px; top: 180px; overflow: hidden; }
+.stripeA { background-color: #010101; display: block; left: 320px; position: absolute; top: 225px; width: 11px; height: 10px; border-radius: 0 0 50% 50%/0 0 100% 100%; transform: rotate(355deg); }
+.stripes2 { transform: scale(0.8); position: absolute; left: 78px; top: 42px; }
+.stripe2 { width: 12px; height: 40px; border-top: 10px solid #010101; background: #010101; border-radius: 60px 0% 100% 100%/200px 0% 100% 100%; position: absolute; left: 319px; top: 180px; overflow: hidden; }
+.stripeB { background-color: #010101; display: block; left: 320px; position: absolute; top: 225px; width: 11px; height: 10px; border-radius: 0 0 50% 50%/0 0 100% 100%; transform: rotate(355deg); }
+.stripes3 { transform: scale(0.6); position: absolute; left: 154px; top: 84px; }
+.stripe3 { width: 12px; height: 40px; border-top: 10px solid #010101; background: #010101; border-radius: 60px 0% 100% 100%/200px 0% 100% 100%; position: absolute; left: 319px; top: 180px; overflow: hidden; }
+.stripeC { background-color: #010101; display: block; left: 320px; position: absolute; top: 225px; width: 11px; height: 10px; border-radius: 0 0 50% 50%/0 0 100% 100%; transform: rotate(355deg); }
+.stripes4 { transform: scale(0.3); position: absolute; left: 260px; top: 148px; }
+.stripe4 { width: 12px; height: 40px; border-top: 10px solid #010101; background: #010101; border-radius: 60px 0% 100% 100%/200px 0% 100% 100%; position: absolute; left: 319px; top: 180px; overflow: hidden; }
+.stripeD { background-color: #010101; display: block; left: 320px; position: absolute; top: 225px; width: 11px; height: 10px; border-radius: 0 0 50% 50%/0 0 100% 100%; transform: rotate(355deg); }
+
+.whisker.right, .whisker.left { transform: rotate(-1deg); background: #010101; width: 30px; height: 3px; position: absolute; left: 20px; border-radius: 50%; }
+
+.mouth { position: absolute; top: 260px; left: 143px; width: 60px; height: 20px; border-bottom: 3px solid #010101; border-radius: 0 0 50% 50%; }
