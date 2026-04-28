@@ -80,12 +80,10 @@ let balaoTimeout;
 
 nariz.addEventListener('click', () => {
     esconderDica();
-
     const frase = frases[Math.floor(Math.random() * frases.length)];
     textoBalao.textContent = frase;
     balao.classList.remove('escondido');
     balao.classList.add('aparecendo');
-
     clearTimeout(balaoTimeout);
     balaoTimeout = setTimeout(() => {
         balao.classList.remove('aparecendo');
@@ -143,3 +141,40 @@ function atualizarHora() {
 }
 atualizarHora();
 setInterval(atualizarHora, 1000);
+
+
+// =============================================
+// POPUP SPOTIFY
+// =============================================
+const SPOTIFY_URL = 'https://spotify-github-profile.kittinanx.com/api/view?uid=tpnafc14jlu52tv13awuftc0w&cover_image=true&theme=default&show_offline=false&background_color=121212&interchange=false&profanity=false&bar_color=53b14f&bar_color_cover=false';
+
+const btnSpotify = document.getElementById('btn-spotify');
+const overlay = document.getElementById('spotify-overlay');
+const popup = document.getElementById('spotify-popup');
+const fecharPopup = document.getElementById('fechar-popup');
+const spotifyImg = document.getElementById('spotify-img');
+let intervaloSpotify = null;
+
+function recarregarImagem() {
+    spotifyImg.src = SPOTIFY_URL + '&t=' + Date.now();
+}
+
+function abrirPopup() {
+    recarregarImagem();
+    overlay.classList.remove('escondido');
+    popup.classList.remove('escondido');
+    popup.classList.add('aparecendo');
+    intervaloSpotify = setInterval(recarregarImagem, 10000);
+}
+
+function fecharPopupFn() {
+    overlay.classList.add('escondido');
+    popup.classList.remove('aparecendo');
+    popup.classList.add('escondido');
+    clearInterval(intervaloSpotify);
+    spotifyImg.src = '';
+}
+
+btnSpotify.addEventListener('click', abrirPopup);
+fecharPopup.addEventListener('click', fecharPopupFn);
+overlay.addEventListener('click', fecharPopupFn);
