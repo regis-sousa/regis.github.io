@@ -136,11 +136,31 @@ function atualizarHora() {
     const hora = agora.getHours();
     const min = String(agora.getMinutes()).padStart(2, '0');
     const seg = String(agora.getSeconds()).padStart(2, '0');
-    document.getElementById('hora-garfield').textContent =
-        `🕐 ${hora}:${min}:${seg} — ${frasePorHora(hora)}`;
+    document.getElementById('hora-texto').textContent =
+        ` ${hora}:${min}:${seg} — ${frasePorHora(hora)}`;
 }
 atualizarHora();
 setInterval(atualizarHora, 1000);
+
+// Easter egg: clique no emoji do relógio abre WhatsApp popup
+const relogioEmoji = document.getElementById('relogio-emoji');
+const wppOverlay = document.getElementById('wpp-overlay');
+const wppPopup = document.getElementById('wpp-popup');
+const fecharWpp = document.getElementById('fechar-wpp');
+
+function abrirWpp() {
+    wppOverlay.classList.remove('escondido');
+    wppPopup.classList.remove('escondido');
+    wppPopup.classList.add('aparecendo');
+}
+function fecharWppFn() {
+    wppOverlay.classList.add('escondido');
+    wppPopup.classList.remove('aparecendo');
+    wppPopup.classList.add('escondido');
+}
+relogioEmoji.addEventListener('click', abrirWpp);
+fecharWpp.addEventListener('click', fecharWppFn);
+wppOverlay.addEventListener('click', fecharWppFn);
 
 
 // =============================================
@@ -478,24 +498,27 @@ function apareceOdie() {
     odieAtivo = true;
 
     odieEl.classList.remove('escondido', 'correndo-direita', 'correndo-esquerda');
-    // Reset position
     odieEl.style.left = '';
     odieEl.style.right = '';
+    odieEl.style.transform = '';
 
-    // Olhos do Garfield acompanham
     if (odieDir === 'direita') {
-        odieEl.style.left = '-120px';
-        odieEl.style.transform = '';
+        odieEl.style.left = '-130px';
         odieEl.classList.add('correndo-direita');
         garfieldInner.classList.add('olho-esquerda');
-        setTimeout(() => garfieldInner.classList.replace('olho-esquerda', 'olho-direita'), 1500);
+        setTimeout(() => {
+            garfieldInner.classList.remove('olho-esquerda');
+            garfieldInner.classList.add('olho-direita');
+        }, 1800);
     } else {
-        odieEl.style.right = '-120px';
+        odieEl.style.right = '-130px';
         odieEl.style.left = 'auto';
-        odieEl.style.transform = 'scaleX(-1)';
         odieEl.classList.add('correndo-esquerda');
         garfieldInner.classList.add('olho-direita');
-        setTimeout(() => garfieldInner.classList.replace('olho-direita', 'olho-esquerda'), 1500);
+        setTimeout(() => {
+            garfieldInner.classList.remove('olho-direita');
+            garfieldInner.classList.add('olho-esquerda');
+        }, 1800);
     }
 
     // Depois que passar, faz a careta
@@ -532,3 +555,51 @@ function apareceOdie() {
 
 // Inicia o timer ao carregar
 resetInatividade();
+
+
+// =============================================
+// CURSOR PERSONALIZADO — PATINHA
+// =============================================
+const cursorPata = document.getElementById('cursor-pata');
+cursorPata.innerHTML = `
+<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+  <!-- Palma -->
+  <ellipse cx="20" cy="26" rx="11" ry="9" fill="#1a0a00"/>
+  <!-- Dedos -->
+  <ellipse cx="10" cy="16" rx="5" ry="6.5" fill="#1a0a00"/>
+  <ellipse cx="17" cy="12" rx="5" ry="6.5" fill="#1a0a00"/>
+  <ellipse cx="24" cy="12" rx="5" ry="6.5" fill="#1a0a00"/>
+  <ellipse cx="31" cy="16" rx="5" ry="6.5" fill="#1a0a00"/>
+</svg>`;
+
+document.addEventListener('mousemove', e => {
+    cursorPata.style.left = e.clientX + 'px';
+    cursorPata.style.top = e.clientY + 'px';
+});
+
+
+// =============================================
+// GARFIELD TE IGNORA — mouse rápido demais
+// =============================================
+let ultimoX = 0, ultimoY = 0;
+let velocidadeTimer = null;
+let dormindo = false;
+
+document.addEventListener('mousemove', e => {
+    const dx = e.clientX - ultimoX;
+    const dy = e.clientY - ultimoY;
+    const vel = Math.sqrt(dx*dx + dy*dy);
+    ultimoX = e.clientX;
+    ultimoY = e.clientY;
+
+    if (vel > 40 && !dormindo) {
+        dormindo = true;
+        const olhos = document.querySelectorAll('.eye.left, .eye.right');
+        olhos.forEach(o => o.classList.add('dormindo'));
+        clearTimeout(velocidadeTimer);
+        velocidadeTimer = setTimeout(() => {
+            olhos.forEach(o => o.classList.remove('dormindo'));
+            dormindo = false;
+        }, 2000);
+    }
+});
