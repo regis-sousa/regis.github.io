@@ -28,6 +28,12 @@
         <button id="btn-spotify" class="rede-link" title="Spotify">
             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
         </button>
+        <button id="btn-velha" class="rede-link" title="Jogo da Velha">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="8" y1="2" x2="8" y2="22"/><line x1="16" y1="2" x2="16" y2="22"/><line x1="2" y1="8" x2="22" y2="8"/><line x1="2" y1="16" x2="22" y2="16"/></svg>
+        </button>
+        <button id="btn-snake" class="rede-link" title="Snake">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h4v4H3zm0 7h4v4H3zm7-7h4v4h-4zm7 7h4v4h-4zm0 7h4v4h-4zm-7 0h4v4h-4zm7-14h4v4h-4zM3 17h4v4H3z"/><path d="M7 5h3M10 5v3M17 10h-3M14 10v3M10 14v3M10 17h7M17 17v-4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+        </button>
     </div>
 
     <!-- Popup Spotify -->
@@ -128,6 +134,68 @@
                 <div class="snout2small"><div class="whisker right"></div></div>
 
             </div>
+        </div>
+    </div>
+
+    <!-- Popup Jogo da Velha -->
+    <div id="velha-overlay" class="escondido"></div>
+    <div id="velha-popup" class="escondido">
+        <button class="fechar-popup-btn" id="fechar-velha">✕</button>
+        <p class="popup-label-jogo">jogo da velha</p>
+        <p id="velha-status">sua vez — você é o ✕</p>
+        <div id="velha-board">
+            <div class="velha-cell" data-i="0"></div>
+            <div class="velha-cell" data-i="1"></div>
+            <div class="velha-cell" data-i="2"></div>
+            <div class="velha-cell" data-i="3"></div>
+            <div class="velha-cell" data-i="4"></div>
+            <div class="velha-cell" data-i="5"></div>
+            <div class="velha-cell" data-i="6"></div>
+            <div class="velha-cell" data-i="7"></div>
+            <div class="velha-cell" data-i="8"></div>
+        </div>
+        <button id="velha-reiniciar">jogar de novo</button>
+    </div>
+
+    <!-- Popup Snake -->
+    <div id="snake-overlay" class="escondido"></div>
+    <div id="snake-popup" class="escondido">
+        <button class="fechar-popup-btn" id="fechar-snake">✕</button>
+        <p class="popup-label-jogo">snake</p>
+        <p id="snake-score">pontos: 0</p>
+        <canvas id="snake-canvas" width="280" height="280"></canvas>
+        <div id="snake-controles">
+            <button class="snake-btn" id="snake-up">▲</button>
+            <div id="snake-meio">
+                <button class="snake-btn" id="snake-left">◀</button>
+                <button class="snake-btn" id="snake-right">▶</button>
+            </div>
+            <button class="snake-btn" id="snake-down">▼</button>
+        </div>
+        <p id="snake-msg">pressione uma tecla ou botão pra começar</p>
+    </div>
+
+    <!-- Odie Easter Egg -->
+    <div id="odie" class="escondido">
+        <div class="odie-corpo">
+            <div class="odie-cabeca">
+                <div class="odie-orelha orelha-esq"></div>
+                <div class="odie-orelha orelha-dir"></div>
+                <div class="odie-olho olho-esq"><div class="odie-pupila"></div></div>
+                <div class="odie-olho olho-dir"><div class="odie-pupila"></div></div>
+                <div class="odie-nariz"></div>
+                <div class="odie-lingua"></div>
+            </div>
+            <div class="odie-tronco"></div>
+            <div class="odie-patas">
+                <div class="odie-pata pata-f-esq"></div>
+                <div class="odie-pata pata-f-dir"></div>
+            </div>
+            <div class="odie-patas-tras">
+                <div class="odie-pata pata-t-esq"></div>
+                <div class="odie-pata pata-t-dir"></div>
+            </div>
+            <div class="odie-rabo"></div>
         </div>
     </div>
 
