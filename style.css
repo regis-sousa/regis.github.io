@@ -320,15 +320,15 @@ body {
 
 @keyframes piscar-palpebra {
     0%   { top: 163px; }
-    30%  { top: -30px; }
-    60%  { top: -30px; }
+    30%  { top: 30px; }
+    60%  { top: 30px; }
     100% { top: 163px; }
 }
 
 /* Modo dormindo (ignora mouse) */
 .eye.left.dormindo::before,
 .eye.right.dormindo::before {
-    top: -30px !important;
+    top: 30px !important;
 }
 
 /* =============================================
@@ -404,13 +404,11 @@ body {
 
 .eye.left::before {
     content: ""; position: absolute; top: 163px;
-    width: 200px; height: 220px;
-    border-radius: 50% 50% 0 0;
+    width: 150px; height: 210px;
+    border-radius: 100px 100px 0% 0%/0%;
     transform: rotate(5deg);
     background: #fff;
     transition: top 0.4s ease;
-    z-index: 2;
-    left: -30px;
 }
 
 .eyeball1 {
@@ -418,7 +416,6 @@ body {
     left: 83px; position: absolute; top: 166px;
     width: 24px; height: 10px;
     border-radius: 0% 0% 50% 50%/0 0 100% 100%;
-    z-index: 3;
     transition: left 0.4s ease;
 }
 
@@ -427,7 +424,7 @@ body {
     left: 3px; position: absolute; top: 166px;
     width: 24px; height: 10px;
     border-radius: 0% 0% 50% 50%/0 0 100% 100%;
-    z-index: 3;
+    z-index: 1;
     transition: left 0.4s ease;
 }
 
@@ -443,13 +440,11 @@ body {
 
 .eye.right::before {
     content: ""; position: absolute; top: 162px;
-    width: 200px; height: 220px;
-    border-radius: 50% 50% 0 0;
+    width: 150px; height: 210px;
+    border-radius: 100px 100px 0% 0%/0%;
     transform: rotate(-4deg);
     background: #fff;
     transition: top 0.4s ease;
-    z-index: 2;
-    left: -30px;
 }
 
 .eye.right {
@@ -1039,11 +1034,13 @@ body { cursor: none; }
 @media (max-width: 600px) {
     #redes-sociais {
         bottom: 24px;
-        right: auto;
-        left: 50%;
-        transform: translateX(-50%);
+        right: 12px;
+        left: auto;
+        transform: none;
         flex-direction: row;
-        gap: 10px;
-        width: auto;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 8px;
+        max-width: 110px;
     }
 }
