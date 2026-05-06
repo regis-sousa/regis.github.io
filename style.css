@@ -490,3 +490,376 @@ body {
 .whisker.right, .whisker.left { transform: rotate(-1deg); background: #010101; width: 30px; height: 3px; position: absolute; left: 20px; border-radius: 50%; }
 
 .mouth { position: absolute; top: 260px; left: 143px; width: 60px; height: 20px; border-bottom: 3px solid #010101; border-radius: 0 0 50% 50%; }
+
+/* =============================================
+   GARFIELD CARETA (irritado com Odie)
+   ============================================= */
+.garfield-inner.careta .eye.left,
+.garfield-inner.careta .eye.right {
+    filter: none;
+}
+.garfield-inner.careta .eye.left::before {
+    top: 100px !important;
+    transform: rotate(15deg) !important;
+}
+.garfield-inner.careta .eye.right::before {
+    top: 100px !important;
+    transform: rotate(-15deg) !important;
+}
+
+/* Olho seguindo Odie */
+.garfield-inner.olho-esquerda .eyeball1 { left: 60px !important; }
+.garfield-inner.olho-esquerda .eyeball2 { left: -10px !important; }
+.garfield-inner.olho-direita .eyeball1 { left: 100px !important; }
+.garfield-inner.olho-direita .eyeball2 { left: 16px !important; }
+
+.eyeball1, .eyeball2 { transition: left 0.3s ease; }
+
+/* =============================================
+   POPUP JOGOS — BASE
+   ============================================= */
+.popup-label-jogo {
+    font-family: 'Permanent Marker', cursive;
+    font-size: 14px;
+    color: #aaa;
+    letter-spacing: 1px;
+    text-transform: lowercase;
+    margin: 0;
+}
+
+.fechar-popup-btn {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    background: none;
+    border: none;
+    color: #666;
+    font-size: 18px;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.2s ease;
+}
+.fechar-popup-btn:hover { color: #fff; }
+
+/* =============================================
+   JOGO DA VELHA
+   ============================================= */
+#velha-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 99998;
+    backdrop-filter: blur(3px);
+    transition: opacity 0.3s ease;
+}
+#velha-overlay.escondido { opacity: 0; pointer-events: none; }
+
+#velha-popup {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%) scale(0.95);
+    background: #121212;
+    border-radius: 20px;
+    padding: 28px 28px 24px;
+    z-index: 99999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    min-width: 280px;
+    max-width: 90vw;
+}
+#velha-popup.aparecendo { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+#velha-popup.escondido { opacity: 0; pointer-events: none; }
+
+#velha-status {
+    font-family: 'Patrick Hand', cursive;
+    font-size: 13px;
+    color: #bbb;
+    margin: 0;
+}
+
+#velha-board {
+    display: grid;
+    grid-template-columns: repeat(3, 80px);
+    grid-template-rows: repeat(3, 80px);
+    gap: 0;
+    border: 3px solid #333;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.velha-cell {
+    width: 80px; height: 80px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Permanent Marker', cursive;
+    font-size: 32px;
+    cursor: pointer;
+    border: 1px solid #333;
+    color: #fff;
+    transition: background 0.15s ease;
+    user-select: none;
+}
+.velha-cell:hover:not(.ocupada) { background: #1e1e1e; }
+.velha-cell.ocupada { cursor: default; }
+.velha-cell.x { color: #fba919; }
+.velha-cell.o { color: #1DB954; }
+.velha-cell.vencedora { background: #2a2a2a; animation: pulsar-celula 0.5s ease; }
+
+@keyframes pulsar-celula {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+#velha-reiniciar {
+    background: #fba919;
+    color: #1a0a00;
+    border: none;
+    border-radius: 999px;
+    padding: 8px 22px;
+    font-family: 'Permanent Marker', cursive;
+    font-size: 13px;
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.2s ease;
+}
+#velha-reiniciar:hover { background: #ffd060; transform: scale(1.05); }
+
+/* =============================================
+   SNAKE
+   ============================================= */
+#snake-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 99998;
+    backdrop-filter: blur(3px);
+    transition: opacity 0.3s ease;
+}
+#snake-overlay.escondido { opacity: 0; pointer-events: none; }
+
+#snake-popup {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%) scale(0.95);
+    background: #121212;
+    border-radius: 20px;
+    padding: 28px 24px 20px;
+    z-index: 99999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    max-width: 90vw;
+}
+#snake-popup.aparecendo { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+#snake-popup.escondido { opacity: 0; pointer-events: none; }
+
+#snake-score {
+    font-family: 'Permanent Marker', cursive;
+    font-size: 16px;
+    color: #1DB954;
+    margin: 0;
+}
+
+#snake-canvas {
+    border: 3px solid #333;
+    border-radius: 8px;
+    background: #0a0a0a;
+    display: block;
+    max-width: 100%;
+}
+
+#snake-controles {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+#snake-meio { display: flex; gap: 4px; }
+
+.snake-btn {
+    width: 44px; height: 44px;
+    background: #222;
+    border: 2px solid #444;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.15s ease;
+    display: flex; align-items: center; justify-content: center;
+}
+.snake-btn:hover { background: #333; }
+.snake-btn:active { background: #fba919; color: #000; }
+
+#snake-msg {
+    font-family: 'Patrick Hand', cursive;
+    font-size: 12px;
+    color: #666;
+    margin: 0;
+    text-align: center;
+}
+
+/* =============================================
+   ODIE — CSS ART
+   ============================================= */
+#odie {
+    position: fixed;
+    bottom: 120px;
+    z-index: 9998;
+    pointer-events: none;
+}
+
+#odie.escondido { display: none; }
+
+#odie.correndo-direita { animation: correr-direita 4s linear forwards; }
+#odie.correndo-esquerda {
+    animation: correr-esquerda 4s linear forwards;
+    transform: scaleX(-1);
+}
+
+@keyframes correr-direita {
+    from { left: -120px; }
+    to   { left: calc(100vw + 20px); }
+}
+@keyframes correr-esquerda {
+    from { right: -120px; }
+    to   { right: calc(100vw + 20px); }
+}
+
+.odie-corpo {
+    position: relative;
+    width: 100px;
+    height: 90px;
+    animation: perninha 0.35s steps(2) infinite;
+}
+
+@keyframes perninha {
+    0%   { transform: translateY(0px); }
+    50%  { transform: translateY(-4px); }
+    100% { transform: translateY(0px); }
+}
+
+.odie-cabeca {
+    position: absolute;
+    top: 0; left: 18px;
+    width: 62px; height: 52px;
+    background: #e8c87a;
+    border-radius: 50% 50% 45% 45%;
+    border: 3px solid #2a1a00;
+}
+
+.odie-orelha {
+    position: absolute;
+    width: 18px; height: 28px;
+    background: #c8a050;
+    border: 3px solid #2a1a00;
+    border-radius: 50% 50% 0 0;
+    top: -18px;
+}
+.orelha-esq { left: 6px; transform: rotate(-12deg); }
+.orelha-dir { right: 6px; transform: rotate(12deg); }
+
+.odie-olho {
+    position: absolute;
+    width: 16px; height: 18px;
+    background: #fff;
+    border-radius: 50%;
+    border: 2px solid #2a1a00;
+    top: 10px;
+    overflow: hidden;
+}
+.olho-esq { left: 8px; }
+.olho-dir { right: 8px; }
+
+.odie-pupila {
+    position: absolute;
+    width: 8px; height: 10px;
+    background: #1a1a1a;
+    border-radius: 50%;
+    bottom: 2px; left: 50%;
+    transform: translateX(-50%);
+}
+
+.odie-nariz {
+    position: absolute;
+    width: 14px; height: 8px;
+    background: #d46060;
+    border-radius: 50%;
+    border: 2px solid #2a1a00;
+    bottom: 10px; left: 50%;
+    transform: translateX(-50%);
+}
+
+.odie-lingua {
+    position: absolute;
+    width: 18px; height: 14px;
+    background: #e05070;
+    border-radius: 0 0 50% 50%;
+    border: 2px solid #2a1a00;
+    border-top: none;
+    bottom: -10px; left: 50%;
+    transform: translateX(-50%);
+    animation: lingua-balanco 0.4s ease-in-out infinite alternate;
+}
+
+@keyframes lingua-balanco {
+    from { transform: translateX(-50%) rotate(-5deg); }
+    to   { transform: translateX(-50%) rotate(5deg); }
+}
+
+.odie-tronco {
+    position: absolute;
+    top: 38px; left: 10px;
+    width: 70px; height: 40px;
+    background: #e8c87a;
+    border-radius: 40% 40% 50% 50%;
+    border: 3px solid #2a1a00;
+}
+
+.odie-patas {
+    position: absolute;
+    top: 68px; left: 14px;
+    display: flex; gap: 24px;
+}
+.odie-patas-tras {
+    position: absolute;
+    top: 68px; left: 42px;
+    display: flex; gap: 20px;
+}
+
+.odie-pata {
+    width: 18px; height: 16px;
+    background: #e8c87a;
+    border-radius: 50%;
+    border: 3px solid #2a1a00;
+    animation: pata-correr 0.35s steps(2) infinite;
+}
+.pata-f-esq { animation-delay: 0s; }
+.pata-f-dir { animation-delay: 0.17s; }
+.pata-t-esq { animation-delay: 0.1s; }
+.pata-t-dir { animation-delay: 0.27s; }
+
+@keyframes pata-correr {
+    0%   { transform: translateY(0); }
+    50%  { transform: translateY(-6px); }
+    100% { transform: translateY(0); }
+}
+
+.odie-rabo {
+    position: absolute;
+    top: 30px; right: 0px;
+    width: 22px; height: 8px;
+    background: #e8c87a;
+    border-radius: 0 50% 50% 0;
+    border: 3px solid #2a1a00;
+    border-left: none;
+    transform-origin: left center;
+    animation: rabo-abanar 0.3s ease-in-out infinite alternate;
+}
+
+@keyframes rabo-abanar {
+    from { transform: rotate(-20deg); }
+    to   { transform: rotate(20deg); }
+}
