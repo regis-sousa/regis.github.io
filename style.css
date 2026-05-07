@@ -409,6 +409,7 @@ body {
     border-radius: 0;
     background: #fff;
     transition: top 0.4s ease;
+    z-index: 2;
 }
 
 .eyeball1 {
@@ -445,6 +446,7 @@ body {
     border-radius: 0;
     background: #fff;
     transition: top 0.4s ease;
+    z-index: 2;
 }
 
 .eye.right {
@@ -874,39 +876,10 @@ body {
 }
 
 /* =============================================
-   CURSOR PERSONALIZADO — PATINHA (só desktop)
-   ============================================= */
-@media (hover: hover) {
-    body { cursor: none; }
-    #cursor-pata { display: block; }
-}
-
-@media (hover: none) {
-    body { cursor: auto !important; }
-    #cursor-pata { display: none !important; }
-}
-
-#cursor-pata {
-    position: fixed;
-    width: 32px;
-    height: 32px;
-    pointer-events: none;
-    z-index: 999999;
-    transform: translate(-50%, -50%);
-    display: none;
-}
-
-#cursor-pata svg {
-    width: 32px;
-    height: 32px;
-    filter: drop-shadow(1px 1px 1px rgba(0,0,0,0.3));
-}
-
-/* =============================================
    RELOGIO EMOJI CLICÁVEL
    ============================================= */
 #relogio-emoji {
-    cursor: none;
+    cursor: pointer;
     display: inline-block;
     margin-right: 4px;
     transition: transform 0.15s ease;
