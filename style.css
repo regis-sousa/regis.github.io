@@ -400,15 +400,17 @@ body {
     border-color: #000 transparent transparent transparent;
     border-radius: 100px 100px 0% 0%/5%;
     transform: rotate(185deg);
+    z-index: 1;
 }
 
 .eye.left::before {
     content: ""; position: absolute;
-    top: 163px; left: -5px;
-    width: 120px; height: 200px;
+    top: 163px; left: -30px;
+    width: 180px; height: 200px;
     background: #fff;
     transition: top 0.4s ease;
     z-index: 0;
+    border-radius: 0;
 }
 
 .eyeball1 {
@@ -443,11 +445,12 @@ body {
 
 .eye.right::before {
     content: ""; position: absolute;
-    top: 162px; left: -5px;
-    width: 120px; height: 200px;
+    top: 162px; left: -30px;
+    width: 180px; height: 200px;
     background: #fff;
     transition: top 0.4s ease;
     z-index: 0;
+    border-radius: 0;
 }
 
 .eye.right {
