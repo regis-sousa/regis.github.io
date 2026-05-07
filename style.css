@@ -404,9 +404,9 @@ body {
 
 .eye.left::before {
     content: ""; position: absolute; top: 163px;
-    width: 150px; height: 210px;
-    border-radius: 100px 100px 0% 0%/0%;
-    transform: rotate(5deg);
+    left: -20px;
+    width: 200px; height: 220px;
+    border-radius: 0;
     background: #fff;
     transition: top 0.4s ease;
 }
@@ -440,9 +440,9 @@ body {
 
 .eye.right::before {
     content: ""; position: absolute; top: 162px;
-    width: 150px; height: 210px;
-    border-radius: 100px 100px 0% 0%/0%;
-    transform: rotate(-4deg);
+    left: -20px;
+    width: 200px; height: 220px;
+    border-radius: 0;
     background: #fff;
     transition: top 0.4s ease;
 }
@@ -516,10 +516,11 @@ body {
 }
 
 /* Olho seguindo Odie */
-.garfield-inner.olho-esquerda .eyeball1 { left: 60px !important; }
-.garfield-inner.olho-esquerda .eyeball2 { left: -10px !important; }
-.garfield-inner.olho-direita .eyeball1 { left: 100px !important; }
-.garfield-inner.olho-direita .eyeball2 { left: 16px !important; }
+/* Olho seguindo Odie — valores calibrados pra não cortar */
+.garfield-inner.olho-esquerda .eyeball1 { left: 55px !important; }
+.garfield-inner.olho-esquerda .eyeball2 { left: 5px !important; }
+.garfield-inner.olho-direita .eyeball1  { left: 83px !important; }
+.garfield-inner.olho-direita .eyeball2  { left: 20px !important; }
 
 .eyeball1, .eyeball2 { transition: left 0.3s ease; }
 
@@ -873,9 +874,12 @@ body {
 }
 
 /* =============================================
-   CURSOR PERSONALIZADO — PATINHA
+   CURSOR PERSONALIZADO — PATINHA (só desktop)
    ============================================= */
-body { cursor: none; }
+@media (hover: hover) and (pointer: fine) {
+    body { cursor: none; }
+    #cursor-pata { display: block; }
+}
 
 #cursor-pata {
     position: fixed;
@@ -884,7 +888,7 @@ body { cursor: none; }
     pointer-events: none;
     z-index: 999999;
     transform: translate(-50%, -50%);
-    transition: transform 0.05s linear;
+    display: none;
 }
 
 #cursor-pata svg {
