@@ -320,15 +320,15 @@ body {
 
 @keyframes piscar-palpebra {
     0%   { top: 163px; }
-    30%  { top: 30px; }
-    60%  { top: 30px; }
+    30%  { top: 10px; }
+    60%  { top: 10px; }
     100% { top: 163px; }
 }
 
 /* Modo dormindo (ignora mouse) */
 .eye.left.dormindo::before,
 .eye.right.dormindo::before {
-    top: 30px !important;
+    top: 10px !important;
 }
 
 /* =============================================
@@ -403,13 +403,12 @@ body {
 }
 
 .eye.left::before {
-    content: ""; position: absolute; top: 163px;
-    left: -20px;
-    width: 200px; height: 220px;
-    border-radius: 0;
+    content: ""; position: absolute;
+    top: 163px; left: -5px;
+    width: 120px; height: 200px;
     background: #fff;
     transition: top 0.4s ease;
-    z-index: 2;
+    z-index: 0;
 }
 
 .eyeball1 {
@@ -418,6 +417,7 @@ body {
     width: 24px; height: 10px;
     border-radius: 0% 0% 50% 50%/0 0 100% 100%;
     transition: left 0.4s ease;
+    z-index: 1;
 }
 
 .eyeball2 {
@@ -437,16 +437,17 @@ body {
     border-color: #000 transparent transparent transparent;
     border-radius: 100px 100px 0% 0%/5%;
     transform: rotate(-185deg);
+    z-index: 2;
+    position: relative;
 }
 
 .eye.right::before {
-    content: ""; position: absolute; top: 162px;
-    left: -20px;
-    width: 200px; height: 220px;
-    border-radius: 0;
+    content: ""; position: absolute;
+    top: 162px; left: -5px;
+    width: 120px; height: 200px;
     background: #fff;
     transition: top 0.4s ease;
-    z-index: 2;
+    z-index: 0;
 }
 
 .eye.right {
@@ -509,12 +510,10 @@ body {
     filter: none;
 }
 .garfield-inner.careta .eye.left::before {
-    top: 100px !important;
-    transform: rotate(15deg) !important;
+    top: 80px !important;
 }
 .garfield-inner.careta .eye.right::before {
-    top: 100px !important;
-    transform: rotate(-15deg) !important;
+    top: 80px !important;
 }
 
 /* Olho seguindo Odie */
