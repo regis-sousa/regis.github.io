@@ -405,7 +405,8 @@ body {
 
 .eye.left::before {
     content: ""; position: absolute; top: 163px;
-    width: 150px; height: 210px;
+    left: -20px;
+    width: 180px; height: 210px;
     border-radius: 100px 100px 0% 0%/0%;
     transform: rotate(5deg);
     background: #fff;
