@@ -320,15 +320,15 @@ body {
 
 @keyframes piscar-palpebra {
     0%   { top: 163px; }
-    30%  { top: 10px; }
-    60%  { top: 10px; }
+    30%  { top: 30px; }
+    60%  { top: 30px; }
     100% { top: 163px; }
 }
 
 /* Modo dormindo (ignora mouse) */
 .eye.left.dormindo::before,
 .eye.right.dormindo::before {
-    top: 10px !important;
+    top: 30px !important;
 }
 
 /* =============================================
@@ -404,13 +404,13 @@ body {
 }
 
 .eye.left::before {
-    content: ""; position: absolute;
-    top: 163px; left: -30px;
-    width: 180px; height: 200px;
+    content: ""; position: absolute; top: 163px;
+    width: 150px; height: 210px;
+    border-radius: 100px 100px 0% 0%/0%;
+    transform: rotate(5deg);
     background: #fff;
     transition: top 0.4s ease;
     z-index: 0;
-    border-radius: 0;
 }
 
 .eyeball1 {
@@ -418,7 +418,7 @@ body {
     left: 83px; position: absolute; top: 166px;
     width: 24px; height: 10px;
     border-radius: 0% 0% 50% 50%/0 0 100% 100%;
-    transition: left 0.4s ease;
+    transition: left 0.3s ease;
     z-index: 1;
 }
 
@@ -428,7 +428,7 @@ body {
     width: 24px; height: 10px;
     border-radius: 0% 0% 50% 50%/0 0 100% 100%;
     z-index: 1;
-    transition: left 0.4s ease;
+    transition: left 0.3s ease;
 }
 
 .eye.right::after {
@@ -439,18 +439,17 @@ body {
     border-color: #000 transparent transparent transparent;
     border-radius: 100px 100px 0% 0%/5%;
     transform: rotate(-185deg);
-    z-index: 2;
-    position: relative;
+    z-index: 1;
 }
 
 .eye.right::before {
-    content: ""; position: absolute;
-    top: 162px; left: -30px;
-    width: 180px; height: 200px;
+    content: ""; position: absolute; top: 162px;
+    width: 150px; height: 210px;
+    border-radius: 100px 100px 0% 0%/0%;
+    transform: rotate(-4deg);
     background: #fff;
     transition: top 0.4s ease;
     z-index: 0;
-    border-radius: 0;
 }
 
 .eye.right {
