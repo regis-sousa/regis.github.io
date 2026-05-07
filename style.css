@@ -876,9 +876,14 @@ body {
 /* =============================================
    CURSOR PERSONALIZADO — PATINHA (só desktop)
    ============================================= */
-@media (hover: hover) and (pointer: fine) {
+@media (hover: hover) {
     body { cursor: none; }
     #cursor-pata { display: block; }
+}
+
+@media (hover: none) {
+    body { cursor: auto !important; }
+    #cursor-pata { display: none !important; }
 }
 
 #cursor-pata {
