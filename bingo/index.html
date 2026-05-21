@@ -258,7 +258,8 @@ body{background:var(--bg);color:var(--txt);font-family:'DM Sans',sans-serif;min-
 
 <!-- TELA CRIAR -->
 <div id="screen-criar" class="screen">
-  <div class="card" style="max-width:460px;overflow-y:auto;max-height:95vh">
+  <div class="card" style="max-width:460px;overflow-y:auto;max-height:92vh;scrollbar-width:none;-ms-overflow-style:none">
+    <style>#screen-criar .card::-webkit-scrollbar{display:none}</style>
     <div class="card-title">⚙️ Criar Sala</div>
     <div class="field"><label>Seu nome (controlador)</label><input id="c-nome" placeholder="Ex: João" maxlength="20"></div>
     <div class="field"><label>Código da sala</label><input id="c-codigo" placeholder="Ex: FESTA2025" maxlength="10" style="text-transform:uppercase" oninput="this.value=this.value.toUpperCase()"></div>
@@ -342,7 +343,10 @@ body{background:var(--bg);color:var(--txt);font-family:'DM Sans',sans-serif;min-
           <div style="font-family:'Bebas Neue',cursive;font-size:24px;color:var(--acc);margin-bottom:8px">Aguardando jogadores</div>
           <p id="ctrl-prontos-txt" style="color:var(--mut);font-size:14px;margin-bottom:16px">0 jogadores · 0 prontos</p>
           <div class="dot-load" style="justify-content:center;margin-bottom:16px"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
-          <button class="btn btn-pri btn-lg" id="btn-iniciar" onclick="iniciarBingo()" disabled>Iniciar Bingo</button>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
+            <button class="btn btn-pri btn-lg" id="btn-iniciar" onclick="iniciarBingo()" disabled>Iniciar Bingo</button>
+            <button class="btn btn-red btn-sm" onclick="encerrarLobby()">🗑️ Encerrar sala</button>
+          </div>
         </div>
       </div>
       <!-- Jogo ctrl -->
@@ -413,6 +417,13 @@ body{background:var(--bg);color:var(--txt);font-family:'DM Sans',sans-serif;min-
     <div><div style="font-size:9px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px">Últimas 5</div><div class="hist-mini" id="jn-hist"></div></div>
   </div>
   <div id="quase-la-banner" style="display:none" class="quase-la">🔥 Você está quase lá! Faltam poucos números!</div>
+  <div id="revisao-banner" style="display:none;width:100%;max-width:480px;background:rgba(74,158,255,.1);border:1px solid rgba(74,158,255,.4);border-radius:12px;padding:10px 14px;font-size:13px;color:var(--blu);text-align:center">
+    📋 Revisão em andamento — confira os números destacados na sua cartela
+  </div>
+  <div id="revisao-flash" style="display:none;width:100%;max-width:480px;background:rgba(245,200,66,.15);border:2px solid var(--acc);border-radius:12px;padding:12px;text-align:center">
+    <div style="font-family:'Bebas Neue',cursive;font-size:52px;color:var(--acc);line-height:1" id="revisao-num-flash">—</div>
+    <div style="font-size:11px;color:var(--mut)" id="revisao-idx-flash"></div>
+  </div>
   <div class="stats-row">
     <div class="stat-box"><div class="stat-val" id="js-marc">0</div><div class="stat-lbl">marcados</div></div>
     <div class="stat-box"><div class="stat-val" id="js-falt">25</div><div class="stat-lbl">faltam</div></div>
@@ -465,19 +476,33 @@ body{background:var(--bg);color:var(--txt);font-family:'DM Sans',sans-serif;min-
   </div>
 </div>
 
-<!-- MODAL HISTÓRICO ANIMADO -->
+<!-- MODAL REVISÃO -->
 <div class="modal-overlay" id="modal-hist">
-  <div class="modal-box" style="text-align:center">
-    <button class="modal-close" onclick="fecharModal('modal-hist');pararHist()">✕</button>
-    <div class="modal-titulo">Histórico da Partida</div>
-    <div id="hist-anim-num" class="hist-anim-num">—</div>
-    <div id="hist-anim-idx" style="color:var(--mut);font-size:13px;margin-bottom:14px"></div>
-    <div style="display:flex;gap:8px;justify-content:center">
-      <button class="btn btn-sec btn-sm" id="btn-hist-prev" onclick="histPrev()">◀</button>
-      <button class="btn btn-pri btn-sm" id="btn-hist-play" onclick="histPlay()">▶ Play</button>
-      <button class="btn btn-sec btn-sm" id="btn-hist-next" onclick="histNext()">▶</button>
+  <div class="modal-box" style="text-align:center;max-width:360px">
+    <div class="modal-titulo">📋 Revisão de Pedras</div>
+    <div id="hist-modo-sel">
+      <p style="color:var(--mut);font-size:13px;margin-bottom:16px">O bingo está <strong style="color:var(--acc)">pausado</strong>. Escolha como revisar:</p>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <button class="btn btn-pri" onclick="iniciarRevisaoUmaUma()">🔢 Uma a uma</button>
+        <button class="btn btn-sec" onclick="iniciarRevisaoTodas()">📋 Todas de uma vez</button>
+        <button class="btn btn-gho btn-sm" onclick="fecharRevisao()">Cancelar e retomar</button>
+      </div>
     </div>
-    <div style="font-size:11px;color:var(--mut);margin-top:8px">Todos: <span id="hist-todos"></span></div>
+    <div id="hist-uma-uma" style="display:none">
+      <div id="hist-anim-num" class="hist-anim-num">—</div>
+      <div id="hist-anim-idx" style="color:var(--mut);font-size:13px;margin-bottom:14px"></div>
+      <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+        <button class="btn btn-sec btn-sm" id="btn-hist-prev" onclick="histPrev()">◀ Anterior</button>
+        <button class="btn btn-pri btn-sm" id="btn-hist-play" onclick="histPlay()">▶ Auto</button>
+        <button class="btn btn-sec btn-sm" id="btn-hist-next" onclick="histNext()">Próximo ▶</button>
+      </div>
+      <button class="btn btn-gho btn-sm" style="margin-top:12px;width:100%" onclick="fecharRevisao()">✓ Encerrar revisão e retomar</button>
+    </div>
+    <div id="hist-todas" style="display:none">
+      <p style="color:var(--mut);font-size:12px;margin-bottom:12px">Todas as pedras já sorteadas estão destacadas nas cartelas dos jogadores.</p>
+      <div id="hist-todos-nums" style="display:flex;flex-wrap:wrap;gap:4px;justify-content:center;margin-bottom:14px"></div>
+      <button class="btn btn-pri" style="width:100%" onclick="fecharRevisao()">✓ Encerrar revisão e retomar</button>
+    </div>
   </div>
 </div>
 
@@ -606,7 +631,15 @@ window.criarSala=async()=>{
 
   const salaRef=ref(db,`salas/${cod}`);
   const snap=await get(salaRef);
-  if(snap.exists()&&snap.val().status!=='encerrado'){toast('Código já em uso!');return}
+  if(snap.exists()){
+    const s=snap.val();
+    const encerrada=s.status==='encerrado';
+    const ultimaAtiv=s.fimEm||s.criadoEm||0;
+    const inativa=Date.now()-ultimaAtiv>5*60*1000; // 5 minutos
+    if(!encerrada&&!inativa){toast('Código já em uso! Tente outro ou aguarde.');return}
+    // Libera: apaga a sala antiga
+    await remove(salaRef);
+  }
 
   meuId=gId();sala=cod;papel='ctrl';
   await set(salaRef,{codigo:cod,ctrl:{id:meuId,nome},config:{max:mod,fases,faseIdx:0,faseAtual:fases[0],marc,auto:marc==='auto',timerSecs},status:'aguardando',jogadores:{},numeros:[],chat:[],criadoEm:Date.now()});
@@ -710,9 +743,10 @@ function uiCtrl(s){
   // Jogadores
   renderJogsCtrl(jogs,nums,cfg);
 
-  // Bingo pendente
+  // Bingo pendente — pausa timer
   const pend=arr.find(j=>j.status==='bingo-pendente');
   if(pend){
+    clearInterval(timerInterval);timerInterval=null;
     document.getElementById('ctrl-bval').style.display='block';
     document.getElementById('bval-quem').textContent=`${pend.emoji} ${pend.nome}`;
     window._pendId=pend.id;
@@ -811,6 +845,7 @@ window.sortear=async()=>{
     });
   }
   await update(ref(db,`salas/${sala}`),upd);
+  await update(ref(db,`salas/${sala}`),{ultimaAtiv:Date.now()});
 };
 
 window.mudarMarcacao=async()=>{
@@ -826,32 +861,73 @@ window.validar=async(ok)=>{
     const s=snap.val();const j=s.jogadores[id];
     const cfg=s.config;const fases=cfg.fases;const idx=cfg.faseIdx||0;
     const proxIdx=idx+1;
+    clearInterval(timerInterval);timerInterval=null;
     if(proxIdx<fases.length){
       await update(ref(db,`salas/${sala}`),{[`jogadores/${id}/status`]:'vencedor',ultimoVenc:{nome:j.nome,emoji:j.emoji,fase:cfg.faseAtual},[`config/faseIdx`]:proxIdx,[`config/faseAtual`]:fases[proxIdx]});
       toast(`${j.nome} venceu na ${cfg.faseAtual}! Próxima fase: ${fases[proxIdx]}`,4000);
+      // Reinicia timer para a próxima fase se for automático
+      if(cfg.auto)setTimeout(()=>iniciarTimer(),2000);
     }else{
-      clearInterval(timerInterval);
       await update(ref(db,`salas/${sala}`),{[`jogadores/${id}/status`]:'vencedor',status:'encerrado',vencedor:{nome:j.nome,emoji:j.emoji,fase:cfg.faseAtual},fimEm:Date.now()});
     }
   }else{
     await update(ref(db,`salas/${sala}/jogadores/${id}`),{status:'jogando',bingoJaPedido:false});
-    toast('Bingo inválido!');
+    // Retoma timer se for automático
+    const snap2=await get(ref(db,`salas/${sala}`));
+    if(snap2.val().config.auto)iniciarTimer();
+    toast('Bingo inválido! Jogo continua.');
   }
 };
 
 window.encerrar=async()=>{
   if(!confirm('Encerrar o bingo?'))return;
-  clearInterval(timerInterval);
+  clearInterval(timerInterval);timerInterval=null;
   await update(ref(db,`salas/${sala}`),{status:'encerrado',fimEm:Date.now()});
 };
 
+window.encerrarLobby=async()=>{
+  if(!confirm('Encerrar e apagar a sala?'))return;
+  await remove(ref(db,`salas/${sala}`));
+  location.reload();
+};
+
 window.verHistorico=async()=>{
+  // Pausa o bingo
+  clearInterval(timerInterval);timerInterval=null;
+  await update(ref(db,`salas/${sala}`),{pausado:true});
+  // Reseta modal
+  document.getElementById('hist-modo-sel').style.display='block';
+  document.getElementById('hist-uma-uma').style.display='none';
+  document.getElementById('hist-todas').style.display='none';
+  document.getElementById('modal-hist').classList.add('show');
+};
+
+window.fecharRevisao=async()=>{
+  clearInterval(histPlayInt);histPlayInt=null;
+  document.getElementById('modal-hist').classList.remove('show');
+  await update(ref(db,`salas/${sala}`),{pausado:false,revisao:null});
+  // Retoma timer se for automático
+  const snap=await get(ref(db,`salas/${sala}`));
+  if(snap.val().config.auto)iniciarTimer();
+};
+
+window.iniciarRevisaoUmaUma=async()=>{
   const snap=await get(ref(db,`salas/${sala}`));
   const nums=snap.val().numeros||[];
-  histIdx=nums.length-1;
-  document.getElementById('hist-todos').textContent=nums.join(', ');
+  histIdx=0;
+  document.getElementById('hist-modo-sel').style.display='none';
+  document.getElementById('hist-uma-uma').style.display='block';
+  await update(ref(db,`salas/${sala}`),{revisao:{modo:'uma-uma',numAtual:nums[0],idx:0,total:nums.length}});
   atualizarHistModal(nums);
-  document.getElementById('modal-hist').classList.add('show');
+};
+
+window.iniciarRevisaoTodas=async()=>{
+  const snap=await get(ref(db,`salas/${sala}`));
+  const nums=snap.val().numeros||[];
+  document.getElementById('hist-modo-sel').style.display='none';
+  document.getElementById('hist-todas').style.display='block';
+  document.getElementById('hist-todos-nums').innerHTML=nums.map(n=>`<div class="hfn">${n}</div>`).join('');
+  await update(ref(db,`salas/${sala}`),{revisao:{modo:'todas',nums}});
 };
 
 function atualizarHistModal(nums){
@@ -859,14 +935,36 @@ function atualizarHistModal(nums){
   document.getElementById('hist-anim-idx').textContent=`Pedra ${histIdx+1} de ${nums.length}`;
 }
 
-window.histPrev=async()=>{const snap=await get(ref(db,`salas/${sala}`));const nums=snap.val().numeros||[];if(histIdx>0){histIdx--;atualizarHistModal(nums)}};
-window.histNext=async()=>{const snap=await get(ref(db,`salas/${sala}`));const nums=snap.val().numeros||[];if(histIdx<nums.length-1){histIdx++;atualizarHistModal(nums)}};
+window.histPrev=async()=>{
+  if(histIdx<=0)return;
+  histIdx--;
+  const snap=await get(ref(db,`salas/${sala}`));
+  const nums=snap.val().numeros||[];
+  atualizarHistModal(nums);
+  await update(ref(db,`salas/${sala}`),{revisao:{modo:'uma-uma',numAtual:nums[histIdx],idx:histIdx,total:nums.length}});
+};
+
+window.histNext=async()=>{
+  const snap=await get(ref(db,`salas/${sala}`));
+  const nums=snap.val().numeros||[];
+  if(histIdx>=nums.length-1)return;
+  histIdx++;
+  atualizarHistModal(nums);
+  await update(ref(db,`salas/${sala}`),{revisao:{modo:'uma-uma',numAtual:nums[histIdx],idx:histIdx,total:nums.length}});
+};
+
 window.histPlay=async()=>{
-  const snap=await get(ref(db,`salas/${sala}`));const nums=snap.val().numeros||[];
+  const snap=await get(ref(db,`salas/${sala}`));
+  const nums=snap.val().numeros||[];
   const btn=document.getElementById('btn-hist-play');
-  if(histPlayInt){clearInterval(histPlayInt);histPlayInt=null;btn.textContent='▶ Play';return}
+  if(histPlayInt){clearInterval(histPlayInt);histPlayInt=null;btn.textContent='▶ Auto';return}
   histIdx=0;btn.textContent='⏸ Pausar';
-  histPlayInt=setInterval(()=>{atualizarHistModal(nums);histIdx++;if(histIdx>=nums.length){clearInterval(histPlayInt);histPlayInt=null;btn.textContent='▶ Play'}},1200);
+  histPlayInt=setInterval(async()=>{
+    atualizarHistModal(nums);
+    await update(ref(db,`salas/${sala}`),{revisao:{modo:'uma-uma',numAtual:nums[histIdx],idx:histIdx,total:nums.length}});
+    histIdx++;
+    if(histIdx>=nums.length){clearInterval(histPlayInt);histPlayInt=null;btn.textContent='▶ Auto'}
+  },1500);
 };
 window.pararHist=()=>{clearInterval(histPlayInt);histPlayInt=null};
 
@@ -897,7 +995,7 @@ function uiJog(s,jd){
   const cfg=s.config;const nums=s.numeros||[];
   document.getElementById('jh-emoji').textContent=meuEmoji;
   document.getElementById('jh-nome').textContent=jd.nome;
-  document.getElementById('jh-sala').textContent=`Sala ${sala}`;
+  document.getElementById('jh-sala').textContent=`Sala ${sala} · 🎯 ${s.ctrl?.nome||'Controlador'}`;
   document.getElementById('jh-badge').textContent=`${cfg.faseAtual}·${cfg.max}`;
   document.getElementById('jc-modo').textContent=cfg.auto?'automático':'manual';
 
@@ -910,24 +1008,44 @@ function uiJog(s,jd){
   document.getElementById('js-falt').textContent=total-marcados.size;
   document.getElementById('js-sort').textContent=nums.length;
 
-  // Reação ao último número
-  if(ultimo&&cartela.includes(ultimo)){
+  // Reação ao último número (só fora da revisão)
+  if(!s.revisao&&ultimo&&cartela.includes(ultimo)){
     const idx=cartela.indexOf(ultimo);
     const cells=document.querySelectorAll('#jn-cartela .cn');
     if(cells[idx]&&!marcados.has(idx)){cells[idx].classList.add('reacao');setTimeout(()=>cells[idx]?.classList.remove('reacao'),600)}
     som(660);
   }
 
-  renderCartelaJog(nums,cfg.auto);
+  // Revisão
+  const rev=s.revisao;
+  const revisaoBanner=document.getElementById('revisao-banner');
+  const revisaoFlash=document.getElementById('revisao-flash');
+  if(rev){
+    revisaoBanner.style.display='block';
+    if(rev.modo==='uma-uma'){
+      revisaoFlash.style.display='block';
+      document.getElementById('revisao-num-flash').textContent=rev.numAtual||'—';
+      document.getElementById('revisao-idx-flash').textContent=`Pedra ${(rev.idx||0)+1} de ${rev.total||0}`;
+      // Destaca na cartela
+      renderCartelaJogRevisao(nums,cfg.auto,[rev.numAtual]);
+    }else if(rev.modo==='todas'){
+      revisaoFlash.style.display='none';
+      renderCartelaJogRevisao(nums,cfg.auto,rev.nums||nums);
+    }
+  }else{
+    revisaoBanner.style.display='none';
+    revisaoFlash.style.display='none';
+    renderCartelaJog(nums,cfg.auto);
+  }
 
   // Quase lá
   const falt=calcFaltaVencer(cartela,marcados,cfg.faseAtual,nums);
   const quase=falt<=3&&falt>0;
   document.getElementById('quase-la-banner').style.display=quase?'flex':'none';
 
-  // Botão bingo: só ativa se último número está na cartela e completou vitória
+  // Botão bingo
   const podeGanhar=calcVit(cartela,marcados,cfg.faseAtual)&&ultimo&&cartela.includes(ultimo)&&marcados.has(cartela.indexOf(ultimo));
-  document.getElementById('btn-bingo').disabled=!podeGanhar||bingoJaPedido||jd.status==='vencedor';
+  document.getElementById('btn-bingo').disabled=!podeGanhar||bingoJaPedido||jd.status==='vencedor'||!!rev||s.pausado;
 }
 
 function renderCartelaJog(nums,auto){
@@ -938,6 +1056,20 @@ function renderCartelaJog(nums,auto){
     const saiu=nums.includes(n);
     const clicavel=!auto&&saiu&&!marc;
     return`<div class="cn ${marc?'marc':''}" onclick="${clicavel?`marcarNum(${i})`:''}" style="${clicavel?'border-color:var(--acc)':''}">${n}</div>`;
+  }).join('');
+}
+
+function renderCartelaJogRevisao(nums,auto,revisaoNums){
+  const div=document.getElementById('jn-cartela');
+  div.innerHTML=cartela.map((n,i)=>{
+    if(n===0)return`<div class="cn livre">★</div>`;
+    const marc=marcados.has(i);
+    const emRevisao=revisaoNums.includes(n);
+    const saiu=nums.includes(n);
+    const clicavel=!auto&&saiu&&!marc;
+    let style='';let extra='';
+    if(emRevisao&&!marc){style='border-color:var(--acc);background:rgba(245,200,66,.15)';extra='reacao'}
+    return`<div class="cn ${marc?'marc':''} ${extra}" onclick="${clicavel?`marcarNum(${i})`:''}" style="${style||clicavel?'border-color:var(--acc)':''}">${n}</div>`;
   }).join('');
 }
 
