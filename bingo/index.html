@@ -298,6 +298,86 @@ body{background:var(--bg);color:var(--txt);font-family:'DM Sans',sans-serif;min-
   </div>
 </div>
 
+<!-- TELA ESCOLHA: JOGADOR OU VISITANTE -->
+<div id="screen-escolha" class="screen">
+  <div class="card" style="text-align:center">
+    <div class="card-title">🎱 Bingo em andamento!</div>
+    <p style="color:var(--mut);font-size:13px;margin-bottom:20px">A sala <strong id="escolha-sala"></strong> já está jogando. Como quer entrar?</p>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <button class="btn btn-pri btn-lg" onclick="irLobbyVisitante()">👁️ Entrar como visitante</button>
+      <button class="btn btn-gho btn-sm" onclick="show('screen-inicio')">← Voltar</button>
+    </div>
+  </div>
+</div>
+
+<!-- TELA LOBBY VISITANTE -->
+<div id="screen-lobby-visitante" class="screen">
+  <div class="card" style="max-width:420px">
+    <div class="card-title">👁️ Entrar como visitante</div>
+    <p style="font-size:13px;color:var(--mut);margin-bottom:14px">Sala: <strong id="lv-sala"></strong></p>
+    <div class="field"><label>Seu nome</label><input id="v-nome" placeholder="Ex: Pedro" maxlength="20"></div>
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <button class="btn btn-gho btn-sm" onclick="show('screen-inicio')">← Voltar</button>
+      <button class="btn btn-pri" style="flex:1" onclick="entrarVisitante()">Assistir →</button>
+    </div>
+  </div>
+</div>
+
+<!-- TELA VISITANTE -->
+<div id="screen-visitante" class="screen" style="justify-content:flex-start;padding:10px 14px;gap:10px;min-height:100vh">
+  <div style="width:100%;display:flex;align-items:center;justify-content:space-between;padding-bottom:10px;border-bottom:1px solid var(--bd)">
+    <div style="display:flex;align-items:center;gap:8px">
+      <span style="font-size:22px">👁️</span>
+      <div>
+        <div style="font-weight:700;font-size:14px" id="vis-nome-header"></div>
+        <div style="font-size:10px;color:var(--mut)" id="vis-sala-header"></div>
+      </div>
+    </div>
+    <span class="modo-badge" id="vis-badge">—</span>
+  </div>
+
+  <!-- Número atual -->
+  <div class="num-jog-wrap" style="max-width:none">
+    <div class="num-jog-big" id="vis-num-atual">—</div>
+    <div>
+      <div style="font-size:9px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px">Últimas 5</div>
+      <div class="hist-mini" id="vis-hist"></div>
+    </div>
+    <div style="flex:1;background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:10px;text-align:center">
+      <div style="font-family:'Bebas Neue',cursive;font-size:26px;color:var(--acc);line-height:1" id="vis-total-sort">0</div>
+      <div style="font-size:9px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;margin-top:2px">sorteadas</div>
+    </div>
+  </div>
+
+  <!-- Fase e jogadores + chat -->
+  <div style="display:grid;grid-template-columns:1fr 160px;gap:10px;width:100%;flex:1">
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div class="fase-atual" id="vis-fase">—</div>
+      <div class="side-box" style="flex:1">
+        <div class="sec-title" style="margin-bottom:8px">Jogadores <span id="vis-quase-info" style="color:var(--blu);font-size:10px"></span></div>
+        <div class="jog-list" id="vis-jog-list"></div>
+      </div>
+    </div>
+
+    <!-- Chat visitante -->
+    <div class="chat-wrap" style="display:flex;flex-direction:column">
+      <div style="font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;padding:6px 8px 3px">Chat</div>
+      <div class="chat-msgs" id="vis-chat-msgs" style="height:120px;flex:1"></div>
+      <div style="display:flex;gap:4px;padding:4px 6px;border-top:1px solid var(--bd)">
+        <input id="vis-chat-input" placeholder="mensagem..." style="flex:1;background:transparent;border:none;color:var(--txt);font-size:11px;outline:none;font-family:'DM Sans',sans-serif" maxlength="40" onkeydown="if(event.key==='Enter')enviarMensagemVisitante()">
+        <button onclick="enviarMensagemVisitante()" style="background:none;border:none;color:var(--acc);font-size:14px;cursor:pointer;padding:2px">↑</button>
+      </div>
+      <div class="chat-reactions" style="padding:4px 6px;gap:4px;flex-wrap:wrap">
+        <button class="react-btn" style="font-size:16px" onclick="reagirVisitante('🎉')">🎉</button>
+        <button class="react-btn" style="font-size:16px" onclick="reagirVisitante('😱')">😱</button>
+        <button class="react-btn" style="font-size:16px" onclick="reagirVisitante('😤')">😤</button>
+        <button class="react-btn" style="font-size:16px" onclick="reagirVisitante('🔥')">🔥</button>
+        <button class="react-btn" style="font-size:16px" onclick="reagirVisitante('👀')">👀</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- TELA LOBBY JOGADOR -->
 <div id="screen-lobby" class="screen">
   <div class="card" style="max-width:420px">
@@ -356,8 +436,11 @@ body{background:var(--bg);color:var(--txt);font-family:'DM Sans',sans-serif;min-
           <div class="num-big" id="ctrl-num">—</div>
           <div class="hist-row" id="ctrl-hist"></div>
         </div>
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap">
-          <button class="btn btn-pri" style="flex:1" id="btn-sort" onclick="sortear()">🎱 Sortear pedra</button>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+          <button class="btn btn-pri" style="flex:1" id="btn-sort" onclick="sortear()">🎱 Sortear</button>
+          <button class="btn btn-sec btn-sm" id="btn-pausar" onclick="pausarBingo()">⏸ Pausar</button>
+          <button class="btn btn-sec btn-sm" id="btn-retomar" onclick="retomarBingo()" style="display:none">▶ Retomar</button>
+          <button class="btn btn-sec btn-sm" onclick="recomecarBingo()">🔄 Recomeçar</button>
           <div class="timer-wrap" id="ctrl-timer-wrap" style="display:none">
             <div class="timer-circle"><svg class="timer-svg" viewBox="0 0 36 36" width="56" height="56"><circle cx="18" cy="18" r="15.9"/><circle class="prog" id="timer-prog" cx="18" cy="18" r="15.9" stroke-dasharray="100 100" stroke-dashoffset="0"/></svg><div class="timer-num" id="timer-num">—</div></div>
           </div>
@@ -404,48 +487,72 @@ body{background:var(--bg);color:var(--txt);font-family:'DM Sans',sans-serif;min-
 </div>
 
 <!-- TELA JOGADOR -->
-<div id="screen-jog" class="screen">
-  <div class="jog-header">
+<div id="screen-jog" class="screen" style="justify-content:flex-start;padding:10px 12px;gap:10px;min-height:100vh;align-items:stretch">
+  <!-- Header -->
+  <div class="jog-header" style="max-width:none">
     <div class="jog-header-left">
       <span class="jog-header-emoji" id="jh-emoji">🎰</span>
       <div><div class="jog-header-nome" id="jh-nome"></div><div class="jog-header-sala" id="jh-sala"></div></div>
     </div>
     <span class="modo-badge" id="jh-badge">—</span>
   </div>
-  <div class="num-jog-wrap">
+
+  <!-- Número atual -->
+  <div class="num-jog-wrap" style="max-width:none">
     <div class="num-jog-big" id="jn-atual">—</div>
     <div><div style="font-size:9px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px">Últimas 5</div><div class="hist-mini" id="jn-hist"></div></div>
+    <div class="stats-row" style="flex:1;margin:0">
+      <div class="stat-box"><div class="stat-val" id="js-marc">0</div><div class="stat-lbl">marcados</div></div>
+      <div class="stat-box"><div class="stat-val" id="js-falt">25</div><div class="stat-lbl">faltam</div></div>
+      <div class="stat-box"><div class="stat-val" id="js-sort">0</div><div class="stat-lbl">sorteados</div></div>
+    </div>
   </div>
-  <div id="quase-la-banner" style="display:none" class="quase-la">🔥 Você está quase lá! Faltam poucos números!</div>
-  <div id="revisao-banner" style="display:none;width:100%;max-width:480px;background:rgba(74,158,255,.1);border:1px solid rgba(74,158,255,.4);border-radius:12px;padding:10px 14px;font-size:13px;color:var(--blu);text-align:center">
-    📋 Revisão em andamento — confira os números destacados na sua cartela
+
+  <!-- Banners -->
+  <div id="quase-la-banner" style="display:none" class="quase-la">🔥 Quase lá! Faltam poucos números!</div>
+  <div id="revisao-banner" style="display:none;background:rgba(74,158,255,.1);border:1px solid rgba(74,158,255,.4);border-radius:12px;padding:8px 14px;font-size:12px;color:var(--blu);text-align:center">
+    📋 Revisão em andamento — confira os números destacados
   </div>
-  <div id="revisao-flash" style="display:none;width:100%;max-width:480px;background:rgba(245,200,66,.15);border:2px solid var(--acc);border-radius:12px;padding:12px;text-align:center">
-    <div style="font-family:'Bebas Neue',cursive;font-size:52px;color:var(--acc);line-height:1" id="revisao-num-flash">—</div>
+  <div id="revisao-flash" style="display:none;background:rgba(245,200,66,.15);border:2px solid var(--acc);border-radius:12px;padding:8px;text-align:center;display:flex;align-items:center;justify-content:center;gap:12px">
+    <div style="font-family:'Bebas Neue',cursive;font-size:48px;color:var(--acc);line-height:1" id="revisao-num-flash">—</div>
     <div style="font-size:11px;color:var(--mut)" id="revisao-idx-flash"></div>
   </div>
-  <div class="stats-row">
-    <div class="stat-box"><div class="stat-val" id="js-marc">0</div><div class="stat-lbl">marcados</div></div>
-    <div class="stat-box"><div class="stat-val" id="js-falt">25</div><div class="stat-lbl">faltam</div></div>
-    <div class="stat-box"><div class="stat-val" id="js-sort">0</div><div class="stat-lbl">sorteados</div></div>
-  </div>
-  <div class="cartela-wrap">
-    <div class="cartela-header"><span>sua cartela</span><span id="jc-modo" style="color:var(--acc);font-size:10px">manual</span></div>
-    <div class="cartela" id="jn-cartela"></div>
-  </div>
-  <button class="btn-bingo-big" id="btn-bingo" onclick="chamarBingo()" disabled>🎉 BINGO!</button>
-  <!-- Chat jogador -->
-  <div class="chat-wrap">
-    <div class="chat-msgs" id="jog-chat-msgs"></div>
-    <div class="chat-reactions">
-      <span style="font-size:10px;color:var(--mut);align-self:center">Reagir:</span>
-      <button class="react-btn" onclick="reagir('🎉')">🎉</button>
-      <button class="react-btn" onclick="reagir('😱')">😱</button>
-      <button class="react-btn" onclick="reagir('😤')">😤</button>
-      <button class="react-btn" onclick="reagir('🍀')">🍀</button>
-      <button class="react-btn" onclick="reagir('😅')">😅</button>
-      <button class="react-btn" onclick="reagir('🔥')">🔥</button>
-      <button class="react-btn" onclick="reagir('👀')">👀</button>
+
+  <!-- Corpo principal: cartela + lateral -->
+  <div style="display:grid;grid-template-columns:1fr 160px;gap:10px;flex:1;align-items:start">
+    <!-- Cartela -->
+    <div>
+      <div class="cartela-header" style="margin-bottom:6px"><span>sua cartela</span><span id="jc-modo" style="color:var(--acc);font-size:10px">manual</span></div>
+      <div class="cartela" id="jn-cartela"></div>
+    </div>
+
+    <!-- Lateral: botão bingo + chat -->
+    <div style="display:flex;flex-direction:column;gap:8px;height:100%">
+      <!-- Botão BINGO vertical -->
+      <button class="btn-bingo-big" id="btn-bingo" onclick="chamarBingo()" disabled
+        style="flex:1;min-height:100px;writing-mode:horizontal-tb;font-size:22px;padding:12px 8px;border-radius:14px;flex-direction:column;gap:6px">
+        🎉<br>BINGO!
+      </button>
+
+      <!-- Chat compacto -->
+      <div class="chat-wrap" style="flex:1">
+        <div style="font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;padding:6px 8px 3px">Chat</div>
+        <div class="chat-msgs" id="jog-chat-msgs" style="height:80px"></div>
+        <!-- Input texto -->
+        <div style="display:flex;gap:4px;padding:4px 6px;border-top:1px solid var(--bd)">
+          <input id="chat-input" placeholder="mensagem..." style="flex:1;background:transparent;border:none;color:var(--txt);font-size:11px;outline:none;font-family:'DM Sans',sans-serif" maxlength="40" onkeydown="if(event.key==='Enter')enviarMensagem()">
+          <button onclick="enviarMensagem()" style="background:none;border:none;color:var(--acc);font-size:14px;cursor:pointer;padding:2px">↑</button>
+        </div>
+        <!-- Reações rápidas -->
+        <div class="chat-reactions" style="padding:4px 6px;gap:4px;flex-wrap:wrap">
+          <button class="react-btn" style="font-size:16px" onclick="reagir('🎉')">🎉</button>
+          <button class="react-btn" style="font-size:16px" onclick="reagir('😱')">😱</button>
+          <button class="react-btn" style="font-size:16px" onclick="reagir('😤')">😤</button>
+          <button class="react-btn" style="font-size:16px" onclick="reagir('🍀')">🍀</button>
+          <button class="react-btn" style="font-size:16px" onclick="reagir('🔥')">🔥</button>
+          <button class="react-btn" style="font-size:16px" onclick="reagir('👀')">👀</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -509,6 +616,50 @@ body{background:var(--bg);color:var(--txt);font-family:'DM Sans',sans-serif;min-
 <div id="toast"></div>
 <div id="bingo-ov"><div class="ov-title">BINGO!</div><p id="bov-txt"></p></div>
 <button class="som-btn" id="som-btn" onclick="toggleSomBtn()">🔊</button>
+
+<!-- MODAL: manual→auto marcar pedras -->
+<div class="modal-overlay" id="modal-marcar-auto">
+  <div class="modal-box" style="text-align:center;max-width:360px">
+    <div class="modal-titulo">🔄 Voltando para automático</div>
+    <p style="color:var(--mut);font-size:13px;margin-bottom:16px">Quer marcar automaticamente nas cartelas dos jogadores todas as pedras que já foram sorteadas?</p>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <button class="btn btn-pri" onclick="confirmarMarcarAuto(true)">✓ Sim, marcar todas</button>
+      <button class="btn btn-gho btn-sm" onclick="confirmarMarcarAuto(false)">Não, continuar do zero</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: alerta mudança auto→manual (jogador) -->
+<div class="modal-overlay" id="modal-alerta-manual">
+  <div class="modal-box" style="text-align:center;max-width:360px">
+    <div class="modal-titulo" style="color:var(--acc)">⚠️ Modo Manual</div>
+    <p style="color:var(--mut);font-size:13px;margin-bottom:6px">O controlador mudou para marcação <strong style="color:var(--txt)">manual</strong>.</p>
+    <p style="color:var(--mut);font-size:13px;margin-bottom:16px">A partir de agora você precisa clicar nos números da sua cartela quando eles saírem.</p>
+    <button class="btn btn-pri" style="width:100%" onclick="confirmarModoManual()">✓ Entendi, vou marcar manualmente</button>
+  </div>
+</div>
+
+<!-- MODAL: jogador em stand by (jogador) -->
+<div class="modal-overlay" id="modal-standby">
+  <div class="modal-box" style="text-align:center;max-width:360px">
+    <div class="modal-titulo" style="color:var(--red)">⏸ Stand By</div>
+    <p style="color:var(--mut);font-size:13px;margin-bottom:16px">Você está em stand by. O controlador precisa te reintegrar ao jogo.</p>
+    <div class="dot-load" style="justify-content:center"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+  </div>
+</div>
+
+<!-- MODAL: reintegrar jogador (ctrl) -->
+<div class="modal-overlay" id="modal-reintegrar">
+  <div class="modal-box" style="text-align:center;max-width:380px">
+    <div class="modal-titulo">🔁 Reintegrar jogador</div>
+    <p style="color:var(--txt);font-size:14px;margin-bottom:4px"><strong id="reint-nome"></strong> voltou!</p>
+    <p style="color:var(--mut);font-size:12px;margin-bottom:16px">Pedras que saíram enquanto ele estava ausente: <strong id="reint-pedras" style="color:var(--acc)"></strong></p>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <button class="btn btn-grn" onclick="reintegrar(true)">✓ Marcar pedras ausentes automaticamente</button>
+      <button class="btn btn-sec" onclick="reintegrar(false)">✗ Não marcar — ele que corra atrás</button>
+    </div>
+  </div>
+</div>
 
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -653,11 +804,114 @@ window.verificarSala=async()=>{
   const snap=await get(ref(db,`salas/${cod}`));
   if(!snap.exists()){toast('Sala não encontrada!');return}
   const s=snap.val();
-  if(s.status==='jogando'){toast('Bingo em andamento! Não é possível entrar.');return}
   if(s.status==='encerrado'){toast('Esta sala foi encerrada.');return}
   sala=cod;
+  if(s.status==='jogando'){
+    // Oferecer entrar como visitante
+    document.getElementById('escolha-sala').textContent=cod;
+    show('screen-escolha');
+    return;
+  }
   document.getElementById('lb-sala').textContent=cod;
   show('screen-lobby');renderEmojis();
+};
+
+window.irLobbyVisitante=()=>{
+  document.getElementById('lv-sala').textContent=sala;
+  show('screen-lobby-visitante');
+};
+
+window.entrarVisitante=async()=>{
+  const nome=document.getElementById('v-nome').value.trim();
+  if(!nome){toast('Digite seu nome!');return}
+  meuNome=nome;meuId=gId();papel='visitante';
+  document.getElementById('vis-nome-header').textContent=`${nome} (visitante)`;
+  document.getElementById('vis-sala-header').textContent=`Sala ${sala}`;
+  show('screen-visitante');
+  iniciarVisitante();
+};
+
+function iniciarVisitante(){
+  onValue(ref(db,`salas/${sala}`),snap=>{
+    if(!snap.exists())return;
+    const s=snap.val();
+    uiVisitante(s);
+    renderChat('vis-chat-msgs',s.chat);
+    if(s.status==='encerrado'&&!fimMostrado){fimMostrado=true;mostrarFim(s)}
+  });
+}
+
+function uiVisitante(s){
+  const cfg=s.config;const nums=s.numeros||[];const jogs=s.jogadores||{};const arr=Object.values(jogs);
+  const ultimo=nums[nums.length-1];
+
+  document.getElementById('vis-badge').textContent=`${cfg.faseAtual}·${cfg.max}`;
+  document.getElementById('vis-num-atual').textContent=ultimo||'—';
+  document.getElementById('vis-hist').innerHTML=nums.slice(-5).reverse().map(n=>`<div class="hm">${n}</div>`).join('');
+  document.getElementById('vis-total-sort').textContent=nums.length;
+  document.getElementById('vis-fase').textContent=`Fase: ${cfg.faseAtual} · ${nums.length} de ${cfg.max} pedras`;
+
+  // Lista jogadores
+  let quaseInfo=[];
+  const lista=document.getElementById('vis-jog-list');
+  if(arr.length===0){lista.innerHTML='<p style="color:var(--mut);font-size:12px;text-align:center;padding:10px">Nenhum jogador</p>';return}
+  lista.innerHTML=arr.map(j=>{
+    const m=new Set(j.marcados||[]);
+    const total=(j.cartela||[]).filter(n=>n!==0).length;
+    const falt=total-m.size;
+    const faltaV=calcFaltaVencer(j.cartela||[],m,cfg.faseAtual,nums);
+    const quase=faltaV<=3&&faltaV>0;
+    if(quase)quaseInfo.push(`${j.emoji}${j.nome}`);
+    let bc='b-aguard',bt='jogando';
+    if(j.status==='bingo-pendente'){bc='b-bingo';bt='BINGO!'}
+    else if(j.status==='vencedor'){bc='b-venc';bt='🏆 venceu'}
+    else if(quase){bc='b-quase';bt=`🔥${faltaV}`}
+    return`<div class="jog-item" style="cursor:default"><span class="jog-emoji">${j.emoji}</span><div class="jog-info"><div class="jog-nome">${j.nome}</div><div class="jog-stats">✓${m.size} · ${falt} falt</div></div><span class="jog-badge ${bc}">${bt}</span></div>`;
+  }).join('');
+  document.getElementById('vis-quase-info').textContent=quaseInfo.length?`🔥 ${quaseInfo.join(', ')}`:'' ;
+}
+
+window.confirmarModoManual=async()=>{
+  document.getElementById('modal-alerta-manual').classList.remove('show');
+  // Marca o jogador como tendo confirmado
+  await update(ref(db,`salas/${sala}/jogadores/${meuId}`),{confirmouManual:true});
+  toast('Boa sorte! Clique nos números quando eles saírem.');
+};
+
+window.reintegrar=async(marcar)=>{
+  document.getElementById('modal-reintegrar').classList.remove('show');
+  const id=window._reintId;if(!id)return;
+  const snap=await get(ref(db,`salas/${sala}`));
+  const s=snap.val();const jd=s.jogadores[id];const nums=s.numeros||[];
+  const ausente=jd.ausenteDesde||0;
+  const numsSemMarcacao=nums.filter(n=>!new Set(jd.marcados||[]).has((jd.cartela||[]).indexOf(n)));
+  const upd={[`jogadores/${id}/standBy`]:false,[`jogadores/${id}/ausenteDesde`]:null};
+  if(marcar){
+    const m=new Set(jd.marcados||[]);
+    (jd.cartela||[]).forEach((n,i)=>{if(nums.includes(n))m.add(i)});
+    upd[`jogadores/${id}/marcados`]=[...m];
+  }
+  await update(ref(db,`salas/${sala}`),upd);
+  toast(`${jd.nome} reintegrado!`);
+};
+
+window.reagirVisitante=async(emoji)=>{
+  const snap=await get(ref(db,`salas/${sala}`));
+  const msg={emoji:'👁️',nome:`${meuNome} (visitante)`,react:emoji,t:Date.now()};
+  const chat=snap.val().chat||[];
+  chat.push(msg);if(chat.length>30)chat.shift();
+  await update(ref(db,`salas/${sala}`),{chat});
+};
+
+window.enviarMensagemVisitante=async()=>{
+  const input=document.getElementById('vis-chat-input');
+  const texto=input?.value?.trim();if(!texto)return;
+  const snap=await get(ref(db,`salas/${sala}`));
+  const msg={emoji:'👁️',nome:`${meuNome} (visitante)`,texto,t:Date.now()};
+  const chat=snap.val().chat||[];
+  chat.push(msg);if(chat.length>30)chat.shift();
+  await update(ref(db,`salas/${sala}`),{chat});
+  if(input)input.value='';
 };
 
 function renderEmojis(){
@@ -768,20 +1022,32 @@ function renderJogsCtrl(jogs,nums,cfg){
     const m=new Set(j.marcados||[]);
     const total=(j.cartela||[]).filter(n=>n!==0).length;
     const marcCount=m.size;const falt=total-marcCount;
-    // quase lá: calcula pedras que faltam pra vencer
     const cart=j.cartela||[];
-    const numsMarcNaCart=cart.filter((n,i)=>n!==0&&nums.includes(n));
     const faltaVencer=calcFaltaVencer(cart,m,cfg.faseAtual,nums);
     const quase=faltaVencer<=3&&faltaVencer>0;
     if(quase)quaseInfo.push(`${j.emoji}${j.nome}(${faltaVencer})`);
     let bc='b-aguard',bt=j.pronto?'pronto':'aguardando';
-    if(j.status==='bingo-pendente'){bc='b-bingo';bt='BINGO!'}
+    if(j.standBy){bc='b-bingo';bt='⏸ stand by'}
+    else if(j.status==='bingo-pendente'){bc='b-bingo';bt='BINGO!'}
     else if(j.status==='vencedor'){bc='b-venc';bt='🏆 venceu'}
-    else if(quase){bc='b-quase';bt=`🔥 ${faltaVencer} pedras`}
-    return`<div class="jog-item" onclick="verCartela('${j.id}')"><span class="jog-emoji">${j.emoji}</span><div class="jog-info"><div class="jog-nome">${j.nome}</div><div class="jog-stats">✓${marcCount} marc · ${falt} falt</div></div><span class="jog-badge ${bc}">${bt}</span></div>`;
+    else if(quase){bc='b-quase';bt=`🔥 ${faltaVencer}`}
+    const reintBtn=j.standBy?`<button class="btn btn-grn btn-sm" style="padding:3px 8px;font-size:10px;margin-top:3px" onclick="event.stopPropagation();abrirReintegrar('${j.id}')">Reintegrar</button>`:'';
+    return`<div class="jog-item" onclick="${j.standBy?'':` verCartela('${j.id}')`}" style="${j.standBy?'opacity:.7':''}"><span class="jog-emoji">${j.emoji}</span><div class="jog-info"><div class="jog-nome">${j.nome}</div><div class="jog-stats">✓${marcCount} marc · ${falt} falt</div>${reintBtn}</div><span class="jog-badge ${bc}">${bt}</span></div>`;
   }).join('');
   document.getElementById('ctrl-quase-info').textContent=quaseInfo.length?`🔥 quase: ${quaseInfo.join(', ')}`:'' ;
 }
+
+window.abrirReintegrar=(id)=>{
+  window._reintId=id;
+  get(ref(db,`salas/${sala}`)).then(snap=>{
+    const jd=snap.val().jogadores[id];const nums=snap.val().numeros||[];
+    const m=new Set(jd.marcados||[]);
+    const faltam=(jd.cartela||[]).filter((n,i)=>n!==0&&nums.includes(n)&&!m.has(i)).length;
+    document.getElementById('reint-nome').textContent=`${jd.emoji} ${jd.nome}`;
+    document.getElementById('reint-pedras').textContent=`${faltam} pedra(s) não marcada(s)`;
+    document.getElementById('modal-reintegrar').classList.add('show');
+  });
+};
 
 function calcFaltaVencer(cart,marc,tipo,nums){
   const linhas=[];for(let r=0;r<5;r++){linhas.push([r*5,r*5+1,r*5+2,r*5+3,r*5+4]);linhas.push([r,r+5,r+10,r+15,r+20])}
@@ -805,18 +1071,29 @@ window.verCartela=async(jid)=>{
 window.iniciarBingo=async()=>{await update(ref(db,`salas/${sala}`),{status:'jogando'});iniciarTimer()};
 
 function iniciarTimer(){
-  clearInterval(timerInterval);
-  const snap_get=()=>get(ref(db,`salas/${sala}`)).then(s=>{
-    const cfg=s.val().config;
+  clearInterval(timerInterval);timerInterval=null;
+  get(ref(db,`salas/${sala}`)).then(s=>{
+    const cfg=s.val().config;const nums=s.val().numeros||[];
     if(!cfg.auto)return;
+    if(nums.length>=cfg.max){toast('Todos os números já foram sorteados!');return}
     timerTotal=cfg.timerSecs;timerSeg=timerTotal;
     atualizarTimerUI(timerSeg,timerTotal);
     timerInterval=setInterval(async()=>{
+      // Verifica se pausado ou bingo pendente
+      const snap=await get(ref(db,`salas/${sala}`));
+      const sv=snap.val();
+      if(sv.pausado||sv.revisao||Object.values(sv.jogadores||{}).some(j=>j.status==='bingo-pendente')){return}
+      // Verifica se todos os números já saíram
+      if((sv.numeros||[]).length>=sv.config.max){
+        clearInterval(timerInterval);timerInterval=null;
+        atualizarTimerUI(0,timerTotal);
+        toast('Todos os números foram sorteados!',4000);
+        return;
+      }
       timerSeg--;atualizarTimerUI(timerSeg,timerTotal);
       if(timerSeg<=0){timerSeg=timerTotal;await sortear()}
     },1000);
   });
-  snap_get();
 }
 
 function atualizarTimerUI(seg,total){
@@ -850,8 +1127,76 @@ window.sortear=async()=>{
 
 window.mudarMarcacao=async()=>{
   const auto=document.getElementById('tog-auto').checked;
-  await update(ref(db,`salas/${sala}/config`),{auto,marc:auto?'auto':'manual'});
-  if(auto)iniciarTimer();else clearInterval(timerInterval);
+  if(auto){
+    // Manual → Auto: perguntar se marca pedras já sorteadas
+    document.getElementById('tog-auto').checked=false; // reverte visual até confirmar
+    document.getElementById('modal-marcar-auto').classList.add('show');
+  } else {
+    // Auto → Manual: avisar todos os jogadores
+    clearInterval(timerInterval);timerInterval=null;
+    await update(ref(db,`salas/${sala}/config`),{auto:false,marc:'manual'});
+    await update(ref(db,`salas/${sala}`),{alertaMarcacao:'manual',alertaTs:Date.now()});
+    document.getElementById('ctrl-timer-wrap').style.display='none';
+    toast('Modo manual ativado. Jogadores sendo alertados...',3000);
+  }
+};
+
+window.confirmarMarcarAuto=async(marcar)=>{
+  document.getElementById('modal-marcar-auto').classList.remove('show');
+  document.getElementById('tog-auto').checked=true;
+  const snap=await get(ref(db,`salas/${sala}`));
+  const s=snap.val();const nums=s.numeros||[];
+  const upd={'config/auto':true,'config/marc':'auto',alertaMarcacao:null};
+  if(marcar){
+    // Marca todas as pedras já sorteadas em todos os jogadores
+    Object.entries(s.jogadores||{}).forEach(([id,j])=>{
+      const m=new Set(j.marcados||[]);
+      (j.cartela||[]).forEach((n,i)=>{if(nums.includes(n))m.add(i)});
+      upd[`jogadores/${id}/marcados`]=[...m];
+      upd[`jogadores/${id}/standBy`]=false;
+    });
+    toast('Pedras marcadas para todos! Modo automático ativado.',3000);
+  } else {
+    toast('Modo automático ativado. Novas pedras serão marcadas automaticamente.',3000);
+  }
+  await update(ref(db,`salas/${sala}`),upd);
+  iniciarTimer();
+};
+
+// Pausar/Retomar/Recomeçar
+window.pausarBingo=async()=>{
+  clearInterval(timerInterval);timerInterval=null;
+  await update(ref(db,`salas/${sala}`),{pausado:true});
+  document.getElementById('btn-pausar').style.display='none';
+  document.getElementById('btn-retomar').style.display='inline-flex';
+  document.getElementById('btn-sort').disabled=true;
+  toast('Bingo pausado.');
+};
+
+window.retomarBingo=async()=>{
+  await update(ref(db,`salas/${sala}`),{pausado:false});
+  document.getElementById('btn-pausar').style.display='inline-flex';
+  document.getElementById('btn-retomar').style.display='none';
+  document.getElementById('btn-sort').disabled=false;
+  const snap=await get(ref(db,`salas/${sala}`));
+  if(snap.val().config.auto)iniciarTimer();
+  toast('Bingo retomado!');
+};
+
+window.recomecarBingo=async()=>{
+  if(!confirm('Recomeçar o bingo? Todos os números sorteados serão apagados e as marcações dos jogadores serão zeradas.'))return;
+  clearInterval(timerInterval);timerInterval=null;
+  const snap=await get(ref(db,`salas/${sala}`));
+  const jogs=snap.val().jogadores||{};
+  const upd={numeros:[],pausado:false,revisao:null,alertaMarcacao:null};
+  Object.keys(jogs).forEach(id=>{upd[`jogadores/${id}/marcados`]=[];upd[`jogadores/${id}/bingoJaPedido`]=false;upd[`jogadores/${id}/status`]='jogando';upd[`jogadores/${id}/standBy`]=false});
+  await update(ref(db,`salas/${sala}`),upd);
+  document.getElementById('btn-pausar').style.display='inline-flex';
+  document.getElementById('btn-retomar').style.display='none';
+  document.getElementById('btn-sort').disabled=false;
+  const snap2=await get(ref(db,`salas/${sala}`));
+  if(snap2.val().config.auto)iniciarTimer();
+  toast('Bingo recomeçado do zero!',3000);
 };
 
 window.validar=async(ok)=>{
@@ -969,6 +1314,9 @@ window.histPlay=async()=>{
 window.pararHist=()=>{clearInterval(histPlayInt);histPlayInt=null};
 
 // ── JOGADOR ──
+let alertaManualVisto = false;
+let standByAtivo = false;
+
 function iniciarJog(){
   onValue(ref(db,`salas/${sala}`),snap=>{
     if(!snap.exists())return;
@@ -979,6 +1327,23 @@ function iniciarJog(){
 
     if(s.status==='jogando'&&document.getElementById('screen-aguard').classList.contains('active'))show('screen-jog');
     if(s.status==='encerrado'&&!fimMostrado){fimMostrado=true;mostrarFim(s)}
+
+    // Alerta mudança auto→manual
+    if(s.alertaMarcacao==='manual'&&!alertaManualVisto&&papel==='jog'){
+      alertaManualVisto=true;
+      document.getElementById('modal-alerta-manual').classList.add('show');
+    }
+    if(!s.alertaMarcacao)alertaManualVisto=false;
+
+    // Stand by
+    if(jd.standBy&&!standByAtivo){
+      standByAtivo=true;
+      document.getElementById('modal-standby').classList.add('show');
+    }
+    if(!jd.standBy&&standByAtivo){
+      standByAtivo=false;
+      document.getElementById('modal-standby').classList.remove('show');
+    }
 
     uiJog(s,jd);
     renderChat('jog-chat-msgs',s.chat);
@@ -1098,10 +1463,26 @@ window.reagir=async(emoji)=>{
   await update(ref(db,`salas/${sala}`),{chat});
 };
 
+window.enviarMensagem=async()=>{
+  const input=document.getElementById('chat-input');
+  const texto=input?.value?.trim();
+  if(!texto)return;
+  const snap=await get(ref(db,`salas/${sala}`));
+  const jd=(snap.val().jogadores||{})[meuId];
+  const msg={emoji:meuEmoji,nome:jd?.nome||meuNome,texto,t:Date.now()};
+  const chat=snap.val().chat||[];
+  chat.push(msg);if(chat.length>30)chat.shift();
+  await update(ref(db,`salas/${sala}`),{chat});
+  if(input)input.value='';
+};
+
 function renderChat(elId,chat){
   const el=document.getElementById(elId);if(!el)return;
-  const msgs=(chat||[]).slice(-8);
-  el.innerHTML=msgs.map(m=>`<div class="chat-msg"><span class="msg-emoji">${m.emoji}</span><span class="msg-nome">${m.nome}</span><span>${m.react}</span></div>`).join('');
+  const msgs=(chat||[]).slice(-10);
+  el.innerHTML=msgs.map(m=>{
+    const conteudo=m.texto?`<span style="color:var(--txt)">${m.texto}</span>`:`<span>${m.react}</span>`;
+    return`<div class="chat-msg"><span class="msg-emoji">${m.emoji}</span><span class="msg-nome">${m.nome}</span>${conteudo}</div>`;
+  }).join('');
   el.scrollTop=el.scrollHeight;
 }
 
