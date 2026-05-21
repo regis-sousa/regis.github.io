@@ -149,6 +149,7 @@ const wppPopup = document.getElementById('wpp-popup');
 const fecharWpp = document.getElementById('fechar-wpp');
 
 function abrirWpp() {
+    dispararConfete();
     wppOverlay.classList.remove('escondido');
     wppPopup.classList.remove('escondido');
     wppPopup.classList.add('aparecendo');
@@ -213,9 +214,14 @@ const fecharVelha = document.getElementById('fechar-velha');
 const velhaStatus = document.getElementById('velha-status');
 const velhaCells = document.querySelectorAll('.velha-cell');
 const velhaReiniciar = document.getElementById('velha-reiniciar');
+const velhaTrocarModo = document.getElementById('velha-trocar-modo');
+const velhaModoEl = document.getElementById('velha-modo');
+const velhaJogoEl = document.getElementById('velha-jogo');
 
 let velhaBoard = Array(9).fill(null);
 let velhaAtivo = true;
+let velhaModo = 'ia'; // 'ia' ou '2p'
+let velhaVez = 'X'; // para 2 jogadores
 
 const combinacoes = [
     [0,1,2],[3,4,5],[6,7,8],
@@ -273,43 +279,75 @@ function renderVelha() {
 
 function jogarVelha(i) {
     if (!velhaAtivo || velhaBoard[i]) return;
-    velhaBoard[i] = 'X';
-    renderVelha();
-    const res = verificarVencedor(velhaBoard);
-    if (res) { encerrarVelha(res); return; }
-    velhaAtivo = false;
-    velhaStatus.textContent = 'Garfield pensando...';
-    setTimeout(() => {
-        const ia = melhorJogadaIA();
-        if (ia !== -1) velhaBoard[ia] = 'O';
+
+    if (velhaModo === 'ia') {
+        velhaBoard[i] = 'X';
         renderVelha();
-        const res2 = verificarVencedor(velhaBoard);
-        if (res2) { encerrarVelha(res2); return; }
-        velhaAtivo = true;
-        velhaStatus.textContent = 'sua vez — você é o ✕';
-    }, 500);
+        const res = verificarVencedor(velhaBoard);
+        if (res) { encerrarVelha(res); return; }
+        velhaAtivo = false;
+        velhaStatus.textContent = 'Garfield pensando...';
+        setTimeout(() => {
+            const ia = melhorJogadaIA();
+            if (ia !== -1) velhaBoard[ia] = 'O';
+            renderVelha();
+            const res2 = verificarVencedor(velhaBoard);
+            if (res2) { encerrarVelha(res2); return; }
+            velhaAtivo = true;
+            velhaStatus.textContent = 'sua vez — você é o ✕';
+        }, 500);
+    } else {
+        velhaBoard[i] = velhaVez;
+        renderVelha();
+        const res = verificarVencedor(velhaBoard);
+        if (res) { encerrarVelha(res); return; }
+        velhaVez = velhaVez === 'X' ? 'O' : 'X';
+        velhaStatus.textContent = `vez do ${velhaVez === 'X' ? '✕' : '○'}`;
+    }
 }
 
 function encerrarVelha(res) {
     velhaAtivo = false;
-    if (res.vencedor === 'X') velhaStatus.textContent = '🎉 você ganhou! (impossível)';
-    else if (res.vencedor === 'O') velhaStatus.textContent = '😼 Garfield ganhou. Claro.';
-    else velhaStatus.textContent = '😐 empate. satisfatório pra ninguém.';
+    if (velhaModo === 'ia') {
+        if (res.vencedor === 'X') velhaStatus.textContent = '🎉 você ganhou! (impossível)';
+        else if (res.vencedor === 'O') velhaStatus.textContent = '😼 Garfield ganhou. Claro.';
+        else velhaStatus.textContent = '😐 empate. satisfatório pra ninguém.';
+    } else {
+        if (res.vencedor === 'empate') velhaStatus.textContent = '😐 empate!';
+        else velhaStatus.textContent = `🎉 ${res.vencedor === 'X' ? '✕' : '○'} ganhou!`;
+    }
     res.linha.forEach(i => velhaCells[i].classList.add('vencedora'));
 }
 
 function reiniciarVelha() {
     velhaBoard = Array(9).fill(null);
     velhaAtivo = true;
-    velhaStatus.textContent = 'sua vez — você é o ✕';
+    velhaVez = 'X';
+    if (velhaModo === 'ia') velhaStatus.textContent = 'sua vez — você é o ✕';
+    else velhaStatus.textContent = 'vez do ✕';
     renderVelha();
+}
+
+function mostrarModoVelha() {
+    velhaModoEl.classList.remove('escondido');
+    velhaJogoEl.classList.add('escondido');
+}
+
+function iniciarModo(modo) {
+    velhaModo = modo;
+    velhaModoEl.classList.add('escondido');
+    velhaJogoEl.classList.remove('escondido');
+    reiniciarVelha();
 }
 
 velhaCells.forEach(cell => cell.addEventListener('click', () => jogarVelha(+cell.dataset.i)));
 velhaReiniciar.addEventListener('click', reiniciarVelha);
+velhaTrocarModo.addEventListener('click', mostrarModoVelha);
+document.getElementById('modo-ia').addEventListener('click', () => iniciarModo('ia'));
+document.getElementById('modo-2p').addEventListener('click', () => iniciarModo('2p'));
 
 function abrirVelha() {
-    reiniciarVelha();
+    mostrarModoVelha();
     velhaOverlay.classList.remove('escondido');
     velhaPopup.classList.remove('escondido');
     velhaPopup.classList.add('aparecendo');
@@ -325,156 +363,89 @@ velhaOverlay.addEventListener('click', fecharVelhaFn);
 
 
 // =============================================
-// SNAKE
+// PEDRA PAPEL TESOURA
 // =============================================
-const btnSnake = document.getElementById('btn-snake');
-const snakeOverlay = document.getElementById('snake-overlay');
-const snakePopup = document.getElementById('snake-popup');
-const fecharSnakeBtn = document.getElementById('fechar-snake');
-const snakeCanvas = document.getElementById('snake-canvas');
-const snakeCtx = snakeCanvas.getContext('2d');
-const snakeScoreEl = document.getElementById('snake-score');
-const snakeMsgEl = document.getElementById('snake-msg');
+const btnPpt = document.getElementById('btn-ppt');
+const pptOverlay = document.getElementById('ppt-overlay');
+const pptPopup = document.getElementById('ppt-popup');
+const fecharPptBtn = document.getElementById('fechar-ppt');
+const pptEmojiJogador = document.getElementById('ppt-emoji-jogador');
+const pptEmojiGarfield = document.getElementById('ppt-emoji-garfield');
+const pptResultado = document.getElementById('ppt-resultado');
+const pptPlacar = document.getElementById('ppt-placar');
+const pptReiniciar = document.getElementById('ppt-reiniciar');
 
-const GRID = 20;
-const COLS = snakeCanvas.width / GRID;
-const ROWS = snakeCanvas.height / GRID;
+let pptPontosJogador = 0, pptPontosGarfield = 0;
+let pptRodando = false;
 
-let snake, dir, nextDir, food, snakeLoop, snakeAtivo, snakePontos;
+const pptOpcoes = ['pedra', 'papel', 'tesoura'];
+const pptEmojis = { pedra: '🪨', papel: '📄', tesoura: '✂️' };
+const pptNomes = { pedra: 'pedra', papel: 'papel', tesoura: 'tesoura' };
 
-function randomFood(snakeBody) {
-    let pos;
-    do {
-        pos = { x: Math.floor(Math.random() * COLS), y: Math.floor(Math.random() * ROWS) };
-    } while (snakeBody.some(s => s.x === pos.x && s.y === pos.y));
-    return pos;
+function pptVencedor(a, b) {
+    if (a === b) return 'empate';
+    if ((a === 'pedra' && b === 'tesoura') ||
+        (a === 'papel' && b === 'pedra') ||
+        (a === 'tesoura' && b === 'papel')) return 'jogador';
+    return 'garfield';
 }
 
-function iniciarSnake() {
-    snake = [{ x: 10, y: 10 }, { x: 9, y: 10 }, { x: 8, y: 10 }];
-    dir = { x: 1, y: 0 };
-    nextDir = { x: 1, y: 0 };
-    food = randomFood(snake);
-    snakePontos = 0;
-    snakeAtivo = true;
-    snakeScoreEl.textContent = 'pontos: 0';
-    snakeMsgEl.textContent = 'use setas ou botões';
-    desenharSnake();
-}
+function jogarPpt(escolhaJogador) {
+    if (pptRodando) return;
+    pptRodando = true;
 
-function desenharSnake() {
-    snakeCtx.fillStyle = '#0a0a0a';
-    snakeCtx.fillRect(0, 0, snakeCanvas.width, snakeCanvas.height);
+    const escolhaGarfield = pptOpcoes[Math.floor(Math.random() * 3)];
 
-    // Grid sutil
-    snakeCtx.strokeStyle = '#111';
-    snakeCtx.lineWidth = 0.5;
-    for (let x = 0; x <= snakeCanvas.width; x += GRID) {
-        snakeCtx.beginPath(); snakeCtx.moveTo(x, 0); snakeCtx.lineTo(x, snakeCanvas.height); snakeCtx.stroke();
-    }
-    for (let y = 0; y <= snakeCanvas.height; y += GRID) {
-        snakeCtx.beginPath(); snakeCtx.moveTo(0, y); snakeCtx.lineTo(snakeCanvas.width, y); snakeCtx.stroke();
-    }
+    // Animação de suspense
+    pptEmojiJogador.textContent = '🤔';
+    pptEmojiGarfield.textContent = '😼';
+    pptResultado.textContent = '...';
 
-    // Comida (lasanha 🍝)
-    snakeCtx.font = `${GRID - 2}px serif`;
-    snakeCtx.textAlign = 'center';
-    snakeCtx.textBaseline = 'middle';
-    snakeCtx.fillText('🍝', food.x * GRID + GRID/2, food.y * GRID + GRID/2);
+    setTimeout(() => {
+        pptEmojiJogador.textContent = pptEmojis[escolhaJogador];
+        pptEmojiGarfield.textContent = pptEmojis[escolhaGarfield];
 
-    // Cobra
-    snake.forEach((seg, i) => {
-        snakeCtx.fillStyle = i === 0 ? '#fba919' : '#d4920a';
-        snakeCtx.beginPath();
-        snakeCtx.roundRect(seg.x * GRID + 1, seg.y * GRID + 1, GRID - 2, GRID - 2, 4);
-        snakeCtx.fill();
-    });
-}
-
-function tickSnake() {
-    dir = { ...nextDir };
-    const cabeca = { x: snake[0].x + dir.x, y: snake[0].y + dir.y };
-
-    if (cabeca.x < 0 || cabeca.x >= COLS || cabeca.y < 0 || cabeca.y >= ROWS
-        || snake.some(s => s.x === cabeca.x && s.y === cabeca.y)) {
-        clearInterval(snakeLoop);
-        snakeAtivo = false;
-        snakeMsgEl.textContent = `💀 fim de jogo — ${snakePontos} pts. toca pra jogar de novo`;
-        snakeMsgEl.style.cursor = 'pointer';
-        snakeMsgEl.onclick = () => { snakeMsgEl.style.cursor = ''; snakeMsgEl.onclick = null; iniciarSnake(); comecarSnake(); };
-        return;
-    }
-
-    snake.unshift(cabeca);
-    if (cabeca.x === food.x && cabeca.y === food.y) {
-        snakePontos++;
-        snakeScoreEl.textContent = `pontos: ${snakePontos}`;
-        food = randomFood(snake);
-    } else {
-        snake.pop();
-    }
-    desenharSnake();
-}
-
-function comecarSnake() {
-    clearInterval(snakeLoop);
-    snakeLoop = setInterval(tickSnake, 130);
-}
-
-function abrirSnake() {
-    snakeOverlay.classList.remove('escondido');
-    snakePopup.classList.remove('escondido');
-    snakePopup.classList.add('aparecendo');
-    iniciarSnake();
-    snakeMsgEl.textContent = 'pressione uma tecla ou botão pra começar';
-}
-
-function fecharSnakeFn() {
-    clearInterval(snakeLoop);
-    snakeAtivo = false;
-    snakeOverlay.classList.add('escondido');
-    snakePopup.classList.remove('aparecendo');
-    snakePopup.classList.add('escondido');
-}
-
-// Controles teclado
-document.addEventListener('keydown', e => {
-    if (!snakeAtivo) return;
-    const mapa = {
-        ArrowUp: { x: 0, y: -1 }, ArrowDown: { x: 0, y: 1 },
-        ArrowLeft: { x: -1, y: 0 }, ArrowRight: { x: 1, y: 0 }
-    };
-    if (mapa[e.key]) {
-        const nd = mapa[e.key];
-        if (nd.x !== -dir.x || nd.y !== -dir.y) nextDir = nd;
-        if (!snakeLoop || snakeAtivo) {
-            if (snakeMsgEl.textContent.includes('pra começar')) comecarSnake();
+        const resultado = pptVencedor(escolhaJogador, escolhaGarfield);
+        if (resultado === 'jogador') {
+            pptPontosJogador++;
+            pptResultado.textContent = '🎉 você ganhou!';
+        } else if (resultado === 'garfield') {
+            pptPontosGarfield++;
+            pptResultado.textContent = '😼 garfield ganhou.';
+        } else {
+            pptResultado.textContent = '😐 empate.';
         }
-        e.preventDefault();
-    }
+        pptPlacar.textContent = `você ${pptPontosJogador} × ${pptPontosGarfield} garfield`;
+        pptRodando = false;
+    }, 600);
+}
+
+document.querySelectorAll('.ppt-btn').forEach(btn => {
+    btn.addEventListener('click', () => jogarPpt(btn.dataset.escolha));
 });
 
-// Controles touch
-document.getElementById('snake-up').addEventListener('click', () => {
-    if (dir.y !== 1) nextDir = { x: 0, y: -1 };
-    if (snakeMsgEl.textContent.includes('pra começar')) comecarSnake();
-});
-document.getElementById('snake-down').addEventListener('click', () => {
-    if (dir.y !== -1) nextDir = { x: 0, y: 1 };
-    if (snakeMsgEl.textContent.includes('pra começar')) comecarSnake();
-});
-document.getElementById('snake-left').addEventListener('click', () => {
-    if (dir.x !== 1) nextDir = { x: -1, y: 0 };
-    if (snakeMsgEl.textContent.includes('pra começar')) comecarSnake();
-});
-document.getElementById('snake-right').addEventListener('click', () => {
-    if (dir.x !== -1) nextDir = { x: 1, y: 0 };
-    if (snakeMsgEl.textContent.includes('pra começar')) comecarSnake();
+pptReiniciar.addEventListener('click', () => {
+    pptPontosJogador = 0;
+    pptPontosGarfield = 0;
+    pptPlacar.textContent = 'você 0 × 0 garfield';
+    pptResultado.textContent = '';
+    pptEmojiJogador.textContent = '🤔';
+    pptEmojiGarfield.textContent = '😼';
 });
 
-btnSnake.addEventListener('click', abrirSnake);
-fecharSnakeBtn.addEventListener('click', fecharSnakeFn);
-snakeOverlay.addEventListener('click', fecharSnakeFn);
+function abrirPpt() {
+    pptOverlay.classList.remove('escondido');
+    pptPopup.classList.remove('escondido');
+    pptPopup.classList.add('aparecendo');
+}
+function fecharPptFn() {
+    pptOverlay.classList.add('escondido');
+    pptPopup.classList.remove('aparecendo');
+    pptPopup.classList.add('escondido');
+}
+btnPpt.addEventListener('click', abrirPpt);
+fecharPptBtn.addEventListener('click', fecharPptFn);
+pptOverlay.addEventListener('click', fecharPptFn);
 
 
 // =============================================
@@ -603,3 +574,54 @@ document.addEventListener('mousemove', e => {
         }, 2000);
     }
 });
+
+
+// =============================================
+// CONFETE
+// =============================================
+function dispararConfete() {
+    const cores = ['#fba919', '#fff', '#ff6b6b', '#1DB954', '#4ecdc4', '#ffe66d'];
+    const total = 80;
+    for (let i = 0; i < total; i++) {
+        const el = document.createElement('div');
+        el.style.cssText = `
+            position: fixed;
+            top: -10px;
+            left: ${Math.random() * 100}vw;
+            width: ${6 + Math.random() * 8}px;
+            height: ${6 + Math.random() * 8}px;
+            background: ${cores[Math.floor(Math.random() * cores.length)]};
+            border-radius: ${Math.random() > 0.5 ? '50%' : '2px'};
+            z-index: 999999;
+            pointer-events: none;
+            transform: rotate(${Math.random() * 360}deg);
+            animation: confete-cair ${1.5 + Math.random() * 2}s ease-in forwards;
+            animation-delay: ${Math.random() * 0.5}s;
+        `;
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 4000);
+    }
+}
+
+// Injeta keyframes do confete dinamicamente
+const styleConfete = document.createElement('style');
+styleConfete.textContent = `
+@keyframes confete-cair {
+    0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(105vh) rotate(${Math.floor(Math.random()*720)}deg); opacity: 0; }
+}`;
+document.head.appendChild(styleConfete);
+
+
+// =============================================
+// CORREÇÃO PUPILAS — top alinhado com pálpebra
+// =============================================
+// Garfield olhando esquerda (Odie vindo da esquerda)
+const styleOlho = document.createElement('style');
+styleOlho.textContent = `
+.garfield-inner.olho-esquerda .eyeball1 { left: 55px !important; top: 166px; }
+.garfield-inner.olho-esquerda .eyeball2 { left: 5px !important;  top: 166px; }
+.garfield-inner.olho-direita  .eyeball1 { left: 83px !important; top: 166px; }
+.garfield-inner.olho-direita  .eyeball2 { left: 20px !important; top: 166px; }
+`;
+document.head.appendChild(styleOlho);
