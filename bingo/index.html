@@ -448,7 +448,10 @@ body{background:var(--bg);color:var(--txt);font-family:'DM Sans',sans-serif;min-
           <button class="btn btn-gho btn-sm" onclick="verHistorico()">📋 Histórico</button>
           <button class="btn btn-red btn-sm" onclick="encerrar()">Encerrar</button>
         </div>
-        <div class="fase-atual" id="ctrl-fase">—</div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px">
+          <div class="fase-atual" id="ctrl-fase" style="flex:1">—</div>
+          <button class="btn btn-sec btn-sm" id="btn-pular-fase" onclick="pularFase()" style="display:none">Pular fase →</button>
+        </div>
         <div class="grade-wrap" style="margin-top:10px">
           <div class="sec-title">Pedras sorteadas</div>
           <div class="grade" id="ctrl-grade"></div>
@@ -970,8 +973,16 @@ function uiCtrl(s){
   const grade=document.getElementById('ctrl-grade');grade.innerHTML='';
   for(let i=1;i<=cfg.max;i++){const d=document.createElement('div');d.className='gn';d.textContent=i;if(nums.includes(i))d.classList.add('saiu');if(i===nums[nums.length-1]){d.classList.remove('saiu');d.classList.add('atual')}grade.appendChild(d)}
 
-  // Fase
+  // Fase + botão pular
+  const proximaFase = cfg.fases && cfg.fases[( cfg.faseIdx||0)+1];
   document.getElementById('ctrl-fase').textContent=`Fase: ${cfg.faseAtual} · ${nums.length} de ${cfg.max} pedras sorteadas`;
+  const btnPular = document.getElementById('btn-pular-fase');
+  if(proximaFase && s.status==='jogando'){
+    btnPular.style.display='inline-flex';
+    btnPular.textContent=`Pular → ${proximaFase}`;
+  } else {
+    btnPular.style.display='none';
+  }
 
   // Jogadores
   renderJogsCtrl(jogs,nums,cfg);
@@ -1004,14 +1015,26 @@ function renderJogsCtrl(jogs,nums,cfg){
     const cart=j.cartela||[];
     const faltaVencer=calcFaltaVencer(cart,m,cfg.faseAtual,nums);
     const quase=faltaVencer<=3&&faltaVencer>0;
-    if(quase)quaseInfo.push(`${j.emoji}${j.nome}(${faltaVencer})`);
+    if(quase&&j.status!=='vencedor')quaseInfo.push(`${j.emoji}${j.nome}(${faltaVencer})`);
+
     let bc='b-aguard',bt=j.pronto?'pronto':'aguardando';
+    let statsExtra='';
+
     if(j.standBy){bc='b-bingo';bt='⏸ stand by'}
     else if(j.status==='bingo-pendente'){bc='b-bingo';bt='BINGO!'}
-    else if(j.status==='vencedor'){bc='b-venc';bt='🏆 venceu'}
+    else if(j.status==='vencedor'){
+      // Vencedor de fase anterior — mostra qual fase ganhou + faltam pra fase atual
+      const faseGanha=j.faseGanha||cfg.faseAtual;
+      bc='b-venc';
+      bt=`🏆 ${faseGanha}`;
+      // Se ainda tem próximas fases, mostra quantas faltam pra fase atual
+      const faltaAtual=calcFaltaVencer(cart,m,cfg.faseAtual,nums);
+      statsExtra=`<div style="font-size:10px;color:var(--blu);margin-top:2px">fase atual: ${faltaAtual} pedras faltam</div>`;
+    }
     else if(quase){bc='b-quase';bt=`🔥 ${faltaVencer}`}
+
     const reintBtn=j.standBy?`<button class="btn btn-grn btn-sm" style="padding:3px 8px;font-size:10px;margin-top:3px" onclick="event.stopPropagation();abrirReintegrar('${j.id}')">Reintegrar</button>`:'';
-    return`<div class="jog-item" onclick="${j.standBy?'':` verCartela('${j.id}')`}" style="${j.standBy?'opacity:.7':''}"><span class="jog-emoji">${j.emoji}</span><div class="jog-info"><div class="jog-nome">${j.nome}</div><div class="jog-stats">✓${marcCount} marc · ${falt} falt</div>${reintBtn}</div><span class="jog-badge ${bc}">${bt}</span></div>`;
+    return`<div class="jog-item" onclick="${j.standBy?'':` verCartela('${j.id}')`}" style="${j.standBy?'opacity:.7':''}"><span class="jog-emoji">${j.emoji}</span><div class="jog-info"><div class="jog-nome">${j.nome}</div><div class="jog-stats">✓${marcCount} marc · ${falt} falt</div>${statsExtra}${reintBtn}</div><span class="jog-badge ${bc}">${bt}</span></div>`;
   }).join('');
   document.getElementById('ctrl-quase-info').textContent=quaseInfo.length?`🔥 quase: ${quaseInfo.join(', ')}`:'' ;
 }
@@ -1193,12 +1216,11 @@ window.validar=async(ok)=>{
     const proxIdx=idx+1;
     clearInterval(timerInterval);timerInterval=null;
     if(proxIdx<fases.length){
-      await update(ref(db,`salas/${sala}`),{[`jogadores/${id}/status`]:'vencedor',ultimoVenc:{nome:j.nome,emoji:j.emoji,fase:cfg.faseAtual},[`config/faseIdx`]:proxIdx,[`config/faseAtual`]:fases[proxIdx]});
+      await update(ref(db,`salas/${sala}`),{[`jogadores/${id}/status`]:'vencedor',[`jogadores/${id}/faseGanha`]:cfg.faseAtual,ultimoVenc:{nome:j.nome,emoji:j.emoji,fase:cfg.faseAtual},[`config/faseIdx`]:proxIdx,[`config/faseAtual`]:fases[proxIdx]});
       toast(`${j.nome} venceu na ${cfg.faseAtual}! Próxima fase: ${fases[proxIdx]}`,4000);
-      // Reinicia timer para a próxima fase se for automático
       if(cfg.auto)setTimeout(()=>iniciarTimer(),2000);
     }else{
-      await update(ref(db,`salas/${sala}`),{[`jogadores/${id}/status`]:'vencedor',status:'encerrado',vencedor:{nome:j.nome,emoji:j.emoji,fase:cfg.faseAtual},fimEm:Date.now()});
+      await update(ref(db,`salas/${sala}`),{[`jogadores/${id}/status`]:'vencedor',[`jogadores/${id}/faseGanha`]:cfg.faseAtual,status:'encerrado',vencedor:{nome:j.nome,emoji:j.emoji,fase:cfg.faseAtual},fimEm:Date.now()});
     }
   }else{
     await update(ref(db,`salas/${sala}/jogadores/${id}`),{status:'jogando',bingoJaPedido:false});
@@ -1219,6 +1241,20 @@ window.encerrarLobby=async()=>{
   if(!confirm('Encerrar e apagar a sala?'))return;
   await remove(ref(db,`salas/${sala}`));
   location.reload();
+};
+
+window.pularFase=async()=>{
+  const snap=await get(ref(db,`salas/${sala}`));
+  const s=snap.val();const cfg=s.config;
+  const fases=cfg.fases;const idx=cfg.faseIdx||0;
+  const proxIdx=idx+1;
+  if(proxIdx>=fases.length){toast('Já está na última fase!');return}
+  if(!confirm(`Pular a fase "${cfg.faseAtual}" e ir para "${fases[proxIdx]}"?`))return;
+  clearInterval(timerInterval);timerInterval=null;
+  await update(ref(db,`salas/${sala}`),{'config/faseIdx':proxIdx,'config/faseAtual':fases[proxIdx]});
+  toast(`Fase avançada para ${fases[proxIdx]}!`,3000);
+  const snap2=await get(ref(db,`salas/${sala}`));
+  if(snap2.val().config.auto)iniciarTimer();
 };
 
 window.verHistorico=async()=>{
@@ -1394,8 +1430,8 @@ function uiJog(s,jd){
   document.getElementById('quase-la-banner').style.display=quase?'flex':'none';
 
   // Botão bingo
-  const podeGanhar=calcVit(cartela,marcados,cfg.faseAtual);
-  document.getElementById('btn-bingo').disabled=!podeGanhar||bingoJaPedido||jd.status==='vencedor'||!!rev||s.pausado;
+  const podeGanhar=true;
+  document.getElementById('btn-bingo').disabled=bingoJaPedido||jd.status==='vencedor'||!!rev||s.pausado;
 }
 
 function renderCartelaJog(nums,auto){
