@@ -1,1 +1,1555 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Bingo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f0f13;
+  --surface: #1a1a22;
+  --surface2: #22222e;
+  --border: #2e2e3e;
+  --accent: #f5c842;
+  --accent2: #e8453c;
+  --green: #2dd36f;
+  --text: #f0f0f5;
+  --muted: #6b6b80;
+  --radius: 14px;
+}
 
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── SCREENS ── */
+.screen { display:none; min-height:100vh; }
+.screen.active { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:24px; }
+
+/* ── TELA INICIAL ── */
+#screen-inicio {
+  gap: 32px;
+  background: radial-gradient(ellipse at 50% 0%, #1e1e2e 0%, var(--bg) 70%);
+}
+
+.logo {
+  text-align: center;
+}
+.logo h1 {
+  font-family: 'Bebas Neue', cursive;
+  font-size: clamp(64px, 15vw, 120px);
+  color: var(--accent);
+  line-height: 0.9;
+  letter-spacing: 4px;
+  text-shadow: 0 0 60px rgba(245,200,66,0.3);
+}
+.logo p {
+  color: var(--muted);
+  font-size: 14px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-top: 8px;
+}
+
+.inicio-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 320px;
+}
+
+/* ── BOTÕES ── */
+.btn {
+  padding: 14px 24px;
+  border-radius: var(--radius);
+  border: none;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.btn-primary { background: var(--accent); color: #0f0f13; }
+.btn-primary:hover { background: #ffd655; transform: translateY(-2px); }
+.btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+.btn-secondary:hover { background: var(--border); }
+.btn-danger { background: var(--accent2); color: #fff; }
+.btn-danger:hover { background: #ff5c53; transform: translateY(-2px); }
+.btn-green { background: var(--green); color: #0f0f13; }
+.btn-green:hover { filter: brightness(1.1); transform: translateY(-2px); }
+.btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+.btn-ghost:hover { color: var(--text); border-color: var(--muted); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+.btn-sm { padding: 8px 16px; font-size: 13px; border-radius: 10px; }
+.btn-lg { padding: 18px 32px; font-size: 17px; }
+
+/* ── CARDS / INPUTS ── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  width: 100%;
+  max-width: 400px;
+}
+
+.card-title {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 22px;
+  letter-spacing: 2px;
+  color: var(--accent);
+  margin-bottom: 16px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.field label {
+  font-size: 12px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.field input, .field select {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.field input:focus, .field select:focus { border-color: var(--accent); }
+.field select option { background: var(--surface2); }
+
+/* ── TELA CONTROLADOR ── */
+#screen-controlador {
+  justify-content: flex-start;
+  padding: 16px;
+  gap: 0;
+}
+
+.ctrl-header {
+  width: 100%;
+  max-width: 900px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0 16px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ctrl-header h2 {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 28px;
+  letter-spacing: 2px;
+  color: var(--accent);
+}
+
+.sala-codigo {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 6px 14px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.sala-codigo span {
+  color: var(--accent);
+  font-weight: 700;
+  font-family: 'Bebas Neue';
+  font-size: 18px;
+  letter-spacing: 2px;
+}
+
+.ctrl-body {
+  width: 100%;
+  max-width: 900px;
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 16px;
+}
+
+@media (max-width: 700px) {
+  .ctrl-body { grid-template-columns: 1fr; }
+}
+
+/* Painel principal do controlador */
+.ctrl-main { display: flex; flex-direction: column; gap: 14px; }
+
+/* Número atual */
+.numero-atual {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  text-align: center;
+}
+.numero-atual .label {
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+}
+.numero-atual .num {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 100px;
+  color: var(--accent);
+  line-height: 1;
+  text-shadow: 0 0 40px rgba(245,200,66,0.4);
+  min-height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.numero-atual .historico {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+.hist-num {
+  width: 32px; height: 32px;
+  background: var(--surface2);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+/* Grade de números */
+.grade-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+.grade-titulo {
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 12px;
+}
+.grade-numeros {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 4px;
+}
+.grade-num {
+  aspect-ratio: 1;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 8px;
+  font-size: clamp(10px, 1.5vw, 13px);
+  font-weight: 600;
+  background: var(--surface2);
+  color: var(--muted);
+  transition: all 0.3s ease;
+}
+.grade-num.saiu {
+  background: var(--accent);
+  color: #0f0f13;
+}
+.grade-num.atual {
+  background: var(--accent2);
+  color: #fff;
+  transform: scale(1.1);
+}
+
+/* Painel lateral */
+.ctrl-side { display: flex; flex-direction: column; gap: 14px; }
+
+.ctrl-config {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+.ctrl-config .card-title { font-size: 16px; margin-bottom: 12px; }
+
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.toggle-row:last-child { border-bottom: none; }
+.toggle-row label { color: var(--muted); }
+
+.toggle {
+  position: relative;
+  width: 40px; height: 22px;
+  cursor: pointer;
+}
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-slider {
+  position: absolute;
+  inset: 0;
+  background: var(--border);
+  border-radius: 22px;
+  transition: 0.2s;
+}
+.toggle-slider::before {
+  content: '';
+  position: absolute;
+  width: 16px; height: 16px;
+  left: 3px; top: 3px;
+  background: #fff;
+  border-radius: 50%;
+  transition: 0.2s;
+}
+.toggle input:checked + .toggle-slider { background: var(--accent); }
+.toggle input:checked + .toggle-slider::before { transform: translateX(18px); }
+
+/* Jogadores */
+.jogadores-lista {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+.jogador-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.jogador-item:last-child { border-bottom: none; }
+.jogador-emoji { font-size: 20px; }
+.jogador-info { flex: 1; }
+.jogador-nome { font-weight: 600; font-size: 13px; }
+.jogador-stats { color: var(--muted); font-size: 11px; }
+.jogador-status {
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 20px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.status-pronto { background: rgba(45,211,111,0.15); color: var(--green); }
+.status-aguardando { background: rgba(245,200,66,0.1); color: var(--accent); }
+.status-bingo { background: rgba(232,69,60,0.15); color: var(--accent2); animation: pisca 1s infinite; }
+
+@keyframes pisca {
+  0%,100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* Validação bingo */
+.bingo-validar {
+  background: var(--surface);
+  border: 2px solid var(--accent2);
+  border-radius: var(--radius);
+  padding: 16px;
+  text-align: center;
+  animation: pulse-border 1s infinite;
+}
+@keyframes pulse-border {
+  0%,100% { border-color: var(--accent2); }
+  50% { border-color: rgba(232,69,60,0.3); }
+}
+.bingo-validar h3 {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 20px;
+  color: var(--accent2);
+  margin-bottom: 6px;
+}
+.bingo-validar p { font-size: 13px; color: var(--muted); margin-bottom: 12px; }
+.bingo-validar-btns { display: flex; gap: 8px; }
+
+/* Modo aguardando inicio */
+.aguardando-wrap {
+  text-align: center;
+  padding: 32px 0;
+}
+.aguardando-wrap h3 {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 28px;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+.aguardando-wrap p { color: var(--muted); font-size: 14px; margin-bottom: 20px; }
+
+/* ── TELA JOGADOR ── */
+#screen-jogador {
+  justify-content: flex-start;
+  padding: 12px;
+  gap: 12px;
+}
+
+.jogador-header {
+  width: 100%;
+  max-width: 500px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.jogador-header-info { display: flex; align-items: center; gap: 10px; }
+.jogador-header-emoji { font-size: 28px; }
+.jogador-header-nome { font-weight: 700; font-size: 15px; }
+.jogador-header-sala { font-size: 11px; color: var(--muted); }
+
+/* Número atual jogador */
+.num-atual-jogador {
+  width: 100%;
+  max-width: 500px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.num-atual-jogador .num-big {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 56px;
+  color: var(--accent);
+  line-height: 1;
+  min-width: 64px;
+  text-align: center;
+}
+.num-atual-jogador .hist-mini {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.hist-mini-num {
+  width: 28px; height: 28px;
+  background: var(--surface2);
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+/* Cartela */
+.cartela-wrap {
+  width: 100%;
+  max-width: 500px;
+}
+.cartela-titulo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.cartela-titulo span { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+
+.cartela {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px;
+}
+
+.cartela-num {
+  aspect-ratio: 1;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 10px;
+  font-size: clamp(14px, 4vw, 20px);
+  font-weight: 700;
+  background: var(--surface2);
+  color: var(--text);
+  border: 2px solid transparent;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  user-select: none;
+}
+.cartela-num:hover:not(.marcado):not(.auto) { border-color: var(--accent); }
+.cartela-num.marcado {
+  background: var(--accent);
+  color: #0f0f13;
+  border-color: var(--accent);
+}
+.cartela-num.novo-marcado {
+  animation: marcou 0.4s ease;
+}
+@keyframes marcou {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+.cartela-num.livre {
+  background: var(--surface2);
+  color: var(--muted);
+  font-size: 10px;
+  cursor: default;
+}
+
+/* Stats jogador */
+.jogador-stats-bar {
+  width: 100%;
+  max-width: 500px;
+  display: flex;
+  gap: 8px;
+}
+.stat-box {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px;
+  text-align: center;
+}
+.stat-box .val {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 28px;
+  color: var(--accent);
+  line-height: 1;
+}
+.stat-box .lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+
+/* Botão BINGO */
+.btn-bingo {
+  width: 100%;
+  max-width: 500px;
+  padding: 20px;
+  font-family: 'Bebas Neue', cursive;
+  font-size: 32px;
+  letter-spacing: 4px;
+  background: var(--accent2);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.btn-bingo:hover:not(:disabled) { background: #ff5c53; transform: scale(1.02); }
+.btn-bingo:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
+
+/* ── TELA LOBBY JOGADOR ── */
+.lobby-jogador {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  max-width: 420px;
+  text-align: center;
+}
+.lobby-jogador h2 {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 32px;
+  color: var(--accent);
+}
+.lobby-jogador p { color: var(--muted); font-size: 14px; }
+.lobby-emoji-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+  width: 100%;
+}
+.emoji-opt {
+  aspect-ratio: 1;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px;
+  background: var(--surface2);
+  border: 2px solid transparent;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.emoji-opt:hover { border-color: var(--accent); }
+.emoji-opt.selecionado { border-color: var(--accent); background: rgba(245,200,66,0.1); }
+
+/* ── TELA FIM ── */
+#screen-fim {
+  gap: 24px;
+  text-align: center;
+  background: radial-gradient(ellipse at 50% 30%, rgba(245,200,66,0.08) 0%, var(--bg) 70%);
+}
+.fim-titulo {
+  font-family: 'Bebas Neue', cursive;
+  font-size: clamp(48px, 12vw, 96px);
+  color: var(--accent);
+  text-shadow: 0 0 60px rgba(245,200,66,0.4);
+  animation: brilha 2s ease infinite;
+}
+@keyframes brilha {
+  0%,100% { text-shadow: 0 0 60px rgba(245,200,66,0.4); }
+  50% { text-shadow: 0 0 100px rgba(245,200,66,0.8); }
+}
+.fim-vencedor { font-size: 20px; color: var(--text); margin-bottom: 8px; }
+.fim-modo { font-size: 14px; color: var(--muted); }
+
+/* ── TOAST ── */
+#toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 20px;
+  font-size: 14px;
+  z-index: 9999;
+  transition: transform 0.3s ease;
+  pointer-events: none;
+  white-space: nowrap;
+}
+#toast.show { transform: translateX(-50%) translateY(0); }
+
+/* ── OVERLAY BINGO CHAMADO ── */
+#bingo-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  z-index: 9998;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 16px;
+}
+#bingo-overlay.show { display: flex; }
+#bingo-overlay h2 {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 72px;
+  color: var(--accent2);
+  text-shadow: 0 0 60px rgba(232,69,60,0.6);
+  animation: brilha-red 1s infinite;
+}
+@keyframes brilha-red {
+  0%,100% { text-shadow: 0 0 60px rgba(232,69,60,0.6); }
+  50% { text-shadow: 0 0 120px rgba(232,69,60,1); }
+}
+#bingo-overlay p { font-size: 20px; color: var(--text); }
+
+/* ── AGUARDANDO INICIO JOGADOR ── */
+.aguardando-inicio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  text-align: center;
+  padding: 32px;
+}
+.aguardando-inicio h2 {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 32px;
+  color: var(--accent);
+}
+.aguardando-inicio p { color: var(--muted); font-size: 14px; }
+.dot-loading { display: flex; gap: 6px; justify-content: center; margin-top: 8px; }
+.dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; animation: dot-pulse 1.2s ease infinite; }
+.dot:nth-child(2) { animation-delay: 0.2s; }
+.dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes dot-pulse {
+  0%,80%,100% { transform: scale(0.6); opacity: 0.4; }
+  40% { transform: scale(1); opacity: 1; }
+}
+
+/* ── MODO BADGES ── */
+.modo-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(245,200,66,0.1);
+  border: 1px solid rgba(245,200,66,0.3);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 12px;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* ── CTRL BOTOES JOGO ── */
+.ctrl-btns-jogo {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.progresso-bingo {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+.progresso-titulo { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+.progresso-bar-wrap { background: var(--surface2); border-radius: 6px; height: 6px; overflow: hidden; }
+.progresso-bar { height: 100%; background: var(--accent); border-radius: 6px; transition: width 0.3s ease; }
+.progresso-info { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-top: 6px; }
+
+/* Fase atual */
+.fase-badge {
+  text-align: center;
+  padding: 10px;
+  background: rgba(245,200,66,0.08);
+  border: 1px solid rgba(245,200,66,0.2);
+  border-radius: 10px;
+  font-size: 13px;
+  color: var(--accent);
+  font-weight: 600;
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════
+     TELA 1 — INÍCIO
+══════════════════════════════════════ -->
+<div id="screen-inicio" class="screen active">
+  <div class="logo">
+    <h1>BINGO</h1>
+    <p>multiplayer em tempo real</p>
+  </div>
+  <div class="inicio-btns">
+    <button class="btn btn-primary btn-lg" onclick="irParaCriar()">🎯 Criar sala</button>
+    <button class="btn btn-secondary btn-lg" onclick="irParaEntrar()">🎟️ Entrar em sala</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     TELA 2 — CRIAR SALA (controlador)
+══════════════════════════════════════ -->
+<div id="screen-criar" class="screen">
+  <div class="card">
+    <div class="card-title">⚙️ Criar Sala</div>
+    <div class="field">
+      <label>Seu nome (controlador)</label>
+      <input type="text" id="ctrl-nome" placeholder="Ex: João" maxlength="20">
+    </div>
+    <div class="field">
+      <label>Código da sala</label>
+      <input type="text" id="sala-codigo-input" placeholder="Ex: FESTA2025" maxlength="10" style="text-transform:uppercase">
+    </div>
+    <div class="field">
+      <label>Modalidade</label>
+      <select id="modo-jogo">
+        <option value="90">Bingo 90 (1-90)</option>
+        <option value="75">Bingo 75 (1-75)</option>
+        <option value="100">Bingo 100 (1-100)</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Tipo de vitória inicial</label>
+      <select id="tipo-vitoria">
+        <option value="quadra">Quadra (4 números em linha)</option>
+        <option value="quina">Quina (linha completa)</option>
+        <option value="cartela">Cartela cheia</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Marcação das pedras</label>
+      <select id="modo-marcacao">
+        <option value="manual">Manual (jogador clica)</option>
+        <option value="automatico">Automático (sistema marca)</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:8px;">
+      <button class="btn btn-ghost btn-sm" onclick="mostrarScreen('screen-inicio')">← Voltar</button>
+      <button class="btn btn-primary" style="flex:1" onclick="criarSala()">Criar sala →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     TELA 3 — ENTRAR (jogador)
+══════════════════════════════════════ -->
+<div id="screen-entrar" class="screen">
+  <div class="card">
+    <div class="card-title">🎟️ Entrar na Sala</div>
+    <div class="field">
+      <label>Código da sala</label>
+      <input type="text" id="entrar-codigo" placeholder="Ex: FESTA2025" maxlength="10" style="text-transform:uppercase">
+    </div>
+    <div style="display:flex;gap:10px;margin-top:8px;">
+      <button class="btn btn-ghost btn-sm" onclick="mostrarScreen('screen-inicio')">← Voltar</button>
+      <button class="btn btn-primary" style="flex:1" onclick="verificarSala()">Continuar →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     TELA 4 — LOBBY JOGADOR
+══════════════════════════════════════ -->
+<div id="screen-lobby" class="screen">
+  <div class="lobby-jogador">
+    <h2>Entrar no Bingo</h2>
+    <p id="lobby-sala-info">Sala: <strong id="lobby-sala-nome"></strong></p>
+    <div class="card" style="text-align:left">
+      <div class="field">
+        <label>Seu nome</label>
+        <input type="text" id="jogador-nome-input" placeholder="Ex: Maria" maxlength="20">
+      </div>
+      <div class="field">
+        <label>Escolha um emoji</label>
+        <div class="lobby-emoji-grid" id="emoji-grid"></div>
+      </div>
+      <button class="btn btn-primary" style="width:100%;margin-top:8px" onclick="entrarNaSala()">Entrar →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     TELA 5 — AGUARDANDO INÍCIO (jogador)
+══════════════════════════════════════ -->
+<div id="screen-aguardando" class="screen">
+  <div class="aguardando-inicio">
+    <div style="font-size:48px" id="aguard-emoji">🎰</div>
+    <h2>Aguardando início</h2>
+    <p>O controlador vai iniciar o bingo em breve.</p>
+    <div id="aguard-cartela-wrap" style="width:100%;max-width:360px"></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
+      <button class="btn btn-ghost btn-sm" onclick="novaCartela()">🔄 Nova cartela</button>
+      <button class="btn btn-green btn-sm" id="btn-pronto" onclick="marcarPronto()">✓ Estou pronto</button>
+    </div>
+    <div class="dot-loading"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+    <p id="aguard-status" style="font-size:12px;color:var(--muted)"></p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     TELA 6 — JOGO CONTROLADOR
+══════════════════════════════════════ -->
+<div id="screen-controlador" class="screen">
+  <div class="ctrl-header">
+    <h2>🎯 Controlador</h2>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <span class="modo-badge" id="ctrl-modo-badge">Quadra · Manual · 90</span>
+      <div class="sala-codigo">Sala: <span id="ctrl-codigo-exibir"></span></div>
+    </div>
+  </div>
+
+  <div class="ctrl-body">
+    <div class="ctrl-main">
+      <!-- Aguardando jogadores -->
+      <div id="ctrl-aguardando-wrap" class="aguardando-wrap">
+        <h3>Aguardando jogadores...</h3>
+        <p id="ctrl-jogadores-prontos">0 jogadores prontos</p>
+        <div class="dot-loading" style="justify-content:center;margin:12px 0"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+        <button class="btn btn-primary btn-lg" id="btn-iniciar" onclick="iniciarBingo()" disabled>Iniciar Bingo</button>
+      </div>
+
+      <!-- Jogo em andamento -->
+      <div id="ctrl-jogo-wrap" style="display:none">
+        <div class="numero-atual" style="margin-bottom:14px">
+          <div class="label">Última pedra sorteada</div>
+          <div class="num" id="ctrl-num-atual">—</div>
+          <div class="historico" id="ctrl-historico"></div>
+        </div>
+
+        <div class="ctrl-btns-jogo">
+          <button class="btn btn-primary" style="flex:1" id="btn-sortear" onclick="sortearNumero()">🎱 Sortear pedra</button>
+          <button class="btn btn-ghost btn-sm" onclick="encerrarJogo()">Encerrar</button>
+        </div>
+
+        <div class="fase-badge" id="ctrl-fase-badge" style="margin-top:10px">Aguardando início</div>
+
+        <div class="grade-wrap" style="margin-top:10px">
+          <div class="grade-titulo">Pedras sorteadas</div>
+          <div class="grade-numeros" id="ctrl-grade"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ctrl-side">
+      <!-- Validação bingo -->
+      <div id="ctrl-bingo-validar" class="bingo-validar" style="display:none">
+        <h3>🔔 BINGO!</h3>
+        <p><strong id="bingo-quem"></strong> pediu bingo!</p>
+        <div class="bingo-validar-btns">
+          <button class="btn btn-green btn-sm" style="flex:1" onclick="validarBingo(true)">✓ Válido</button>
+          <button class="btn btn-danger btn-sm" style="flex:1" onclick="validarBingo(false)">✗ Inválido</button>
+        </div>
+      </div>
+
+      <!-- Config -->
+      <div class="ctrl-config">
+        <div class="card-title">Config</div>
+        <div class="toggle-row">
+          <label>Marcação auto</label>
+          <label class="toggle">
+            <input type="checkbox" id="toggle-auto" onchange="alterarMarcacao()">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Jogadores -->
+      <div class="jogadores-lista">
+        <div class="grade-titulo" style="margin-bottom:8px">Jogadores</div>
+        <div id="ctrl-jogadores-lista">
+          <p style="color:var(--muted);font-size:13px;text-align:center;padding:16px">Nenhum jogador ainda</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     TELA 7 — JOGO JOGADOR
+══════════════════════════════════════ -->
+<div id="screen-jogador" class="screen">
+  <div class="jogador-header">
+    <div class="jogador-header-info">
+      <span class="jogador-header-emoji" id="jog-emoji-header">🎰</span>
+      <div>
+        <div class="jogador-header-nome" id="jog-nome-header"></div>
+        <div class="jogador-header-sala" id="jog-sala-header"></div>
+      </div>
+    </div>
+    <span class="modo-badge" id="jog-modo-badge">—</span>
+  </div>
+
+  <div class="num-atual-jogador">
+    <div class="num-big" id="jog-num-atual">—</div>
+    <div>
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Últimas 5</div>
+      <div class="hist-mini" id="jog-historico"></div>
+    </div>
+  </div>
+
+  <div class="jogador-stats-bar">
+    <div class="stat-box">
+      <div class="val" id="jog-marcados">0</div>
+      <div class="lbl">marcados</div>
+    </div>
+    <div class="stat-box">
+      <div class="val" id="jog-faltam">25</div>
+      <div class="lbl">faltam</div>
+    </div>
+    <div class="stat-box">
+      <div class="val" id="jog-total-saiu">0</div>
+      <div class="lbl">sorteados</div>
+    </div>
+  </div>
+
+  <div class="cartela-wrap">
+    <div class="cartela-titulo">
+      <span>sua cartela</span>
+      <span id="jog-modo-marcacao-label" style="color:var(--accent)">manual</span>
+    </div>
+    <div class="cartela" id="jog-cartela"></div>
+  </div>
+
+  <button class="btn-bingo" id="btn-bingo" onclick="chamarBingo()" disabled>
+    🎉 BINGO!
+  </button>
+</div>
+
+<!-- ══════════════════════════════════════
+     TELA 8 — FIM DE JOGO
+══════════════════════════════════════ -->
+<div id="screen-fim" class="screen">
+  <div class="fim-titulo">BINGO!</div>
+  <div class="fim-vencedor" id="fim-vencedor"></div>
+  <div class="fim-modo" id="fim-modo"></div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:16px" id="fim-btns"></div>
+</div>
+
+<!-- ══════════════════════════════════════
+     UI GLOBAL
+══════════════════════════════════════ -->
+<div id="toast"></div>
+<div id="bingo-overlay">
+  <h2>🎉 BINGO!</h2>
+  <p id="bingo-overlay-texto"></p>
+</div>
+
+<!-- ══════════════════════════════════════
+     SOM
+══════════════════════════════════════ -->
+<audio id="som-bolinha" preload="auto">
+  <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAA..." type="audio/wav">
+</audio>
+
+<!-- Firebase -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, set, get, onValue, update, push, remove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDXyWamBj_uP31ihAzJz7ytiCjDMdVDXO0",
+  authDomain: "bingo-regis.firebaseapp.com",
+  databaseURL: "https://bingo-regis-default-rtdb.firebaseio.com",
+  projectId: "bingo-regis",
+  storageBucket: "bingo-regis.firebasestorage.app",
+  messagingSenderId: "560691782051",
+  appId: "1:560691782051:web:10a3ed42fd12b32bb0ba16"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+// ── ESTADO GLOBAL ──
+let meuId = null;
+let minhaSala = null;
+let meuPapel = null; // 'controlador' | 'jogador'
+let meuEmoji = '🎰';
+let cartela = [];
+let marcados = new Set();
+let bingoJaPedido = false;
+let jaBingoValidado = false;
+let jogo = {};
+let listeners = [];
+
+const EMOJIS = ['🐱','🐶','🦊','🐸','🐼','🐨','🦁','🐯','🐺','🦄','🐙','🦋','🌟','🍕','🎸','🚀','🌈','🎯','🏆','💎','🍀','🎭','🎪','🎨'];
+
+// ── HELPERS ──
+window.mostrarScreen = (id) => {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+};
+
+function toast(msg, dur=2500) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), dur);
+}
+
+function gerarId() {
+  return Math.random().toString(36).substr(2, 9);
+}
+
+function gerarCartela(max) {
+  const nums = [];
+  while (nums.length < 25) {
+    const n = Math.floor(Math.random() * max) + 1;
+    if (!nums.includes(n)) nums.push(n);
+  }
+  // Centro livre
+  nums[12] = 0;
+  return nums;
+}
+
+function tocarBolinha() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.frequency.setValueAtTime(880, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.1);
+    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.3);
+  } catch(e) {}
+}
+
+function calcularVitoria(cartela, marcados, tipo) {
+  const grid = cartela.map((n, i) => marcados.has(i) || n === 0);
+  if (tipo === 'cartela') return grid.every(Boolean);
+  const linhas = [];
+  for (let r = 0; r < 5; r++) {
+    linhas.push([r*5, r*5+1, r*5+2, r*5+3, r*5+4]);
+    linhas.push([r, r+5, r+10, r+15, r+20]);
+  }
+  linhas.push([0,6,12,18,24]);
+  linhas.push([4,8,12,16,20]);
+
+  if (tipo === 'quina') return linhas.some(l => l.every(i => grid[i]));
+  if (tipo === 'quadra') {
+    return linhas.some(l => {
+      const marcadosNaLinha = l.filter(i => grid[i]).length;
+      return marcadosNaLinha >= 4;
+    });
+  }
+  return false;
+}
+
+// ── TELA CRIAR ──
+window.irParaCriar = () => mostrarScreen('screen-criar');
+window.irParaEntrar = () => mostrarScreen('screen-entrar');
+
+window.criarSala = async () => {
+  const nome = document.getElementById('ctrl-nome').value.trim();
+  const codigo = document.getElementById('sala-codigo-input').value.trim().toUpperCase();
+  const modoJogo = document.getElementById('modo-jogo').value;
+  const tipoVitoria = document.getElementById('tipo-vitoria').value;
+  const modoMarcacao = document.getElementById('modo-marcacao').value;
+
+  if (!nome || !codigo) { toast('Preencha todos os campos!'); return; }
+
+  const salaRef = ref(db, `salas/${codigo}`);
+  const snap = await get(salaRef);
+  if (snap.exists()) { toast('Código já em uso! Escolha outro.'); return; }
+
+  meuId = gerarId();
+  minhaSala = codigo;
+  meuPapel = 'controlador';
+
+  await set(salaRef, {
+    codigo,
+    controlador: { id: meuId, nome },
+    config: { max: parseInt(modoJogo), tipoVitoria, modoMarcacao, autoMarcacao: modoMarcacao === 'automatico' },
+    status: 'aguardando',
+    jogadores: {},
+    numeros: [],
+    faseAtual: tipoVitoria,
+    criadoEm: Date.now()
+  });
+
+  iniciarControlador(codigo);
+};
+
+// ── TELA ENTRAR ──
+window.verificarSala = async () => {
+  const codigo = document.getElementById('entrar-codigo').value.trim().toUpperCase();
+  if (!codigo) { toast('Digite o código da sala!'); return; }
+
+  const salaRef = ref(db, `salas/${codigo}`);
+  const snap = await get(salaRef);
+  if (!snap.exists()) { toast('Sala não encontrada!'); return; }
+
+  const sala = snap.val();
+  if (sala.status === 'jogando') { toast('Bingo já em andamento!'); return; }
+  if (sala.status === 'encerrado') { toast('Esta sala foi encerrada.'); return; }
+
+  minhaSala = codigo;
+  document.getElementById('lobby-sala-nome').textContent = codigo;
+  mostrarScreen('screen-lobby');
+  renderEmojiGrid();
+};
+
+function renderEmojiGrid() {
+  const grid = document.getElementById('emoji-grid');
+  grid.innerHTML = '';
+  EMOJIS.forEach(e => {
+    const div = document.createElement('div');
+    div.className = 'emoji-opt';
+    div.textContent = e;
+    div.onclick = () => {
+      document.querySelectorAll('.emoji-opt').forEach(d => d.classList.remove('selecionado'));
+      div.classList.add('selecionado');
+      meuEmoji = e;
+    };
+    grid.appendChild(div);
+  });
+  document.querySelector('.emoji-opt').classList.add('selecionado');
+  meuEmoji = EMOJIS[0];
+}
+
+window.entrarNaSala = async () => {
+  const nome = document.getElementById('jogador-nome-input').value.trim();
+  if (!nome) { toast('Digite seu nome!'); return; }
+
+  meuId = gerarId();
+  meuPapel = 'jogador';
+  cartela = gerarCartela(90); // default, vai ser ajustada
+
+  const salaRef = ref(db, `salas/${minhaSala}`);
+  const snap = await get(salaRef);
+  const sala = snap.val();
+  const max = sala.config.max;
+  cartela = gerarCartela(max);
+
+  await set(ref(db, `salas/${minhaSala}/jogadores/${meuId}`), {
+    id: meuId, nome, emoji: meuEmoji,
+    cartela,
+    marcados: [],
+    pronto: false,
+    bingoPedido: false,
+    status: 'aguardando'
+  });
+
+  document.getElementById('aguard-emoji').textContent = meuEmoji;
+  renderCartelaAguardando();
+  mostrarScreen('screen-aguardando');
+  iniciarJogador();
+};
+
+window.novaCartela = async () => {
+  const salaRef = ref(db, `salas/${minhaSala}`);
+  const snap = await get(salaRef);
+  const max = snap.val().config.max;
+  cartela = gerarCartela(max);
+  await update(ref(db, `salas/${minhaSala}/jogadores/${meuId}`), { cartela, marcados: [], pronto: false });
+  renderCartelaAguardando();
+  document.getElementById('btn-pronto').classList.remove('btn-ghost');
+  document.getElementById('btn-pronto').classList.add('btn-green');
+  document.getElementById('btn-pronto').textContent = '✓ Estou pronto';
+};
+
+window.marcarPronto = async () => {
+  await update(ref(db, `salas/${minhaSala}/jogadores/${meuId}`), { pronto: true });
+  document.getElementById('btn-pronto').disabled = true;
+  document.getElementById('btn-pronto').textContent = '✓ Pronto!';
+  toast('Marcado como pronto!');
+};
+
+function renderCartelaAguardando() {
+  const wrap = document.getElementById('aguard-cartela-wrap');
+  wrap.innerHTML = `<div class="cartela" style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:10px">
+    ${cartela.map((n, i) => `
+      <div class="cartela-num ${n === 0 ? 'livre' : ''}" style="font-size:clamp(12px,3vw,16px)">
+        ${n === 0 ? '★' : n}
+      </div>`).join('')}
+  </div>`;
+}
+
+// ── CONTROLADOR ──
+function iniciarControlador(codigo) {
+  mostrarScreen('screen-controlador');
+  document.getElementById('ctrl-codigo-exibir').textContent = codigo;
+
+  const salaRef = ref(db, `salas/${codigo}`);
+  const off = onValue(salaRef, snap => {
+    if (!snap.exists()) return;
+    jogo = snap.val();
+    atualizarUIControlador(jogo);
+  });
+  listeners.push(off);
+}
+
+function atualizarUIControlador(sala) {
+  const config = sala.config;
+  const jogadores = sala.jogadores || {};
+  const jogadoresArr = Object.values(jogadores);
+  const prontos = jogadoresArr.filter(j => j.pronto).length;
+
+  // Badge modo
+  document.getElementById('ctrl-modo-badge').textContent =
+    `${sala.faseAtual || config.tipoVitoria} · ${config.modoMarcacao} · ${config.max}`;
+
+  // Toggle auto
+  document.getElementById('toggle-auto').checked = config.autoMarcacao;
+
+  // Botão iniciar
+  const btnIniciar = document.getElementById('btn-iniciar');
+  btnIniciar.disabled = jogadoresArr.length === 0;
+  document.getElementById('ctrl-jogadores-prontos').textContent =
+    `${jogadoresArr.length} jogador(es) · ${prontos} prontos`;
+
+  // Mostrar jogo ou aguardando
+  if (sala.status === 'jogando' || sala.status === 'pausado') {
+    document.getElementById('ctrl-aguardando-wrap').style.display = 'none';
+    document.getElementById('ctrl-jogo-wrap').style.display = 'block';
+  } else {
+    document.getElementById('ctrl-aguardando-wrap').style.display = 'block';
+    document.getElementById('ctrl-jogo-wrap').style.display = 'none';
+  }
+
+  // Número atual e histórico
+  const nums = sala.numeros || [];
+  if (nums.length > 0) {
+    const atual = nums[nums.length - 1];
+    document.getElementById('ctrl-num-atual').textContent = atual;
+    const hist = nums.slice(-6, -1).reverse();
+    document.getElementById('ctrl-historico').innerHTML =
+      hist.map(n => `<div class="hist-num">${n}</div>`).join('');
+  }
+
+  // Grade
+  renderGradeCtrl(config.max, nums);
+
+  // Fase
+  document.getElementById('ctrl-fase-badge').textContent =
+    `Fase: ${sala.faseAtual || config.tipoVitoria} · ${nums.length} pedras sorteadas de ${config.max}`;
+
+  // Lista de jogadores
+  renderJogadoresCtrl(jogadores, nums);
+
+  // Bingo pendente
+  const bingoPendente = jogadoresArr.find(j => j.status === 'bingo-pendente');
+  if (bingoPendente) {
+    document.getElementById('ctrl-bingo-validar').style.display = 'block';
+    document.getElementById('bingo-quem').textContent = `${bingoPendente.emoji} ${bingoPendente.nome}`;
+    window._bingoPendenteId = bingoPendente.id;
+  } else {
+    document.getElementById('ctrl-bingo-validar').style.display = 'none';
+  }
+}
+
+function renderGradeCtrl(max, nums) {
+  const grade = document.getElementById('ctrl-grade');
+  grade.innerHTML = '';
+  const ultimo = nums[nums.length - 1];
+  for (let i = 1; i <= max; i++) {
+    const div = document.createElement('div');
+    div.className = 'grade-num';
+    div.textContent = i;
+    if (nums.includes(i)) div.classList.add('saiu');
+    if (i === ultimo) { div.classList.remove('saiu'); div.classList.add('atual'); }
+    grade.appendChild(div);
+  }
+}
+
+function renderJogadoresCtrl(jogadores, nums) {
+  const lista = document.getElementById('ctrl-jogadores-lista');
+  const arr = Object.values(jogadores);
+  if (arr.length === 0) {
+    lista.innerHTML = '<p style="color:var(--muted);font-size:13px;text-align:center;padding:16px">Nenhum jogador ainda</p>';
+    return;
+  }
+  lista.innerHTML = arr.map(j => {
+    const marcadosJ = (j.marcados || []).length;
+    const totalCartela = (j.cartela || []).filter(n => n !== 0).length;
+    const faltam = totalCartela - marcadosJ;
+    let statusClass = 'status-aguardando';
+    let statusText = j.pronto ? 'pronto' : 'aguardando';
+    if (j.status === 'bingo-pendente') { statusClass = 'status-bingo'; statusText = 'BINGO!'; }
+    return `<div class="jogador-item">
+      <span class="jogador-emoji">${j.emoji}</span>
+      <div class="jogador-info">
+        <div class="jogador-nome">${j.nome}</div>
+        <div class="jogador-stats">✓ ${marcadosJ} marcados · ${faltam} faltam</div>
+      </div>
+      <span class="jogador-status ${statusClass}">${statusText}</span>
+    </div>`;
+  }).join('');
+}
+
+window.iniciarBingo = async () => {
+  await update(ref(db, `salas/${minhaSala}`), { status: 'jogando' });
+  toast('Bingo iniciado! 🎉');
+};
+
+window.sortearNumero = async () => {
+  const snap = await get(ref(db, `salas/${minhaSala}`));
+  const sala = snap.val();
+  const max = sala.config.max;
+  const nums = sala.numeros || [];
+  if (nums.length >= max) { toast('Todos os números foram sorteados!'); return; }
+
+  let novo;
+  do { novo = Math.floor(Math.random() * max) + 1; } while (nums.includes(novo));
+
+  tocarBolinha();
+  const novosNums = [...nums, novo];
+
+  const updates = { numeros: novosNums };
+
+  // Se automático, marca nos jogadores
+  if (sala.config.autoMarcacao) {
+    const jogadores = sala.jogadores || {};
+    Object.entries(jogadores).forEach(([id, j]) => {
+      const idxs = (j.cartela || []).reduce((acc, n, i) => {
+        if (n === novo) acc.push(i);
+        return acc;
+      }, []);
+      if (idxs.length > 0) {
+        const marcadosJ = new Set(j.marcados || []);
+        idxs.forEach(i => marcadosJ.add(i));
+        updates[`jogadores/${id}/marcados`] = [...marcadosJ];
+      }
+    });
+  }
+
+  await update(ref(db, `salas/${minhaSala}`), updates);
+};
+
+window.alterarMarcacao = async () => {
+  const auto = document.getElementById('toggle-auto').checked;
+  await update(ref(db, `salas/${minhaSala}/config`), { autoMarcacao: auto, modoMarcacao: auto ? 'automatico' : 'manual' });
+};
+
+window.validarBingo = async (valido) => {
+  const id = window._bingoPendenteId;
+  if (!id) return;
+
+  if (valido) {
+    const snap = await get(ref(db, `salas/${minhaSala}/jogadores/${id}`));
+    const j = snap.val();
+    const salaSnap = await get(ref(db, `salas/${minhaSala}`));
+    const sala = salaSnap.val();
+    const fase = sala.faseAtual;
+
+    // Verificar próxima fase
+    const fases = ['quadra', 'quina', 'cartela'];
+    const idxAtual = fases.indexOf(fase);
+    const proximaFase = fases[idxAtual + 1];
+
+    await update(ref(db, `salas/${minhaSala}`), {
+      [`jogadores/${id}/status`]: 'vencedor',
+      ultimoVencedor: { nome: j.nome, emoji: j.emoji, fase }
+    });
+
+    if (proximaFase && sala.config.tipoVitoria !== 'cartela') {
+      // Continua com próxima fase
+      await update(ref(db, `salas/${minhaSala}`), { faseAtual: proximaFase });
+      toast(`${j.nome} venceu na ${fase}! Continuando para ${proximaFase}...`, 4000);
+    } else {
+      // Fim de jogo
+      await update(ref(db, `salas/${minhaSala}`), { status: 'encerrado', vencedor: { nome: j.nome, emoji: j.emoji, fase } });
+    }
+  } else {
+    await update(ref(db, `salas/${minhaSala}/jogadores/${id}`), { status: 'jogando', bingoPedido: false });
+    toast('Bingo inválido!');
+  }
+};
+
+window.encerrarJogo = async () => {
+  if (!confirm('Encerrar o bingo?')) return;
+  await update(ref(db, `salas/${minhaSala}`), { status: 'encerrado' });
+};
+
+// ── JOGADOR ──
+function iniciarJogador() {
+  const salaRef = ref(db, `salas/${minhaSala}`);
+  const off = onValue(salaRef, snap => {
+    if (!snap.exists()) return;
+    const sala = snap.val();
+    atualizarUIJogador(sala);
+
+    if (sala.status === 'encerrado' || sala.vencedor) {
+      mostrarFim(sala);
+    }
+    if (sala.status === 'jogando' && document.getElementById('screen-aguardando').classList.contains('active')) {
+      mostrarScreen('screen-jogador');
+    }
+  });
+  listeners.push(off);
+}
+
+function atualizarUIJogador(sala) {
+  const config = sala.config;
+  const nums = sala.numeros || [];
+  const jogadorData = (sala.jogadores || {})[meuId];
+  if (!jogadorData) return;
+
+  // Header
+  document.getElementById('jog-emoji-header').textContent = meuEmoji;
+  document.getElementById('jog-nome-header').textContent = jogadorData.nome;
+  document.getElementById('jog-sala-header').textContent = `Sala ${minhaSala}`;
+  document.getElementById('jog-modo-badge').textContent = `${sala.faseAtual || config.tipoVitoria} · ${config.max}`;
+  document.getElementById('jog-modo-marcacao-label').textContent = config.autoMarcacao ? 'automático' : 'manual';
+
+  // Número atual
+  const ultimoNum = nums[nums.length - 1];
+  if (ultimoNum) document.getElementById('jog-num-atual').textContent = ultimoNum;
+  const hist5 = nums.slice(-5).reverse();
+  document.getElementById('jog-historico').innerHTML =
+    hist5.map(n => `<div class="hist-mini-num">${n}</div>`).join('');
+
+  // Stats
+  marcados = new Set(jogadorData.marcados || []);
+  const totalCartela = cartela.filter(n => n !== 0).length;
+  document.getElementById('jog-marcados').textContent = marcados.size;
+  document.getElementById('jog-faltam').textContent = totalCartela - marcados.size;
+  document.getElementById('jog-total-saiu').textContent = nums.length;
+
+  // Cartela
+  renderCartelaJogador(nums, config.autoMarcacao);
+
+  // Botão bingo
+  const fase = sala.faseAtual || config.tipoVitoria;
+  const podeGanhar = calcularVitoria(cartela, marcados, fase);
+  const btnBingo = document.getElementById('btn-bingo');
+  btnBingo.disabled = !podeGanhar || bingoJaPedido || jogadorData.status === 'vencedor';
+
+  // Status aguardando
+  if (sala.status === 'aguardando') {
+    document.getElementById('aguard-status').textContent =
+      `${Object.values(sala.jogadores || {}).filter(j => j.pronto).length} de ${Object.keys(sala.jogadores || {}).length} prontos`;
+  }
+}
+
+function renderCartelaJogador(nums, auto) {
+  const div = document.getElementById('jog-cartela');
+  div.innerHTML = cartela.map((n, i) => {
+    if (n === 0) return `<div class="cartela-num livre">★</div>`;
+    const marc = marcados.has(i);
+    const clicavel = !auto && nums.includes(n) && !marc;
+    return `<div class="cartela-num ${marc ? 'marcado' : ''}" 
+      onclick="${clicavel ? `marcarNumero(${i})` : ''}"
+      style="${clicavel ? 'border-color:var(--accent);cursor:pointer' : ''}"
+    >${n}</div>`;
+  }).join('');
+}
+
+window.marcarNumero = async (idx) => {
+  if (marcados.has(idx)) return;
+  marcados.add(idx);
+  await update(ref(db, `salas/${minhaSala}/jogadores/${meuId}`), {
+    marcados: [...marcados]
+  });
+  document.querySelectorAll('.cartela-num')[idx].classList.add('novo-marcado');
+};
+
+window.chamarBingo = async () => {
+  if (bingoJaPedido) return;
+  bingoJaPedido = true;
+  await update(ref(db, `salas/${minhaSala}/jogadores/${meuId}`), {
+    status: 'bingo-pendente',
+    bingoPedido: true
+  });
+  const overlay = document.getElementById('bingo-overlay');
+  document.getElementById('bingo-overlay-texto').textContent = 'Aguardando validação do controlador...';
+  overlay.classList.add('show');
+  setTimeout(() => overlay.classList.remove('show'), 4000);
+};
+
+// ── FIM DE JOGO ──
+function mostrarFim(sala) {
+  if (jaBingoValidado) return;
+  jaBingoValidado = true;
+
+  const vencedor = sala.vencedor;
+  if (!vencedor) return;
+
+  document.getElementById('fim-vencedor').textContent =
+    `${vencedor.emoji} ${vencedor.nome} ganhou!`;
+  document.getElementById('fim-modo').textContent = `Modalidade: ${vencedor.fase}`;
+
+  const btns = document.getElementById('fim-btns');
+  if (meuPapel === 'controlador') {
+    btns.innerHTML = `
+      <button class="btn btn-primary" onclick="location.reload()">Nova sala</button>
+      <button class="btn btn-ghost" onclick="limparSala()">Encerrar sala</button>`;
+  } else {
+    btns.innerHTML = `<button class="btn btn-primary" onclick="location.reload()">Jogar de novo</button>`;
+  }
+  mostrarScreen('screen-fim');
+}
+
+window.limparSala = async () => {
+  await remove(ref(db, `salas/${minhaSala}`));
+  location.reload();
+};
+
+// ── EXPOR FUNÇÕES ──
+window.db = db;
+window.ref = ref;
+window.update = update;
+window.get = get;
+</script>
+</body>
+</html>
