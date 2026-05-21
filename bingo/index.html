@@ -120,7 +120,7 @@ body{background:var(--bg);color:var(--txt);font-family:'DM Sans',sans-serif;min-
 
 /* CARTELA */
 .cartela{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
-.cn{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:9px;font-size:clamp(13px,3.5vw,18px);font-weight:700;background:var(--s2);color:var(--txt);border:2px solid transparent;transition:all .2s ease;cursor:pointer;user-select:none;position:relative}
+.cn{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:9px;font-size:clamp(11px,2vw,16px);font-weight:700;background:var(--s2);color:var(--txt);border:2px solid transparent;transition:all .2s ease;cursor:pointer;user-select:none;position:relative;max-width:calc((100vw - 180px) / 5);max-height:calc((100vh - 220px) / 5)}
 .cn:hover:not(.marc):not(.livre):not(.inativo){border-color:var(--acc)}
 .cn.marc{background:var(--acc);color:#0f0f13;border-color:var(--acc)}
 .cn.livre{background:var(--s2);color:var(--mut);font-size:11px;cursor:default}
@@ -487,84 +487,57 @@ body{background:var(--bg);color:var(--txt);font-family:'DM Sans',sans-serif;min-
 </div>
 
 <!-- TELA JOGADOR -->
-<div id="screen-jog" class="screen" style="justify-content:flex-start;padding:8px 10px;gap:6px;height:100vh;max-height:100vh;overflow:hidden;align-items:stretch">
-  <style>
-    #screen-jog { box-sizing:border-box; }
-    #jn-cartela { height:100%; }
-    #jn-cartela .cn { font-size:clamp(10px,1.8vw,16px); }
-  </style>
-  <!-- Header -->
-  <div class="jog-header" style="max-width:none;padding-bottom:6px;flex-shrink:0">
+<div id="screen-jog" class="screen" style="justify-content:flex-start;padding:10px 12px;gap:10px;min-height:100vh">
+  <div class="jog-header" style="max-width:none">
     <div class="jog-header-left">
       <span class="jog-header-emoji" id="jh-emoji">🎰</span>
       <div><div class="jog-header-nome" id="jh-nome"></div><div class="jog-header-sala" id="jh-sala"></div></div>
     </div>
     <span class="modo-badge" id="jh-badge">—</span>
   </div>
-
-  <!-- Número + stats -->
-  <div style="display:flex;align-items:center;gap:8px;background:var(--s1);border:1px solid var(--bd);border-radius:10px;padding:6px 10px;flex-shrink:0">
-    <div style="font-family:'Bebas Neue',cursive;font-size:32px;color:var(--acc);line-height:1;min-width:38px;text-align:center" id="jn-atual">—</div>
-    <div style="flex:1">
-      <div style="font-size:8px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px">Últimas 5</div>
-      <div class="hist-mini" id="jn-hist"></div>
-    </div>
-    <div style="display:flex;gap:4px">
-      <div style="background:var(--s2);border-radius:7px;padding:3px 7px;text-align:center">
-        <div style="font-family:'Bebas Neue',cursive;font-size:16px;color:var(--acc);line-height:1" id="js-marc">0</div>
-        <div style="font-size:7px;color:var(--mut);text-transform:uppercase">marc</div>
-      </div>
-      <div style="background:var(--s2);border-radius:7px;padding:3px 7px;text-align:center">
-        <div style="font-family:'Bebas Neue',cursive;font-size:16px;color:var(--acc);line-height:1" id="js-falt">25</div>
-        <div style="font-size:7px;color:var(--mut);text-transform:uppercase">faltam</div>
-      </div>
-      <div style="background:var(--s2);border-radius:7px;padding:3px 7px;text-align:center">
-        <div style="font-family:'Bebas Neue',cursive;font-size:16px;color:var(--acc);line-height:1" id="js-sort">0</div>
-        <div style="font-size:7px;color:var(--mut);text-transform:uppercase">sort</div>
-      </div>
+  <div class="num-jog-wrap" style="max-width:none">
+    <div class="num-jog-big" id="jn-atual">—</div>
+    <div><div style="font-size:9px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px">Últimas 5</div><div class="hist-mini" id="jn-hist"></div></div>
+    <div class="stats-row" style="flex:1;margin:0">
+      <div class="stat-box"><div class="stat-val" id="js-marc">0</div><div class="stat-lbl">marcados</div></div>
+      <div class="stat-box"><div class="stat-val" id="js-falt">25</div><div class="stat-lbl">faltam</div></div>
+      <div class="stat-box"><div class="stat-val" id="js-sort">0</div><div class="stat-lbl">sorteados</div></div>
     </div>
   </div>
-
-  <!-- Banners -->
-  <div id="quase-la-banner" style="display:none;flex-shrink:0" class="quase-la">🔥 Quase lá!</div>
-  <div id="revisao-banner" style="display:none;flex-shrink:0;background:rgba(74,158,255,.1);border:1px solid rgba(74,158,255,.4);border-radius:8px;padding:4px 10px;font-size:10px;color:var(--blu);text-align:center">📋 Revisão em andamento</div>
-  <div id="revisao-flash" style="display:none;flex-shrink:0;background:rgba(245,200,66,.15);border:2px solid var(--acc);border-radius:8px;padding:4px;text-align:center">
-    <span style="font-family:'Bebas Neue',cursive;font-size:28px;color:var(--acc);line-height:1" id="revisao-num-flash">—</span>
-    <span style="font-size:10px;color:var(--mut);margin-left:6px" id="revisao-idx-flash"></span>
+  <div id="quase-la-banner" style="display:none" class="quase-la">🔥 Quase lá! Faltam poucos números!</div>
+  <div id="revisao-banner" style="display:none;background:rgba(74,158,255,.1);border:1px solid rgba(74,158,255,.4);border-radius:10px;padding:6px 12px;font-size:11px;color:var(--blu);text-align:center">📋 Revisão em andamento</div>
+  <div id="revisao-flash" style="display:none;background:rgba(245,200,66,.15);border:2px solid var(--acc);border-radius:10px;padding:6px;text-align:center">
+    <span style="font-family:'Bebas Neue',cursive;font-size:36px;color:var(--acc);line-height:1" id="revisao-num-flash">—</span>
+    <span style="font-size:11px;color:var(--mut);margin-left:8px" id="revisao-idx-flash"></span>
   </div>
-
-  <!-- Corpo: cartela + lateral — ocupa espaço restante -->
-  <div style="display:grid;grid-template-columns:1fr 110px;gap:8px;flex:1;min-height:0">
-    <!-- Cartela -->
-    <div style="display:flex;flex-direction:column;min-height:0">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;flex-shrink:0">
-        <span style="font-size:9px;color:var(--mut);text-transform:uppercase;letter-spacing:1px">sua cartela</span>
-        <span id="jc-modo" style="color:var(--acc);font-size:9px;text-transform:uppercase;letter-spacing:1px">manual</span>
+  <div style="display:grid;grid-template-columns:1fr 120px;gap:10px;align-items:start">
+    <div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <span style="font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:1px">sua cartela</span>
+        <span id="jc-modo" style="color:var(--acc);font-size:10px;text-transform:uppercase;letter-spacing:1px">manual</span>
       </div>
-      <div class="cartela" id="jn-cartela" style="flex:1;grid-auto-rows:1fr"></div>
+      <div class="cartela" id="jn-cartela"></div>
     </div>
-
-    <!-- Lateral -->
-    <div style="display:flex;flex-direction:column;gap:6px;min-height:0">
+    <div style="display:flex;flex-direction:column;gap:8px;position:sticky;top:10px">
       <button class="btn-bingo-big" id="btn-bingo" onclick="chamarBingo()" disabled
-        style="flex-shrink:0;font-size:15px;padding:10px 4px;border-radius:10px;flex-direction:column;gap:2px;height:70px">
+        style="font-size:16px;padding:12px 6px;border-radius:12px;flex-direction:column;gap:4px;height:80px">
         🎉<br>BINGO!
       </button>
-      <div class="chat-wrap" style="flex:1;overflow:hidden;display:flex;flex-direction:column;min-height:0">
-        <div style="font-size:8px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;padding:4px 6px 2px;flex-shrink:0">Chat</div>
-        <div class="chat-msgs" id="jog-chat-msgs" style="flex:1;overflow-y:auto;min-height:0;scrollbar-width:none;-ms-overflow-style:none"></div>
+      <div class="chat-wrap" style="overflow:hidden">
+        <div style="font-size:9px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;padding:5px 7px 3px">Chat</div>
+        <div class="chat-msgs" id="jog-chat-msgs" style="height:80px;overflow-y:auto;scrollbar-width:none;-ms-overflow-style:none"></div>
         <style>#jog-chat-msgs::-webkit-scrollbar{display:none}</style>
-        <div style="display:flex;gap:2px;padding:3px 5px;border-top:1px solid var(--bd);flex-shrink:0">
-          <input id="chat-input" placeholder="msg..." style="flex:1;background:transparent;border:none;color:var(--txt);font-size:9px;outline:none;font-family:'DM Sans',sans-serif" maxlength="40" onkeydown="if(event.key==='Enter')enviarMensagem()">
-          <button onclick="enviarMensagem()" style="background:none;border:none;color:var(--acc);font-size:12px;cursor:pointer">↑</button>
+        <div style="display:flex;gap:3px;padding:3px 6px;border-top:1px solid var(--bd)">
+          <input id="chat-input" placeholder="msg..." style="flex:1;background:transparent;border:none;color:var(--txt);font-size:10px;outline:none;font-family:'DM Sans',sans-serif" maxlength="40" onkeydown="if(event.key==='Enter')enviarMensagem()">
+          <button onclick="enviarMensagem()" style="background:none;border:none;color:var(--acc);font-size:13px;cursor:pointer;padding:1px">↑</button>
         </div>
-        <div style="display:flex;gap:2px;padding:3px 5px;flex-wrap:wrap;border-top:1px solid var(--bd);flex-shrink:0">
-          <button class="react-btn" style="font-size:13px" onclick="reagir('🎉')">🎉</button>
-          <button class="react-btn" style="font-size:13px" onclick="reagir('😱')">😱</button>
-          <button class="react-btn" style="font-size:13px" onclick="reagir('😤')">😤</button>
-          <button class="react-btn" style="font-size:13px" onclick="reagir('🍀')">🍀</button>
-          <button class="react-btn" style="font-size:13px" onclick="reagir('🔥')">🔥</button>
-          <button class="react-btn" style="font-size:13px" onclick="reagir('👀')">👀</button>
+        <div style="display:flex;gap:3px;padding:3px 6px;flex-wrap:wrap;border-top:1px solid var(--bd)">
+          <button class="react-btn" style="font-size:14px" onclick="reagir('🎉')">🎉</button>
+          <button class="react-btn" style="font-size:14px" onclick="reagir('😱')">😱</button>
+          <button class="react-btn" style="font-size:14px" onclick="reagir('😤')">😤</button>
+          <button class="react-btn" style="font-size:14px" onclick="reagir('🍀')">🍀</button>
+          <button class="react-btn" style="font-size:14px" onclick="reagir('🔥')">🔥</button>
+          <button class="react-btn" style="font-size:14px" onclick="reagir('👀')">👀</button>
         </div>
       </div>
     </div>
