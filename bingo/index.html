@@ -119,8 +119,8 @@ body{background:var(--bg);color:var(--txt);font-family:'DM Sans',sans-serif;min-
 .modal-close:hover{color:var(--txt)}
 
 /* CARTELA */
-.cartela{display:grid;grid-template-columns:repeat(5,1fr);gap:3px}
-.cn{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:8px;font-size:clamp(11px,2.5vw,15px);font-weight:700;background:var(--s2);color:var(--txt);border:2px solid transparent;transition:all .2s ease;cursor:pointer;user-select:none;position:relative;max-height:52px}
+.cartela{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+.cn{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:9px;font-size:clamp(13px,3.5vw,18px);font-weight:700;background:var(--s2);color:var(--txt);border:2px solid transparent;transition:all .2s ease;cursor:pointer;user-select:none;position:relative}
 .cn:hover:not(.marc):not(.livre):not(.inativo){border-color:var(--acc)}
 .cn.marc{background:var(--acc);color:#0f0f13;border-color:var(--acc)}
 .cn.livre{background:var(--s2);color:var(--mut);font-size:11px;cursor:default}
@@ -531,14 +531,14 @@ body{background:var(--bg);color:var(--txt);font-family:'DM Sans',sans-serif;min-
   </div>
 
   <!-- Corpo principal: cartela + lateral -->
-  <div style="display:grid;grid-template-columns:1fr 130px;gap:8px;align-items:start">
-    <!-- Cartela compacta -->
+  <div style="display:grid;grid-template-columns:1fr 120px;gap:8px;align-items:start;flex:1">
+    <!-- Cartela ocupa tudo -->
     <div>
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
         <span style="font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:1px">sua cartela</span>
         <span id="jc-modo" style="color:var(--acc);font-size:9px;text-transform:uppercase;letter-spacing:1px">manual</span>
       </div>
-      <div class="cartela" id="jn-cartela" style="gap:3px"></div>
+      <div class="cartela" id="jn-cartela"></div>
     </div>
 
     <!-- Lateral: botão bingo + chat -->
