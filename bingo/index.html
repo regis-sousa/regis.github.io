@@ -131,34 +131,34 @@ body{background:var(--bg);color:var(--txt);font-family:'DM Sans',sans-serif;min-
 @keyframes novo-marc{0%{transform:scale(1)}50%{transform:scale(1.2)}100%{transform:scale(1)}}
 
 /* TELA JOGADOR */
-#screen-jog{justify-content:flex-start;padding:10px 12px;gap:10px;min-height:100vh;align-items:stretch}
-.jog-header{width:100%;display:flex;align-items:center;justify-content:space-between;padding-bottom:10px;border-bottom:1px solid var(--bd)}
+#screen-jog{justify-content:flex-start;padding:10px 12px;gap:10px;min-height:100vh}
+.jog-header{width:100%;max-width:480px;display:flex;align-items:center;justify-content:space-between;padding-bottom:10px;border-bottom:1px solid var(--bd)}
 .jog-header-left{display:flex;align-items:center;gap:8px}
 .jog-header-emoji{font-size:26px}
 .jog-header-nome{font-weight:700;font-size:14px}
 .jog-header-sala{font-size:10px;color:var(--mut)}
 .modo-badge{display:inline-flex;align-items:center;gap:4px;background:rgba(245,200,66,.1);border:1px solid rgba(245,200,66,.25);border-radius:20px;padding:3px 10px;font-size:11px;color:var(--acc);font-weight:600}
 
-.num-jog-wrap{width:100%;background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:12px 16px;display:flex;align-items:center;gap:14px}
+.num-jog-wrap{width:100%;max-width:480px;background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:12px 16px;display:flex;align-items:center;gap:14px}
 .num-jog-big{font-family:'Bebas Neue',cursive;font-size:52px;color:var(--acc);line-height:1;min-width:60px;text-align:center}
 .hist-mini{display:flex;gap:4px;flex-wrap:wrap}
 .hm{width:26px;height:26px;background:var(--s2);border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--mut);font-weight:600}
 
-.stats-row{width:100%;display:flex;gap:8px}
+.stats-row{width:100%;max-width:480px;display:flex;gap:8px}
 .stat-box{flex:1;background:var(--s1);border:1px solid var(--bd);border-radius:11px;padding:8px;text-align:center}
 .stat-val{font-family:'Bebas Neue',cursive;font-size:26px;color:var(--acc);line-height:1}
 .stat-lbl{font-size:9px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
 
-.cartela-wrap{width:100%}
+.cartela-wrap{width:100%;max-width:480px}
 .cartela-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
 .cartela-header span{font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:1px}
 
-.btn-bingo-big{width:100%;padding:18px;font-family:'Bebas Neue',cursive;font-size:30px;letter-spacing:4px;background:var(--red);color:#fff;border:none;border-radius:var(--r);cursor:pointer;transition:all .2s ease;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-bingo-big{width:100%;max-width:480px;padding:18px;font-family:'Bebas Neue',cursive;font-size:30px;letter-spacing:4px;background:var(--red);color:#fff;border:none;border-radius:var(--r);cursor:pointer;transition:all .2s ease;display:flex;align-items:center;justify-content:center;gap:8px}
 .btn-bingo-big:hover:not(:disabled){background:#ff5c53;transform:scale(1.02)}
 .btn-bingo-big:disabled{opacity:.3;cursor:not-allowed;transform:none}
 
 /* CHAT */
-.chat-wrap{width:100%;background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);overflow:hidden}
+.chat-wrap{width:100%;max-width:480px;background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);overflow:hidden}
 .chat-msgs{height:70px;overflow-y:auto;padding:8px 10px;display:flex;flex-direction:column;gap:4px;scrollbar-width:none;-ms-overflow-style:none}
 .chat-msgs::-webkit-scrollbar{display:none}
 .chat-msg{font-size:12px;display:flex;align-items:center;gap:6px;animation:fade-in .3s ease}
@@ -170,7 +170,7 @@ body{background:var(--bg);color:var(--txt);font-family:'DM Sans',sans-serif;min-
 .react-btn:hover{transform:scale(1.3)}
 
 /* QUASE LÁ */
-.quase-la{width:100%;background:rgba(74,158,255,.1);border:1px solid rgba(74,158,255,.3);border-radius:12px;padding:10px 14px;font-size:13px;color:var(--blu);display:flex;align-items:center;gap:8px;animation:pulse-blu 1.5s infinite}
+.quase-la{width:100%;max-width:480px;background:rgba(74,158,255,.1);border:1px solid rgba(74,158,255,.3);border-radius:12px;padding:10px 14px;font-size:13px;color:var(--blu);display:flex;align-items:center;gap:8px;animation:pulse-blu 1.5s infinite}
 @keyframes pulse-blu{0%,100%{border-color:rgba(74,158,255,.3)}50%{border-color:var(--blu)}}
 
 /* AGUARDANDO */
@@ -488,22 +488,22 @@ body{background:var(--bg);color:var(--txt);font-family:'DM Sans',sans-serif;min-
 </div>
 
 <!-- TELA JOGADOR -->
-<div id="screen-jog" class="screen" style="justify-content:flex-start;padding:10px 12px;gap:10px;min-height:100vh">
-  <div class="jog-header" style="max-width:none">
+<div id="screen-jog" class="screen">
+  <div class="jog-header">
     <div class="jog-header-left">
       <span class="jog-header-emoji" id="jh-emoji">🎰</span>
       <div><div class="jog-header-nome" id="jh-nome"></div><div class="jog-header-sala" id="jh-sala"></div></div>
     </div>
     <span class="modo-badge" id="jh-badge">—</span>
   </div>
-  <div class="num-jog-wrap" style="max-width:none">
+  <div class="num-jog-wrap">
     <div class="num-jog-big" id="jn-atual">—</div>
     <div><div style="font-size:9px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px">Últimas 5</div><div class="hist-mini" id="jn-hist"></div></div>
-    <div class="stats-row" style="flex:1;margin:0">
-      <div class="stat-box"><div class="stat-val" id="js-marc">0</div><div class="stat-lbl">marcados</div></div>
-      <div class="stat-box"><div class="stat-val" id="js-falt">25</div><div class="stat-lbl">faltam</div></div>
-      <div class="stat-box"><div class="stat-val" id="js-sort">0</div><div class="stat-lbl">sorteados</div></div>
-    </div>
+  </div>
+  <div class="stats-row">
+    <div class="stat-box"><div class="stat-val" id="js-marc">0</div><div class="stat-lbl">marcados</div></div>
+    <div class="stat-box"><div class="stat-val" id="js-falt">25</div><div class="stat-lbl">faltam</div></div>
+    <div class="stat-box"><div class="stat-val" id="js-sort">0</div><div class="stat-lbl">sorteados</div></div>
   </div>
   <div id="quase-la-banner" style="display:none" class="quase-la">🔥 Quase lá! Faltam poucos números!</div>
   <div id="revisao-banner" style="display:none;background:rgba(74,158,255,.1);border:1px solid rgba(74,158,255,.4);border-radius:10px;padding:6px 12px;font-size:11px;color:var(--blu);text-align:center">📋 Revisão em andamento</div>
@@ -511,36 +511,27 @@ body{background:var(--bg);color:var(--txt);font-family:'DM Sans',sans-serif;min-
     <span style="font-family:'Bebas Neue',cursive;font-size:36px;color:var(--acc);line-height:1" id="revisao-num-flash">—</span>
     <span style="font-size:11px;color:var(--mut);margin-left:8px" id="revisao-idx-flash"></span>
   </div>
-  <div style="display:grid;grid-template-columns:1fr 120px;gap:10px;align-items:start">
-    <div>
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-        <span style="font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:1px">sua cartela</span>
-        <span id="jc-modo" style="color:var(--acc);font-size:10px;text-transform:uppercase;letter-spacing:1px">manual</span>
-      </div>
-      <div class="cartela" id="jn-cartela"></div>
+  <div class="cartela-wrap">
+    <div class="cartela-header">
+      <span>sua cartela</span>
+      <span id="jc-modo" style="color:var(--acc)">manual</span>
     </div>
-    <div style="display:flex;flex-direction:column;gap:8px;position:sticky;top:10px">
-      <button class="btn-bingo-big" id="btn-bingo" onclick="chamarBingo()" disabled
-        style="font-size:16px;padding:12px 6px;border-radius:12px;flex-direction:column;gap:4px;height:80px">
-        🎉<br>BINGO!
-      </button>
-      <div class="chat-wrap" style="overflow:hidden">
-        <div style="font-size:9px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;padding:5px 7px 3px">Chat</div>
-        <div class="chat-msgs" id="jog-chat-msgs" style="height:80px;overflow-y:auto;scrollbar-width:none;-ms-overflow-style:none"></div>
-        <style>#jog-chat-msgs::-webkit-scrollbar{display:none}</style>
-        <div style="display:flex;gap:3px;padding:3px 6px;border-top:1px solid var(--bd)">
-          <input id="chat-input" placeholder="msg..." style="flex:1;background:transparent;border:none;color:var(--txt);font-size:10px;outline:none;font-family:'DM Sans',sans-serif" maxlength="40" onkeydown="if(event.key==='Enter')enviarMensagem()">
-          <button onclick="enviarMensagem()" style="background:none;border:none;color:var(--acc);font-size:13px;cursor:pointer;padding:1px">↑</button>
-        </div>
-        <div style="display:flex;gap:3px;padding:3px 6px;flex-wrap:wrap;border-top:1px solid var(--bd)">
-          <button class="react-btn" style="font-size:14px" onclick="reagir('🎉')">🎉</button>
-          <button class="react-btn" style="font-size:14px" onclick="reagir('😱')">😱</button>
-          <button class="react-btn" style="font-size:14px" onclick="reagir('😤')">😤</button>
-          <button class="react-btn" style="font-size:14px" onclick="reagir('🍀')">🍀</button>
-          <button class="react-btn" style="font-size:14px" onclick="reagir('🔥')">🔥</button>
-          <button class="react-btn" style="font-size:14px" onclick="reagir('👀')">👀</button>
-        </div>
-      </div>
+    <div class="cartela" id="jn-cartela"></div>
+  </div>
+  <button class="btn-bingo-big" id="btn-bingo" onclick="chamarBingo()" disabled>🎉 BINGO!</button>
+  <div class="chat-wrap">
+    <div class="chat-msgs" id="jog-chat-msgs"></div>
+    <div style="display:flex;gap:4px;padding:4px 8px;border-top:1px solid var(--bd)">
+      <input id="chat-input" placeholder="mensagem..." style="flex:1;background:transparent;border:none;color:var(--txt);font-size:11px;outline:none;font-family:'DM Sans',sans-serif" maxlength="40" onkeydown="if(event.key==='Enter')enviarMensagem()">
+      <button onclick="enviarMensagem()" style="background:none;border:none;color:var(--acc);font-size:14px;cursor:pointer;padding:2px">↑</button>
+    </div>
+    <div class="chat-reactions">
+      <button class="react-btn" onclick="reagir('🎉')">🎉</button>
+      <button class="react-btn" onclick="reagir('😱')">😱</button>
+      <button class="react-btn" onclick="reagir('😤')">😤</button>
+      <button class="react-btn" onclick="reagir('🍀')">🍀</button>
+      <button class="react-btn" onclick="reagir('🔥')">🔥</button>
+      <button class="react-btn" onclick="reagir('👀')">👀</button>
     </div>
   </div>
 </div>
