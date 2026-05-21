@@ -1216,7 +1216,14 @@ window.validar=async(ok)=>{
     const proxIdx=idx+1;
     clearInterval(timerInterval);timerInterval=null;
     if(proxIdx<fases.length){
-      await update(ref(db,`salas/${sala}`),{[`jogadores/${id}/status`]:'vencedor',[`jogadores/${id}/faseGanha`]:cfg.faseAtual,ultimoVenc:{nome:j.nome,emoji:j.emoji,fase:cfg.faseAtual},[`config/faseIdx`]:proxIdx,[`config/faseAtual`]:fases[proxIdx]});
+      await update(ref(db,`salas/${sala}`),{
+        [`jogadores/${id}/status`]:'jogando',
+        [`jogadores/${id}/faseGanha`]:cfg.faseAtual,
+        [`jogadores/${id}/bingoJaPedido`]:false,
+        ultimoVenc:{nome:j.nome,emoji:j.emoji,fase:cfg.faseAtual},
+        'config/faseIdx':proxIdx,
+        'config/faseAtual':fases[proxIdx]
+      });
       toast(`${j.nome} venceu na ${cfg.faseAtual}! Próxima fase: ${fases[proxIdx]}`,4000);
       if(cfg.auto)setTimeout(()=>iniciarTimer(),2000);
     }else{
@@ -1251,7 +1258,13 @@ window.pularFase=async()=>{
   if(proxIdx>=fases.length){toast('Já está na última fase!');return}
   if(!confirm(`Pular a fase "${cfg.faseAtual}" e ir para "${fases[proxIdx]}"?`))return;
   clearInterval(timerInterval);timerInterval=null;
-  await update(ref(db,`salas/${sala}`),{'config/faseIdx':proxIdx,'config/faseAtual':fases[proxIdx]});
+  const upd={'config/faseIdx':proxIdx,'config/faseAtual':fases[proxIdx]};
+  // Reseta status e bingoJaPedido de todos os jogadores
+  Object.keys(s.jogadores||{}).forEach(id=>{
+    upd[`jogadores/${id}/status`]='jogando';
+    upd[`jogadores/${id}/bingoJaPedido`]=false;
+  });
+  await update(ref(db,`salas/${sala}`),upd);
   toast(`Fase avançada para ${fases[proxIdx]}!`,3000);
   const snap2=await get(ref(db,`salas/${sala}`));
   if(snap2.val().config.auto)iniciarTimer();
@@ -1345,6 +1358,11 @@ function iniciarJog(){
     const jd=(s.jogadores||{})[meuId];if(!jd)return;
     cartela=jd.cartela||cartela;
     marcados=new Set(jd.marcados||[]);
+
+    // Reseta bingoJaPedido se o servidor voltou o status pra jogando
+    if(jd.status==='jogando'&&jd.bingoJaPedido===false){
+      bingoJaPedido=false;
+    }
 
     if(s.status==='jogando'&&document.getElementById('screen-aguard').classList.contains('active'))show('screen-jog');
     if(s.status==='encerrado'&&!fimMostrado){fimMostrado=true;mostrarFim(s)}
