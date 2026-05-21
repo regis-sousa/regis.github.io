@@ -119,8 +119,8 @@ body{background:var(--bg);color:var(--txt);font-family:'DM Sans',sans-serif;min-
 .modal-close:hover{color:var(--txt)}
 
 /* CARTELA */
-.cartela{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
-.cn{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:9px;font-size:clamp(13px,3.5vw,18px);font-weight:700;background:var(--s2);color:var(--txt);border:2px solid transparent;transition:all .2s ease;cursor:pointer;user-select:none;position:relative}
+.cartela{display:grid;grid-template-columns:repeat(5,1fr);gap:3px}
+.cn{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:8px;font-size:clamp(11px,2.5vw,15px);font-weight:700;background:var(--s2);color:var(--txt);border:2px solid transparent;transition:all .2s ease;cursor:pointer;user-select:none;position:relative;max-height:52px}
 .cn:hover:not(.marc):not(.livre):not(.inativo){border-color:var(--acc)}
 .cn.marc{background:var(--acc);color:#0f0f13;border-color:var(--acc)}
 .cn.livre{background:var(--s2);color:var(--mut);font-size:11px;cursor:default}
@@ -487,9 +487,9 @@ body{background:var(--bg);color:var(--txt);font-family:'DM Sans',sans-serif;min-
 </div>
 
 <!-- TELA JOGADOR -->
-<div id="screen-jog" class="screen" style="justify-content:flex-start;padding:10px 12px;gap:10px;min-height:100vh;align-items:stretch">
+<div id="screen-jog" class="screen" style="justify-content:flex-start;padding:8px 10px;gap:8px;min-height:100vh;align-items:stretch">
   <!-- Header -->
-  <div class="jog-header" style="max-width:none">
+  <div class="jog-header" style="max-width:none;padding-bottom:8px">
     <div class="jog-header-left">
       <span class="jog-header-emoji" id="jh-emoji">🎰</span>
       <div><div class="jog-header-nome" id="jh-nome"></div><div class="jog-header-sala" id="jh-sala"></div></div>
@@ -497,60 +497,74 @@ body{background:var(--bg);color:var(--txt);font-family:'DM Sans',sans-serif;min-
     <span class="modo-badge" id="jh-badge">—</span>
   </div>
 
-  <!-- Número atual -->
-  <div class="num-jog-wrap" style="max-width:none">
-    <div class="num-jog-big" id="jn-atual">—</div>
-    <div><div style="font-size:9px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px">Últimas 5</div><div class="hist-mini" id="jn-hist"></div></div>
-    <div class="stats-row" style="flex:1;margin:0">
-      <div class="stat-box"><div class="stat-val" id="js-marc">0</div><div class="stat-lbl">marcados</div></div>
-      <div class="stat-box"><div class="stat-val" id="js-falt">25</div><div class="stat-lbl">faltam</div></div>
-      <div class="stat-box"><div class="stat-val" id="js-sort">0</div><div class="stat-lbl">sorteados</div></div>
+  <!-- Número atual + stats numa linha -->
+  <div style="display:flex;align-items:center;gap:8px;background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:8px 12px">
+    <div style="font-family:'Bebas Neue',cursive;font-size:40px;color:var(--acc);line-height:1;min-width:48px;text-align:center" id="jn-atual">—</div>
+    <div style="flex:1">
+      <div style="font-size:9px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px">Últimas 5</div>
+      <div class="hist-mini" id="jn-hist"></div>
+    </div>
+    <div style="display:flex;gap:6px">
+      <div style="background:var(--s2);border-radius:8px;padding:5px 8px;text-align:center">
+        <div style="font-family:'Bebas Neue',cursive;font-size:20px;color:var(--acc);line-height:1" id="js-marc">0</div>
+        <div style="font-size:8px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px">marc</div>
+      </div>
+      <div style="background:var(--s2);border-radius:8px;padding:5px 8px;text-align:center">
+        <div style="font-family:'Bebas Neue',cursive;font-size:20px;color:var(--acc);line-height:1" id="js-falt">25</div>
+        <div style="font-size:8px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px">faltam</div>
+      </div>
+      <div style="background:var(--s2);border-radius:8px;padding:5px 8px;text-align:center">
+        <div style="font-family:'Bebas Neue',cursive;font-size:20px;color:var(--acc);line-height:1" id="js-sort">0</div>
+        <div style="font-size:8px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px">sort</div>
+      </div>
     </div>
   </div>
 
   <!-- Banners -->
   <div id="quase-la-banner" style="display:none" class="quase-la">🔥 Quase lá! Faltam poucos números!</div>
-  <div id="revisao-banner" style="display:none;background:rgba(74,158,255,.1);border:1px solid rgba(74,158,255,.4);border-radius:12px;padding:8px 14px;font-size:12px;color:var(--blu);text-align:center">
+  <div id="revisao-banner" style="display:none;background:rgba(74,158,255,.1);border:1px solid rgba(74,158,255,.4);border-radius:10px;padding:6px 12px;font-size:11px;color:var(--blu);text-align:center">
     📋 Revisão em andamento — confira os números destacados
   </div>
-  <div id="revisao-flash" style="display:none;background:rgba(245,200,66,.15);border:2px solid var(--acc);border-radius:12px;padding:8px;text-align:center;display:flex;align-items:center;justify-content:center;gap:12px">
-    <div style="font-family:'Bebas Neue',cursive;font-size:48px;color:var(--acc);line-height:1" id="revisao-num-flash">—</div>
-    <div style="font-size:11px;color:var(--mut)" id="revisao-idx-flash"></div>
+  <div id="revisao-flash" style="display:none;background:rgba(245,200,66,.15);border:2px solid var(--acc);border-radius:10px;padding:6px;text-align:center">
+    <span style="font-family:'Bebas Neue',cursive;font-size:36px;color:var(--acc);line-height:1" id="revisao-num-flash">—</span>
+    <span style="font-size:11px;color:var(--mut);margin-left:8px" id="revisao-idx-flash"></span>
   </div>
 
   <!-- Corpo principal: cartela + lateral -->
-  <div style="display:grid;grid-template-columns:1fr 160px;gap:10px;flex:1;align-items:start">
-    <!-- Cartela -->
+  <div style="display:grid;grid-template-columns:1fr 130px;gap:8px;align-items:start">
+    <!-- Cartela compacta -->
     <div>
-      <div class="cartela-header" style="margin-bottom:6px"><span>sua cartela</span><span id="jc-modo" style="color:var(--acc);font-size:10px">manual</span></div>
-      <div class="cartela" id="jn-cartela"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+        <span style="font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:1px">sua cartela</span>
+        <span id="jc-modo" style="color:var(--acc);font-size:9px;text-transform:uppercase;letter-spacing:1px">manual</span>
+      </div>
+      <div class="cartela" id="jn-cartela" style="gap:3px"></div>
     </div>
 
     <!-- Lateral: botão bingo + chat -->
-    <div style="display:flex;flex-direction:column;gap:8px;height:100%">
-      <!-- Botão BINGO vertical -->
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <!-- Botão BINGO -->
       <button class="btn-bingo-big" id="btn-bingo" onclick="chamarBingo()" disabled
-        style="flex:1;min-height:100px;writing-mode:horizontal-tb;font-size:22px;padding:12px 8px;border-radius:14px;flex-direction:column;gap:6px">
+        style="font-size:18px;padding:14px 6px;border-radius:12px;flex-direction:column;gap:4px;min-height:80px">
         🎉<br>BINGO!
       </button>
 
       <!-- Chat compacto -->
-      <div class="chat-wrap" style="flex:1">
-        <div style="font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;padding:6px 8px 3px">Chat</div>
-        <div class="chat-msgs" id="jog-chat-msgs" style="height:80px"></div>
-        <!-- Input texto -->
-        <div style="display:flex;gap:4px;padding:4px 6px;border-top:1px solid var(--bd)">
-          <input id="chat-input" placeholder="mensagem..." style="flex:1;background:transparent;border:none;color:var(--txt);font-size:11px;outline:none;font-family:'DM Sans',sans-serif" maxlength="40" onkeydown="if(event.key==='Enter')enviarMensagem()">
-          <button onclick="enviarMensagem()" style="background:none;border:none;color:var(--acc);font-size:14px;cursor:pointer;padding:2px">↑</button>
+      <div class="chat-wrap" style="overflow:hidden">
+        <div style="font-size:9px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;padding:5px 7px 3px">Chat</div>
+        <div class="chat-msgs" id="jog-chat-msgs" style="height:70px;overflow-y:auto;scrollbar-width:none;-ms-overflow-style:none"></div>
+        <style>#jog-chat-msgs::-webkit-scrollbar{display:none}</style>
+        <div style="display:flex;gap:3px;padding:3px 6px;border-top:1px solid var(--bd)">
+          <input id="chat-input" placeholder="msg..." style="flex:1;background:transparent;border:none;color:var(--txt);font-size:10px;outline:none;font-family:'DM Sans',sans-serif" maxlength="40" onkeydown="if(event.key==='Enter')enviarMensagem()">
+          <button onclick="enviarMensagem()" style="background:none;border:none;color:var(--acc);font-size:13px;cursor:pointer;padding:1px">↑</button>
         </div>
-        <!-- Reações rápidas -->
-        <div class="chat-reactions" style="padding:4px 6px;gap:4px;flex-wrap:wrap">
-          <button class="react-btn" style="font-size:16px" onclick="reagir('🎉')">🎉</button>
-          <button class="react-btn" style="font-size:16px" onclick="reagir('😱')">😱</button>
-          <button class="react-btn" style="font-size:16px" onclick="reagir('😤')">😤</button>
-          <button class="react-btn" style="font-size:16px" onclick="reagir('🍀')">🍀</button>
-          <button class="react-btn" style="font-size:16px" onclick="reagir('🔥')">🔥</button>
-          <button class="react-btn" style="font-size:16px" onclick="reagir('👀')">👀</button>
+        <div style="display:flex;gap:3px;padding:3px 6px;flex-wrap:wrap;border-top:1px solid var(--bd)">
+          <button class="react-btn" style="font-size:14px" onclick="reagir('🎉')">🎉</button>
+          <button class="react-btn" style="font-size:14px" onclick="reagir('😱')">😱</button>
+          <button class="react-btn" style="font-size:14px" onclick="reagir('😤')">😤</button>
+          <button class="react-btn" style="font-size:14px" onclick="reagir('🍀')">🍀</button>
+          <button class="react-btn" style="font-size:14px" onclick="reagir('🔥')">🔥</button>
+          <button class="react-btn" style="font-size:14px" onclick="reagir('👀')">👀</button>
         </div>
       </div>
     </div>
@@ -1107,7 +1121,10 @@ function atualizarTimerUI(seg,total){
 window.sortear=async()=>{
   const snap=await get(ref(db,`salas/${sala}`));
   const s=snap.val();const cfg=s.config;const nums=s.numeros||[];
-  if(nums.length>=cfg.max){toast('Todos os números foram sorteados!');return}
+  if(nums.length>=cfg.max){
+    clearInterval(timerInterval);timerInterval=null;
+    toast('Todos os números foram sorteados!');return;
+  }
   let novo;do{novo=Math.floor(Math.random()*cfg.max)+1}while(nums.includes(novo));
   som(880);
   const novos=[...nums,novo];
@@ -1120,6 +1137,9 @@ window.sortear=async()=>{
       (j.cartela||[]).forEach((n,i)=>{if(n===novo)m.add(i)});
       upd[`jogadores/${id}/marcados`]=[...m];
     });
+    // Reinicia o timer ao sortear manualmente no modo auto
+    timerSeg=timerTotal;
+    atualizarTimerUI(timerSeg,timerTotal);
   }
   await update(ref(db,`salas/${sala}`),upd);
   await update(ref(db,`salas/${sala}`),{ultimaAtiv:Date.now()});
@@ -1409,7 +1429,7 @@ function uiJog(s,jd){
   document.getElementById('quase-la-banner').style.display=quase?'flex':'none';
 
   // Botão bingo
-  const podeGanhar=calcVit(cartela,marcados,cfg.faseAtual)&&ultimo&&cartela.includes(ultimo)&&marcados.has(cartela.indexOf(ultimo));
+  const podeGanhar=calcVit(cartela,marcados,cfg.faseAtual);
   document.getElementById('btn-bingo').disabled=!podeGanhar||bingoJaPedido||jd.status==='vencedor'||!!rev||s.pausado;
 }
 
