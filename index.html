@@ -45,8 +45,8 @@
         <button id="btn-velha" class="rede-link" title="Jogo da Velha">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="8" y1="2" x2="8" y2="22"/><line x1="16" y1="2" x2="16" y2="22"/><line x1="2" y1="8" x2="22" y2="8"/><line x1="2" y1="16" x2="22" y2="16"/></svg>
         </button>
-        <button id="btn-snake" class="rede-link" title="Snake">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h4v4H3zm0 7h4v4H3zm7-7h4v4h-4zm7 7h4v4h-4zm0 7h4v4h-4zm-7 0h4v4h-4zm7-14h4v4h-4zM3 17h4v4H3z"/><path d="M7 5h3M10 5v3M17 10h-3M14 10v3M10 14v3M10 17h7M17 17v-4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+        <button id="btn-ppt" class="rede-link" title="Pedra Papel Tesoura">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 3C7.3 3 6 4.3 6 6v8l-1.7-1.7c-.6-.6-1.6-.6-2.3 0-.6.6-.6 1.6 0 2.3L6.3 19c.9 1.2 2.4 2 4 2h3.7c3.3 0 6-2.7 6-6v-5c0-.8-.7-1.5-1.5-1.5S17 9.2 17 10v-1c0-.8-.7-1.5-1.5-1.5S14 8.2 14 9V8c0-.8-.7-1.5-1.5-1.5S11 7.2 11 8V6c0-1.7-1.3-3-2-3z"/></svg>
         </button>
     </div>
 
@@ -156,37 +156,57 @@
     <div id="velha-popup" class="escondido">
         <button class="fechar-popup-btn" id="fechar-velha">✕</button>
         <p class="popup-label-jogo">jogo da velha</p>
-        <p id="velha-status">sua vez — você é o ✕</p>
-        <div id="velha-board">
-            <div class="velha-cell" data-i="0"></div>
-            <div class="velha-cell" data-i="1"></div>
-            <div class="velha-cell" data-i="2"></div>
-            <div class="velha-cell" data-i="3"></div>
-            <div class="velha-cell" data-i="4"></div>
-            <div class="velha-cell" data-i="5"></div>
-            <div class="velha-cell" data-i="6"></div>
-            <div class="velha-cell" data-i="7"></div>
-            <div class="velha-cell" data-i="8"></div>
+        <!-- Tela de seleção de modo -->
+        <div id="velha-modo">
+            <p id="velha-modo-titulo">como quer jogar?</p>
+            <button class="velha-modo-btn" id="modo-ia">😼 vs garfield</button>
+            <button class="velha-modo-btn" id="modo-2p">👥 2 jogadores</button>
         </div>
-        <button id="velha-reiniciar">jogar de novo</button>
+        <!-- Tela do jogo -->
+        <div id="velha-jogo" class="escondido">
+            <p id="velha-status">sua vez — você é o ✕</p>
+            <div id="velha-board">
+                <div class="velha-cell" data-i="0"></div>
+                <div class="velha-cell" data-i="1"></div>
+                <div class="velha-cell" data-i="2"></div>
+                <div class="velha-cell" data-i="3"></div>
+                <div class="velha-cell" data-i="4"></div>
+                <div class="velha-cell" data-i="5"></div>
+                <div class="velha-cell" data-i="6"></div>
+                <div class="velha-cell" data-i="7"></div>
+                <div class="velha-cell" data-i="8"></div>
+            </div>
+            <div id="velha-acoes">
+                <button id="velha-reiniciar">jogar de novo</button>
+                <button id="velha-trocar-modo">trocar modo</button>
+            </div>
+        </div>
     </div>
 
-    <!-- Popup Snake -->
-    <div id="snake-overlay" class="escondido"></div>
-    <div id="snake-popup" class="escondido">
-        <button class="fechar-popup-btn" id="fechar-snake">✕</button>
-        <p class="popup-label-jogo">snake</p>
-        <p id="snake-score">pontos: 0</p>
-        <canvas id="snake-canvas" width="280" height="280"></canvas>
-        <div id="snake-controles">
-            <button class="snake-btn" id="snake-up">▲</button>
-            <div id="snake-meio">
-                <button class="snake-btn" id="snake-left">◀</button>
-                <button class="snake-btn" id="snake-right">▶</button>
+    <!-- Popup Pedra Papel Tesoura -->
+    <div id="ppt-overlay" class="escondido"></div>
+    <div id="ppt-popup" class="escondido">
+        <button class="fechar-popup-btn" id="fechar-ppt">✕</button>
+        <p class="popup-label-jogo">pedra papel tesoura</p>
+        <p id="ppt-placar">você 0 × 0 garfield</p>
+        <div id="ppt-arena">
+            <div id="ppt-jogador">
+                <span id="ppt-emoji-jogador">🤔</span>
+                <span class="ppt-label">você</span>
             </div>
-            <button class="snake-btn" id="snake-down">▼</button>
+            <span id="ppt-vs">vs</span>
+            <div id="ppt-garfield">
+                <span id="ppt-emoji-garfield">😼</span>
+                <span class="ppt-label">garfield</span>
+            </div>
         </div>
-        <p id="snake-msg">pressione uma tecla ou botão pra começar</p>
+        <p id="ppt-resultado"></p>
+        <div id="ppt-escolhas">
+            <button class="ppt-btn" data-escolha="pedra">🪨</button>
+            <button class="ppt-btn" data-escolha="papel">📄</button>
+            <button class="ppt-btn" data-escolha="tesoura">✂️</button>
+        </div>
+        <button id="ppt-reiniciar">resetar placar</button>
     </div>
 
     <!-- Odie Easter Egg -->
