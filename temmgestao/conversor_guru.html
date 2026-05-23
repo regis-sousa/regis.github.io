@@ -5,20 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Conversor Guru → Nibo — Temm Gestão</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-
   :root {
-    --bg:#0F1117; --card:#1C2033; --card2:#232740; --border:#2A2F45;
+    --bg:#0F1117; --surface:#1C2033; --surface2:#232740; --border:#2A2F45;
     --blue:#1A56FF; --teal:#00C9A7; --yellow:#D4C200;
-    --text:#E8EAF0; --muted:#7B82A0; --red:#f87171; --green:#34d399;
-    --radius:12px;
+    --accent:#00C9A7; --accent2:#1A56FF;
+    --warn:#D4C200; --danger:#f87171;
+    --text:#E8EAF0; --muted:#7B82A0; --radius:12px;
   }
-  *{box-sizing:border-box;margin:0;padding:0;}
-  html,body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+  *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+  html, body { font-family:'Sora',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+  body { padding:0; }
 
-
+  /* Temm header */
   .app-header{background:var(--blue);padding:14px 28px;display:flex;align-items:center;gap:14px;border-bottom:3px solid var(--teal);position:sticky;top:0;z-index:100;}
   .app-header img{height:34px;flex-shrink:0;}
   .app-header h1{font-size:0.97rem;font-weight:700;color:#fff;}
@@ -27,90 +27,130 @@
   .back-btn{margin-left:auto;padding:6px 14px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:8px;color:#fff;font-size:0.76rem;font-weight:600;text-decoration:none;white-space:nowrap;transition:background .2s;}
   .back-btn:hover{background:rgba(255,255,255,0.2);}
 
-  .container{max-width:860px;margin:0 auto;padding:28px 18px 60px;}
-  .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:22px 24px;margin-bottom:16px;transition:border-color .2s;}
-  .card:hover{border-color:#3a4060;}
-  .card-title{font-size:0.62rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--teal);margin-bottom:14px;display:flex;align-items:center;gap:7px;}
-  .card-title::before{content:attr(data-num);color:var(--muted);font-size:0.6rem;}
-  .card-title::after{content:'';flex:1;height:1px;background:var(--border);}
+  .container { max-width: 860px; margin: 0 auto; padding: 28px 18px 60px; position:relative; z-index:1; }
 
-  /* dropzone */
-  .dropzone{border:2px dashed var(--border);border-radius:10px;padding:36px 24px;text-align:center;cursor:pointer;transition:all .2s;position:relative;}
-  .dropzone:hover,.dropzone.drag{border-color:var(--blue);background:rgba(26,86,255,0.06);}
-  .dropzone input{position:absolute;inset:0;opacity:0;cursor:pointer;}
-  .drop-icon{font-size:2rem;margin-bottom:10px;}
-  .drop-label{font-size:0.82rem;color:var(--muted);}
-  .drop-label strong{color:var(--text);}
-  .file-name{margin-top:11px;font-size:0.76rem;color:var(--teal);background:rgba(0,201,167,.1);padding:5px 13px;border-radius:6px;display:inline-block;}
+  /* Cards */
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 24px 26px; margin-bottom: 16px;
+    transition: border-color .2s;
+  }
+  .card:hover { border-color: #3a4060; }
+  .card-title {
+    font-size: 0.62rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--teal); margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
+  }
+  .card-title::before { content: attr(data-num); color: var(--muted); font-size: 0.6rem; }
+  .card-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
-  /* assinatura toggle rows */
-  .assin-intro{font-size:0.8rem;color:var(--muted);margin-bottom:14px;line-height:1.6;}
-  .assin-intro strong{color:var(--yellow);}
-  .toggle-row{display:flex;align-items:center;justify-content:space-between;background:var(--card2);border:1px solid var(--border);border-radius:9px;padding:12px 16px;margin-bottom:9px;gap:14px;}
-  .toggle-info{flex:1;min-width:0;}
-  .toggle-name{font-size:0.87rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .toggle-meta{font-size:0.69rem;color:var(--muted);font-family:'Sora',monospace;margin-top:2px;}
-  .toggle-meta span{color:var(--yellow);}
-  .toggle-control{display:flex;align-items:center;gap:10px;flex-shrink:0;}
-  .toggle-label-text{font-size:0.74rem;color:var(--muted);white-space:nowrap;}
-  .switch{position:relative;width:42px;height:22px;flex-shrink:0;}
-  .switch input{opacity:0;width:0;height:0;}
-  .slider{position:absolute;inset:0;background:var(--border);border-radius:22px;cursor:pointer;transition:.2s;}
-  .slider::before{content:'';position:absolute;width:16px;height:16px;left:3px;bottom:3px;background:var(--muted);border-radius:50%;transition:.2s;}
-  input:checked + .slider{background:rgba(0,201,167,.25);border:1px solid var(--teal);}
-  input:checked + .slider::before{transform:translateX(20px);background:var(--teal);}
+  /* Drop zone */
+  .dropzone {
+    border: 2px dashed var(--border); border-radius: 10px;
+    padding: 40px 24px; text-align: center; cursor: pointer;
+    transition: all .2s; position: relative;
+  }
+  .dropzone:hover, .dropzone.drag { border-color: var(--blue); background: rgba(26,86,255,0.06); }
+  .dropzone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+  .drop-icon { font-size: 2rem; margin-bottom: 10px; }
+  .drop-label { font-size: 0.84rem; color: var(--muted); }
+  .drop-label strong { color: var(--text); }
+  #file-name {
+    margin-top: 11px; font-size: 0.76rem; color: var(--teal);
+    background: rgba(0,201,167,.1); padding: 5px 13px; border-radius: 6px; display: none;
+  }
 
-  /* summary stats */
-  #summary{display:none;}
-  .summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
-  .stat{background:var(--card2);border-radius:9px;padding:15px;text-align:center;border:1px solid var(--border);}
-  .stat-val{font-size:1.7rem;font-weight:700;color:var(--teal);}
-  .stat-label{font-size:0.65rem;color:var(--muted);margin-top:3px;text-transform:uppercase;letter-spacing:.06em;}
+  /* Assinatura section */
+  #assinatura-section { display: none; }
+  .assin-intro { font-size: 0.8rem; color: var(--muted); margin-bottom: 14px; line-height: 1.6; }
+  .assin-intro strong { color: var(--yellow); }
+  .toggle-row {
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 9px; padding: 12px 16px; margin-bottom: 9px; gap: 14px;
+  }
+  .toggle-info { flex: 1; min-width: 0; }
+  .toggle-name { font-size: 0.87rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .toggle-meta { font-size: 0.69rem; color: var(--muted); font-family: 'DM Mono', monospace; margin-top: 2px; }
+  .toggle-meta span { color: var(--yellow); }
+  .toggle-control { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+  .toggle-label-text { font-size: 0.74rem; color: var(--muted); white-space: nowrap; }
+  .switch { position: relative; width: 42px; height: 22px; flex-shrink: 0; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider { position: absolute; inset: 0; background: var(--border); border-radius: 22px; cursor: pointer; transition: .2s; }
+  .slider::before { content: ''; position: absolute; width: 16px; height: 16px; left: 3px; bottom: 3px; background: var(--muted); border-radius: 50%; transition: .2s; }
+  input:checked + .slider { background: rgba(0,201,167,.25); border: 1px solid var(--teal); }
+  input:checked + .slider::before { transform: translateX(20px); background: var(--teal); }
 
-  /* buttons */
-  .btn{display:inline-flex;align-items:center;gap:8px;font-family:'Sora',sans-serif;font-size:0.84rem;font-weight:700;padding:11px 22px;border-radius:8px;border:none;cursor:pointer;transition:all .15s;text-decoration:none;}
-  .btn-primary{background:var(--blue);color:#fff;}
-  .btn-primary:hover{opacity:.88;transform:translateY(-1px);}
-  .btn-primary:disabled{opacity:.35;cursor:not-allowed;transform:none;}
-  .btn-outline{background:transparent;color:var(--text);border:1px solid var(--border);}
-  .btn-outline:hover{border-color:var(--teal);color:var(--teal);}
-  .actions{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap;}
+  /* Summary */
+  #summary { display: none; }
+  .summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .stat { background: var(--surface2); border-radius: 9px; padding: 15px; text-align: center; border: 1px solid var(--border); }
+  .stat-val { font-size: 1.7rem; font-weight: 700; color: var(--teal); }
+  .stat-label { font-size: 0.65rem; color: var(--muted); margin-top: 3px; text-transform: uppercase; letter-spacing: .06em; }
 
-  /* table / preview */
-  #preview-section{display:none;}
-  .table-wrap{overflow-x:auto;border-radius:9px;border:1px solid var(--border);}
-  table{width:100%;border-collapse:collapse;font-size:0.76rem;}
-  th{background:var(--card2);padding:9px 12px;text-align:left;font-size:0.63rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);white-space:nowrap;border-bottom:1px solid var(--border);}
-  td{padding:8px 12px;border-bottom:1px solid rgba(42,47,69,.6);white-space:nowrap;}
-  tr:last-child td{border-bottom:none;}
-  tr.row-taxa td{background:rgba(248,113,113,.04);}
-  tr.row-venda td{background:rgba(52,211,153,.03);}
-  .pill{display:inline-block;font-size:0.65rem;padding:2px 8px;border-radius:4px;font-weight:600;}
-  .pill-venda{background:rgba(52,211,153,.15);color:var(--teal);}
-  .pill-taxa{background:rgba(248,113,113,.15);color:var(--red);}
-  .pill-assin{background:rgba(212,194,0,.15);color:var(--yellow);}
-  .val-pos{color:var(--teal);font-weight:600;}
-  .val-neg{color:var(--red);font-weight:600;}
+  /* Buttons */
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: 'Sora', sans-serif; font-size: 0.84rem; font-weight: 700;
+    padding: 11px 22px; border-radius: 8px; border: none; cursor: pointer;
+    transition: all .15s; text-decoration: none; letter-spacing: 0.02em;
+  }
+  .btn-primary { background: var(--blue); color: #fff; }
+  .btn-primary:hover { opacity: .88; transform: translateY(-1px); }
+  .btn-primary:disabled { opacity: .35; cursor: not-allowed; transform: none; }
+  .btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border); }
+  .btn-outline:hover { border-color: var(--teal); color: var(--teal); }
+  .actions { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
 
-  /* alert */
-  .alert{display:flex;gap:11px;align-items:flex-start;background:rgba(212,194,0,.08);border:1px solid rgba(212,194,0,.25);border-radius:9px;padding:13px 16px;font-size:0.8rem;color:var(--yellow);margin-bottom:14px;line-height:1.5;}
-  .alert-icon{font-size:1rem;flex-shrink:0;margin-top:1px;}
+  /* Preview table */
+  #preview-section { display: none; }
+  .table-wrap { overflow-x: auto; border-radius: 9px; border: 1px solid var(--border); }
+  table { width: 100%; border-collapse: collapse; font-size: 0.76rem; }
+  th {
+    background: var(--surface2); padding: 9px 12px; text-align: left;
+    font-size: 0.63rem; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--muted); white-space: nowrap; border-bottom: 1px solid var(--border);
+  }
+  td { padding: 8px 12px; border-bottom: 1px solid rgba(42,47,69,.6); white-space: nowrap; }
+  tr:last-child td { border-bottom: none; }
+  tr.row-taxa td { background: rgba(248,113,113,.04); }
+  tr.row-venda td { background: rgba(0,201,167,.03); }
+  .pill { display: inline-block; font-size: 0.65rem; padding: 2px 8px; border-radius: 4px; font-weight: 600; }
+  .pill-venda { background: rgba(0,201,167,.15); color: var(--teal); }
+  .pill-taxa { background: rgba(248,113,113,.15); color: var(--danger); }
+  .pill-assin { background: rgba(212,194,0,.15); color: var(--yellow); }
+  .val-pos { color: var(--teal); font-weight: 600; }
+  .val-neg { color: var(--danger); font-weight: 600; }
 
-  #progress-bar{display:none;height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:11px;}
-  #progress-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--teal));animation:loading 1s ease-in-out infinite alternate;}
-  @keyframes loading{from{width:20%}to{width:90%}}
-  .divider{height:1px;background:var(--border);margin:20px 0;}
+  /* Alert */
+  .alert {
+    display: flex; gap: 11px; align-items: flex-start;
+    background: rgba(212,194,0,.08); border: 1px solid rgba(212,194,0,.25);
+    border-radius: 9px; padding: 13px 16px; font-size: 0.8rem; color: var(--yellow);
+    margin-bottom: 14px; line-height: 1.5;
+  }
+  .alert-icon { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
 
-  /* conciliação */
-  #conciliacao-section{display:none;}
-  .copy-feedback{display:none;font-size:.75rem;color:var(--teal);margin-left:10px;}
+  /* Progress */
+  #progress-bar { display: none; height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; margin-top: 11px; }
+  #progress-fill { height: 100%; background: linear-gradient(90deg, var(--blue), var(--teal)); animation: loading 1s ease-in-out infinite alternate; }
+  @keyframes loading { from{width:20%} to{width:90%} }
 
-  @media(max-width:600px){.summary-grid{grid-template-columns:repeat(2,1fr);}}
+  .divider { height: 1px; background: var(--border); margin: 20px 0; }
+
+  #conciliacao-section { display: none; }
+  #conciliacao-text {
+    width: 100%; height: 200px; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 9px; padding: 13px; font-family: 'DM Mono', monospace; font-size: 0.69rem;
+    color: var(--text); resize: vertical; line-height: 1.7; outline: none;
+  }
+  .copy-feedback { display: none; font-size: .75rem; color: var(--teal); margin-left: 10px; }
+
+  @media (max-width: 600px) { .summary-grid { grid-template-columns: repeat(2, 1fr); } }
 </style>
-
 </head>
 <body>
-
+<div class="container">
 
   <div class="app-header">
     <a href="index.html" class="logo-link">
@@ -123,66 +163,95 @@
     <a href="index.html" class="back-btn">← Hub</a>
   </div>
 
-
-<div class="container">
-
+  <!-- STEP 1: Upload -->
   <div class="card">
-    <div class="card-title" data-num="01">Upload da planilha</div>
+    <div class="card-title" data-num="01">Importar planilha da Guru</div>
     <div class="dropzone" id="dropzone">
-      <input type="file" id="file-input" accept=".xlsx,.xls">
-      <div class="drop-icon">📊</div>
+      <input type="file" id="file-input" accept=".xlsx,.xls" />
+      <div class="drop-icon">📂</div>
       <div class="drop-label"><strong>Clique para selecionar</strong> ou arraste o arquivo aqui</div>
-      <div class="drop-label" style="margin-top:5px;font-size:.73rem;">Aceita .xlsx e .xls</div>
+      <div class="drop-label" style="margin-top:6px;font-size:12px;">Aceita .xlsx e .xls</div>
+      <div id="file-name" style="display:none"></div>
     </div>
-    <div id="file-name-display" style="display:none"></div>
+    <div id="progress-bar"><div id="progress-fill"></div></div>
   </div>
 
+  <!-- STEP 2: Assinaturas -->
   <div class="card" id="assinatura-section">
-    <div class="card-title" data-num="02">Configurar tipo de venda (assinaturas)</div>
-    <div class="assin-intro">Vendas de assinatura detectadas. Configure se cada produto deve gerar <strong>venda + taxa</strong> ou apenas <strong>taxa</strong>.</div>
-    <div id="assin-list"></div>
-    <div id="summary">
-      <div class="divider"></div>
-      <div class="summary-grid" id="summary-grid"></div>
+    <div class="card-title" data-num="02">Vendas com Assinatura detectadas</div>
+    <div class="alert">
+      <span class="alert-icon">⚡</span>
+      <div>Estas vendas possuem <strong>código de assinatura</strong>. Ative o toggle se precisar lançar a venda de forma avulsa também.</div>
     </div>
+    <div id="assin-list"></div>
+  </div>
+
+  <!-- STEP 3: Resumo + Gerar -->
+  <div class="card" id="summary">
+    <div class="card-title" data-num="03">Resumo da conversão</div>
+    <div class="summary-grid" id="summary-grid"></div>
+    <div class="divider"></div>
     <div class="actions">
       <button class="btn btn-primary" id="btn-generate">⬇ Gerar planilha Nibo</button>
       <button class="btn btn-outline" id="btn-conciliacao">📊 Gerar conciliação</button>
       <button class="btn btn-outline" id="btn-preview">👁 Visualizar linhas</button>
     </div>
-    <div id="progress-bar"><div id="progress-fill"></div></div>
   </div>
 
-  <div class="card" id="conciliacao-section">
-    <div class="card-title" data-num="—">Conciliação</div>
-    <div class="table-wrap" style="max-height:320px;overflow-y:auto;">
-      <table>
-        <thead><tr><th>Data</th><th>Descrição</th><th style="text-align:right">Valor</th></tr></thead>
+  <!-- CONCILIAÇÃO -->
+  <div class="card" id="conciliacao-section" style="display:none;">
+    <div class="card-title" data-num="04">Conciliação</div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.6;">
+      Linhas formatadas para conciliação — <strong>Venda</strong>, <strong>Tarifa</strong> e <strong>Reembolso</strong> com data, ID, nome e valor.
+    </p>
+
+    <div class="table-wrap" style="margin-bottom:20px;">
+      <table id="conciliacao-table">
+        <thead>
+          <tr><th>Data</th><th>Descrição</th><th>Valor</th></tr>
+        </thead>
         <tbody id="conciliacao-body"></tbody>
       </table>
     </div>
-    <div style="margin-top:12px;display:flex;align-items:center;gap:10px;">
+
+    <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:16px;">
       <button class="btn btn-primary" id="btn-copy-conciliacao">📋 Copiar tudo</button>
       <button class="btn btn-outline" id="btn-dl-conciliacao">⬇ Baixar planilha</button>
-      <span class="copy-feedback" id="copy-feedback">✓ Copiado!</span>
+      <span id="copy-feedback" style="font-size:12px;color:var(--accent);display:none;">✓ Copiado!</span>
     </div>
-    <textarea id="conciliacao-text" style="display:none"></textarea>
+
+    <div style="position:relative;">
+      <textarea id="conciliacao-text" readonly
+        style="width:100%;height:220px;background:var(--surface2);border:1px solid var(--border);
+               border-radius:10px;padding:14px;font-family:'DM Mono',monospace;font-size:11px;
+               color:var(--text);resize:vertical;line-height:1.7;outline:none;">
+      </textarea>
+    </div>
   </div>
 
+  <!-- Preview -->
   <div class="card" id="preview-section">
-    <div class="card-title" data-num="—">Preview de linhas</div>
-    <div class="table-wrap" style="max-height:380px;overflow-y:auto;">
-      <table>
-        <thead><tr><th>Tipo</th><th>Contato</th><th>Oferta</th><th>Categoria</th><th>Valor</th><th>Data</th><th>Centro custo</th></tr></thead>
+    <div class="card-title" data-num="—">Pré-visualização</div>
+    <div class="table-wrap">
+      <table id="preview-table">
+        <thead>
+          <tr>
+            <th>Tipo</th>
+            <th>Contato</th>
+            <th>Descrição</th>
+            <th>Categoria</th>
+            <th>Valor</th>
+            <th>Competência</th>
+            <th>Centro de custo</th>
+          </tr>
+        </thead>
         <tbody id="preview-body"></tbody>
       </table>
     </div>
   </div>
 
 </div>
-
 <script>
-
 // ─── State ────────────────────────────────────────────────────
 let rawData = [];
 let assinRows = [];    // rows with assinatura codigo
@@ -541,7 +610,6 @@ $('btn-dl-conciliacao').addEventListener('click', () => {
   const ds = `${String(today.getDate()).padStart(2,'0')}${String(today.getMonth()+1).padStart(2,'0')}${today.getFullYear()}`;
   XLSX.writeFile(wb, `conciliacao_${ds}.xlsx`);
 });
-
 </script>
 </body>
 </html>
