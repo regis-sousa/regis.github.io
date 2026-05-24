@@ -372,20 +372,17 @@ function buildPreview(cfg){
         <div class="rpt-bar">${SECTION_LABEL}</div>
         ${tbl}
       </div>
-<div class="rpt-total-wrap">
+
+</div>
+
+      
+      </div>
+      <div class="rpt-total-wrap">
   <div class="rpt-total-box">
     <div class="rpt-total-label">TOTAL</div>
     <div class="rpt-total-value">R$ ${totalGeral.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}</div>
   </div>
-</div>
-
-      <div class="rpt-total-wrap">
-        <div class="rpt-total-box">
-          <div class="rpt-total-label">TOTAL</div>
-          <div class="rpt-total-value">R$ ${totalGeral.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}</div>
-        </div>
-      </div>
-      <div class="rpt-obs">
+<div class="rpt-obs">
         <div class="rpt-obs-lbl">Observações gerais</div>
         <textarea class="rpt-obs-area" id="obs-geral-inp" rows="4"
           placeholder="Observações gerais..."
@@ -465,18 +462,10 @@ body{display:flex;flex-direction:column;min-height:100%;}
 </div>
 <div class="rpt-body">
   <div class="rpt-sec"><div class="rpt-bar">${SECTION_LABEL}</div>${tbl}</div>
-<div class="rpt-total-wrap">
-  <div class="rpt-total-box">
-    <div class="rpt-total-label">TOTAL</div>
-    <div class="rpt-total-value">R$ ${totalGeral.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}</div>
-  </div>
+
 </div>
 
-  <div class="rpt-total-wrap">
-    <div class="rpt-total-box">
-      <div class="rpt-total-label">TOTAL</div>
-      <div class="rpt-total-value">R$ ${totalGeral.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}</div>
-    </div>
+  
   </div>
   <div class="rpt-obs">
     <div class="rpt-obs-lbl">Observações gerais</div>
