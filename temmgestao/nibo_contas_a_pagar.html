@@ -94,6 +94,38 @@
 .rpt-total-label{font-size:0.65rem;font-weight:700;color:#6B7280;margin-bottom:2px;letter-spacing:0.04em;}
 .rpt-total-value{font-size:0.9rem;font-weight:700;color:#059669;line-height:1.1;}
 
+
+.rpt-total-wrap{
+  width:100%;
+  display:flex;
+  justify-content:center;
+  margin-top:8px;
+  margin-bottom:10px;
+}
+
+.rpt-total-box{
+  width:100%;
+  border:1px solid #D1D5DB;
+  border-radius:6px;
+  background:#F8F9FC;
+  padding:8px 10px;
+  text-align:center;
+}
+
+.rpt-total-label{
+  font-size:0.7rem;
+  font-weight:700;
+  color:#6B7280;
+  margin-bottom:3px;
+  letter-spacing:0.05em;
+}
+
+.rpt-total-value{
+  font-size:1rem;
+  font-weight:700;
+  color:#059669;
+}
+
 .rpt-obs{margin-top:5mm;}
   .rpt-obs-lbl{font-size:0.74rem;font-weight:700;color:#1A1A2E;margin-bottom:3mm;}
   .rpt-obs-area{width:100%;resize:vertical;font-family:'Sora',sans-serif;font-size:0.74rem;color:#374151;border:1.5px solid #D1D5DB;border-radius:6px;background:#F8F9FC;padding:6px 9px;outline:none;min-height:20mm;}
@@ -368,10 +400,19 @@ function buildPreview(cfg){
         <div class="rpt-bar">${SECTION_LABEL}</div>
         ${tbl}
       </div>
-      <div class="rpt-total-box">
-        <div class="rpt-total-label">TOTAL</div>
-        <div class="rpt-total-value">R$ ${totalGeral.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}</div>
-      </div>
+      
+<div class="rpt-total-wrap">
+  <div class="rpt-total-box">
+    <div class="rpt-total-label">TOTAL</div>
+    <div class="rpt-total-value">
+      R$ ${totalGeral.toLocaleString('pt-BR',{
+        minimumFractionDigits:2,
+        maximumFractionDigits:2
+      })}
+    </div>
+  </div>
+</div>
+
       <div class="rpt-obs">
         <div class="rpt-obs-lbl">Observações gerais</div>
         <textarea class="rpt-obs-area" id="obs-geral-inp" rows="4"
@@ -452,10 +493,19 @@ body{display:flex;flex-direction:column;min-height:100%;}
 </div>
 <div class="rpt-body">
   <div class="rpt-sec"><div class="rpt-bar">${SECTION_LABEL}</div>${tbl}</div>
+  
+<div class="rpt-total-wrap">
   <div class="rpt-total-box">
     <div class="rpt-total-label">TOTAL</div>
-    <div class="rpt-total-value">R$ ${totalGeral.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}</div>
+    <div class="rpt-total-value">
+      R$ ${totalGeral.toLocaleString('pt-BR',{
+        minimumFractionDigits:2,
+        maximumFractionDigits:2
+      })}
+    </div>
   </div>
+</div>
+
   <div class="rpt-obs">
     <div class="rpt-obs-lbl">Observações gerais</div>
     <div class="rpt-obs-box">${esc(obsGeral||'')}</div>
