@@ -118,7 +118,7 @@
   <div class="section" id="sec-upload">
     <div class="section-label">01 — Arquivo(s)</div>
     <div class="dropzone" id="dz">
-      <input type="file" id="fi" multiple accept=".xlsx,.csv">
+      <input type="file" id="fi" multiple accept=".xlsx,.xls,.csv">
       <span class="dz-icon" id="dz-icon">📂</span>
       <div class="dz-title">Clique ou arraste os arquivos aqui</div>
       <div class="dz-sub">Aceita .xlsx e .csv (múltiplos arquivos)</div>
@@ -184,14 +184,16 @@ let outputRows = [];
 const dz = document.getElementById('dz');
 const fi = document.getElementById('fi');
 
-dz.addEventListener('click', () => fi.click());
 dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('over'); });
 dz.addEventListener('dragleave', () => dz.classList.remove('over'));
 dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('over'); addFiles(e.dataTransfer.files); });
 fi.addEventListener('change', () => { addFiles(fi.files); fi.value=''; });
 
 function addFiles(flist) {
-  Array.from(flist).forEach(f => { if (!files.find(x => x.name===f.name)) files.push(f); });
+  const incoming = Array.from(flist || []);
+  incoming.forEach(f => {
+    if (!files.find(x => x.name === f.name && x.size === f.size)) files.push(f);
+  });
   renderChips();
   document.getElementById('btnConvert').disabled = files.length === 0;
 }
