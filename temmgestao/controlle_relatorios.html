@@ -64,10 +64,34 @@
   .er{background:#F8F9FC;}
   .gn{color:#059669;font-weight:600;}
   .rd{color:#dc2626;font-weight:600;}
-  .rpt-total-box{margin:5mm 0 5mm;border:1.5px solid #D1D5DB;border-radius:8px;background:#F8F9FC;padding:6mm 10mm;text-align:center;}
-  .rpt-total-lbl{font-size:0.72rem;font-weight:800;color:#6B7280;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:2mm;}
-  .rpt-total-val{font-size:1.1rem;font-weight:800;color:#059669;}
-  .rpt-obs{margin-top:5mm;}
+  
+.rpt-total-box{
+  width:100%;
+  border:1px solid #D1D5DB;
+  border-radius:6px;
+  background:#F8F9FC;
+  padding:6px 10px;
+  margin-top:6px;
+  margin-bottom:8px;
+  text-align:center;
+}
+
+.rpt-total-label{
+  font-size:0.65rem;
+  font-weight:700;
+  color:#6B7280;
+  margin-bottom:2px;
+  letter-spacing:0.04em;
+}
+
+.rpt-total-value{
+  font-size:0.9rem;
+  font-weight:700;
+  color:#059669;
+  line-height:1.1;
+}
+
+.rpt-obs{margin-top:5mm;}
   .rpt-obs-lbl{font-size:0.74rem;font-weight:700;color:#1A1A2E;margin-bottom:3mm;}
   .rpt-obs-area{width:100%;resize:vertical;font-family:'Sora',sans-serif;font-size:0.74rem;color:#374151;border:1.5px solid #D1D5DB;border-radius:6px;background:#F8F9FC;padding:6px 9px;outline:none;min-height:20mm;}
   .rpt-obs-area:focus{border-color:#1A56FF;}
@@ -330,45 +354,12 @@ const VALUE_COLS=['Valor','Valor na categoria 1','Valor categoria/centro de cust
 
 function isValCol(k){return VALUE_COLS.includes(k);}
 
-function parseMoney(v){
-  const s=String(v||'').trim();
-  if(!s)return 0;
-  const clean=s.replace(/R\$|\s/g,'').replace(/\./g,'').replace(',', '.').replace(/[^0-9.\-]/g,'');
-  const n=parseFloat(clean);
-  return isNaN(n)?0:n;
-}
-
-function isSummaryRow(r){
-  const valueKeys=VALUE_COLS.filter(k=>Object.prototype.hasOwnProperty.call(r,k));
-  const hasValue=valueKeys.some(k=>String(r[k]??'').trim()!=='');
-  const textFields=Object.keys(r).filter(k=>!VALUE_COLS.includes(k));
-  const filledText=textFields.filter(k=>String(r[k]??'').trim()!=='');
-  const desc=String(r['Descrição']||r['Descricao']||'').trim().toLowerCase();
-  return hasValue && (filledText.length===0 || ['total','saldo'].includes(desc));
-}
-
-function getDataRows(){
-  return rows.filter(r=>!isSummaryRow(r));
-}
-
-function getReportTotal(){
-  const dataRows=getDataRows();
-  const totalKey=activeCols.includes('Valor') || rows.some(r=>Object.prototype.hasOwnProperty.call(r,'Valor')) ? 'Valor' : VALUE_COLS.find(k=>rows.some(r=>Object.prototype.hasOwnProperty.call(r,k)));
-  if(!totalKey)return 0;
-  return dataRows.reduce((sum,r)=>sum+parseMoney(r[totalKey]),0);
-}
-
-function buildTotalBox(){
-  return `<div class="rpt-total-box"><div class="rpt-total-lbl">TOTAL</div><div class="rpt-total-val">${fmtVal(getReportTotal())}</div></div>`;
-}
-
 function buildTbl(){
   const vc=getVisCols();
-  const dataRows=getDataRows();
   let h=`<table class="rpt-tbl"><thead><tr>`;
   vc.forEach(([k,l,a])=>h+=`<th class="${a==='r'?'r':''}">${l}</th>`);
   h+=`</tr></thead><tbody>`;
-  dataRows.forEach((r,i)=>{
+  rows.forEach((r,i)=>{
     h+=`<tr class="${i%2?'er':''}">`;
     vc.forEach(([k,l,a])=>{
       const v=r[k]??'';
@@ -407,11 +398,19 @@ function buildPreview(cfg){
     </div>
     <div class="rpt-body">
       <div class="rpt-sec">
-        <div class="rpt-bar">${title} — ${getDataRows().length} registros</div>
+        <div class="rpt-bar">${title} — ${rows.length} registros</div>
         ${buildTbl()}
-        ${buildTotalBox()}
       </div>
-      <div class="rpt-obs">
+      
+<div class="rpt-total-box">
+  <div class="rpt-total-label">TOTAL</div>
+  <div class="rpt-total-value">
+    R$ ${formatCurrency(totalGeral)}
+  </div>
+</div>
+
+<div class="rpt-obs">
+
         <div class="rpt-obs-lbl">Observações gerais</div>
         <textarea class="rpt-obs-area" id="obs-geral-inp" rows="4"
           placeholder="Observações gerais..."
@@ -433,7 +432,6 @@ function doPrint(){
   const docTitle=title+(cfg.client?' — '+cfg.client:'');
   const today=new Date();
   const tbl=buildTbl();
-  const totalBox=buildTotalBox();
 
   const pcss=`
 @page{size:${pw} ${ph};margin:0;}
@@ -458,9 +456,6 @@ body{display:flex;flex-direction:column;min-height:100%;}
 .er{background:#F8F9FC!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
 .gn{color:#059669;font-weight:600;}
 .rd{color:#dc2626;font-weight:600;}
-.rpt-total-box{margin:5mm 0 5mm;border:1.5px solid #D1D5DB;border-radius:8px;background:#F8F9FC!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;padding:6mm 10mm;text-align:center;}
-.rpt-total-lbl{font-size:0.72rem;font-weight:800;color:#6B7280;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:2mm;}
-.rpt-total-val{font-size:1.1rem;font-weight:800;color:#059669;}
 .rpt-obs{margin-top:5mm;}
 .rpt-obs-lbl{font-size:0.73rem;font-weight:700;color:#1A1A2E;margin-bottom:3mm;}
 .rpt-obs-box{border:1.5px solid #D1D5DB;border-radius:6px;min-height:20mm;background:#F8F9FC!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;padding:6px 9px;font-size:0.73rem;color:#374151;white-space:pre-wrap;}
@@ -475,7 +470,7 @@ body{display:flex;flex-direction:column;min-height:100%;}
   <div class="rpt-hr"><h1>${title}</h1><div class="cli">${esc(cfg.client)}</div><div class="per">Gerado em ${today.toLocaleDateString('pt-BR')}</div></div>
 </div>
 <div class="rpt-body">
-  <div class="rpt-sec"><div class="rpt-bar">${title} — ${getDataRows().length} registros</div>${tbl}${totalBox}</div>
+  <div class="rpt-sec"><div class="rpt-bar">${title} — ${rows.length} registros</div>${tbl}</div>
   <div class="rpt-obs">
     <div class="rpt-obs-lbl">Observações gerais</div>
     <div class="rpt-obs-box">${esc(obsGeral||'')}</div>
