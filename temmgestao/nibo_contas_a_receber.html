@@ -65,38 +65,7 @@
   .gn{color:#059669;font-weight:600;}
   .rd{color:#dc2626;font-weight:600;}
   
-.rpt-total-wrap{
-  width:100%;
-  margin-top:6mm;
-  margin-bottom:5mm;
-  display:block;
-}
 
-.rpt-total-box{
-  width:100%;
-  border:1.5px solid #D1D5DB;
-  border-radius:6px;
-  background:#F8F9FC;
-  padding:6px 10px;
-  text-align:center;
-  -webkit-print-color-adjust:exact;
-  print-color-adjust:exact;
-}
-
-.rpt-total-label{
-  font-size:0.65rem;
-  font-weight:700;
-  color:#6B7280;
-  margin-bottom:2px;
-  letter-spacing:0.05em;
-}
-
-.rpt-total-value{
-  font-size:0.95rem;
-  font-weight:700;
-  color:#059669;
-  line-height:1.1;
-}
 
   
   .rpt-obs-lbl{font-size:0.74rem;font-weight:700;color:#1A1A2E;margin-bottom:3mm;}
@@ -114,7 +83,7 @@
 .col-cb.on{border-color:var(--teal);color:var(--teal);background:rgba(0,201,167,0.07);}
 .col-cb input{display:none;}
 
-@media print{.rpt-total-wrap{width:100%;margin-top:6mm;margin-bottom:5mm;display:block;}.rpt-total-box{width:100%;border:1.5px solid #D1D5DB;border-radius:6px;background:#F8F9FC!important;padding:6px 10px;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;}.rpt-total-label{font-size:0.65rem;font-weight:700;color:#6B7280;margin-bottom:2px;letter-spacing:0.05em;}.rpt-total-value{font-size:0.95rem;font-weight:700;color:#059669;line-height:1.1;}}
+@media print{}
 </style>
 </head>
 <body>
@@ -372,17 +341,15 @@ function buildPreview(cfg){
         <div class="rpt-bar">${SECTION_LABEL}</div>
         ${tbl}
       </div>
-
 </div>
-
-      
-      </div>
+</div>
       <div class="rpt-total-wrap">
-  <div class="rpt-total-box">
-    <div class="rpt-total-label">TOTAL</div>
-    <div class="rpt-total-value">R$ ${totalGeral.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}</div>
-  </div>
-<div class="rpt-obs">
+        <div class="rpt-total-box">
+          <div class="rpt-total-label">TOTAL</div>
+          <div class="rpt-total-value">R$ ${totalGeral.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}</div>
+        </div>
+      </div>
+      <div class="rpt-obs">
         <div class="rpt-obs-lbl">Observações gerais</div>
         <textarea class="rpt-obs-area" id="obs-geral-inp" rows="4"
           placeholder="Observações gerais..."
@@ -450,7 +417,41 @@ body{display:flex;flex-direction:column;min-height:100%;}
 .er{background:#F8F9FC!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
 .gn{color:#059669;font-weight:600;}
 .rd{color:#dc2626;font-weight:600;}
-.rpt-obs{margin-top:5mm;}.rpt-total-wrap{width:100%;margin-top:6mm;margin-bottom:5mm;display:block;}.rpt-total-box{width:100%;border:1.5px solid #D1D5DB;border-radius:6px;background:#F8F9FC!important;padding:6px 10px;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;}.rpt-total-label{font-size:0.65rem;font-weight:700;color:#6B7280;margin-bottom:2px;letter-spacing:0.05em;}.rpt-total-value{font-size:0.95rem;font-weight:700;color:#059669;line-height:1.1;}.rpt-obs{margin-top:5mm;}
+
+.rpt-total-wrap{
+  width:100%;
+  margin-top:6mm;
+  margin-bottom:5mm;
+  display:block;
+}
+
+.rpt-total-box{
+  width:100%;
+  border:1.5px solid #D1D5DB;
+  border-radius:6px;
+  background:#F8F9FC;
+  padding:6px 10px;
+  text-align:center;
+  -webkit-print-color-adjust:exact;
+  print-color-adjust:exact;
+}
+
+.rpt-total-label{
+  font-size:0.65rem;
+  font-weight:700;
+  color:#6B7280;
+  margin-bottom:2px;
+  letter-spacing:0.05em;
+}
+
+.rpt-total-value{
+  font-size:0.95rem;
+  font-weight:700;
+  color:#059669;
+  line-height:1.1;
+}
+
+  .rpt-obs{margin-top:5mm;}.rpt-total-wrap{width:100%;margin-top:6mm;margin-bottom:5mm;display:block;}.rpt-total-box{width:100%;border:1.5px solid #D1D5DB;border-radius:6px;background:#F8F9FC!important;padding:6px 10px;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;}.rpt-total-label{font-size:0.65rem;font-weight:700;color:#6B7280;margin-bottom:2px;letter-spacing:0.05em;}.rpt-total-value{font-size:0.95rem;font-weight:700;color:#059669;line-height:1.1;}.rpt-obs{margin-top:5mm;}
 .rpt-obs-lbl{font-size:0.73rem;font-weight:700;color:#1A1A2E;margin-bottom:3mm;}
 .rpt-obs-box{border:1.5px solid #D1D5DB;border-radius:6px;min-height:20mm;background:#F8F9FC!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;padding:6px 9px;font-size:0.73rem;color:#374151;white-space:pre-wrap;}
 .rpt-foot{border-top:2px solid #D4C200;padding:3mm 11mm;font-size:0.62rem;color:#9CA3AF;text-align:center;margin-top:auto;}
@@ -462,10 +463,13 @@ body{display:flex;flex-direction:column;min-height:100%;}
 </div>
 <div class="rpt-body">
   <div class="rpt-sec"><div class="rpt-bar">${SECTION_LABEL}</div>${tbl}</div>
-
 </div>
-
-  
+</div>
+  <div class="rpt-total-wrap">
+    <div class="rpt-total-box">
+      <div class="rpt-total-label">TOTAL</div>
+      <div class="rpt-total-value">R$ ${totalGeral.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}</div>
+    </div>
   </div>
   <div class="rpt-obs">
     <div class="rpt-obs-lbl">Observações gerais</div>
