@@ -64,15 +64,10 @@
   .er{background:#F8F9FC;}
   .gn{color:#059669;font-weight:600;}
   .rd{color:#dc2626;font-weight:600;}
-
-  .rpt-total-box{width:100%;border:1px solid #D1D5DB;border-radius:6px;background:#F8F9FC;padding:5px 10px;margin:4mm 0 4mm;text-align:center;}
-  .rpt-total-label{font-size:0.62rem;font-weight:700;color:#6B7280;margin-bottom:1px;letter-spacing:0.06em;}
-  .rpt-total-value{font-size:0.86rem;font-weight:700;color:#059669;line-height:1.05;}
-  
-.rpt-total-box{width:100%;border:1px solid #D1D5DB;border-radius:6px;background:#F8F9FC!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;padding:5px 10px;margin:4mm 0 4mm;text-align:center;}
-.rpt-total-label{font-size:0.62rem;font-weight:700;color:#6B7280;margin-bottom:1px;letter-spacing:0.06em;}
-.rpt-total-value{font-size:0.86rem;font-weight:700;color:#059669;line-height:1.05;}
-.rpt-obs{margin-top:5mm;}
+  .rpt-total-box{width:100%;border:1.5px solid #D1D5DB;border-radius:6px;background:#F8F9FC;padding:6px 10px;margin:3mm 0 5mm;text-align:center;}
+  .rpt-total-label{font-size:0.65rem;font-weight:700;color:#6B7280;margin-bottom:2px;letter-spacing:0.04em;text-transform:uppercase;}
+  .rpt-total-value{font-size:0.92rem;font-weight:700;color:#059669;line-height:1.1;}
+  .rpt-obs{margin-top:0;}
   .rpt-obs-lbl{font-size:0.74rem;font-weight:700;color:#1A1A2E;margin-bottom:3mm;}
   .rpt-obs-area{width:100%;resize:vertical;font-family:'Sora',sans-serif;font-size:0.74rem;color:#374151;border:1.5px solid #D1D5DB;border-radius:6px;background:#F8F9FC;padding:6px 9px;outline:none;min-height:20mm;}
   .rpt-obs-area:focus{border-color:#1A56FF;}
@@ -337,32 +332,56 @@ function isValCol(k){return VALUE_COLS.includes(k);}
 
 
 function parseMoney(v){
-  let s=String(v||'').trim();
+  const s=String(v||'').trim();
   if(!s)return 0;
-  const neg=/^-|R\$\s*-/.test(s);
-  s=s.replace(/R\$/g,'').replace(/\s/g,'').replace(/\./g,'').replace(',', '.').replace(/[^0-9.\-]/g,'');
-  const n=parseFloat(s);
-  if(isNaN(n))return 0;
-  return neg?-Math.abs(n):n;
+  let cleaned=s.replace(/\s/g,'').replace('R$','');
+  if(cleaned.includes(',')){
+    cleaned=cleaned.replace(/\./g,'').replace(',','.');
+  }else{
+    cleaned=cleaned.replace(/[^\d.\-]/g,'');
+  }
+  const n=parseFloat(cleaned.replace(/[^\d.\-]/g,''));
+  return isNaN(n)?0:n;
 }
 
-function getTotalGeral(){
-  const cols=getVisCols().map(([k])=>k).filter(k=>isValCol(k)&&!/saldo/i.test(k));
-  if(!cols.length)return 0;
-  return rows.reduce((sum,r)=>sum+cols.reduce((s,k)=>s+parseMoney(r[k]),0),0);
+function getMainValueKey(){
+  if(rows.some(r=>Object.prototype.hasOwnProperty.call(r,'Valor')))return 'Valor';
+  const vc=getVisCols().find(([k])=>isValCol(k));
+  return vc?vc[0]:'Valor';
 }
 
-function buildTotalBox(total){
-  return `<div class="rpt-total-box"><div class="rpt-total-label">TOTAL</div><div class="rpt-total-value">${fmtVal(total)}</div></div>`;
+function isSummaryRow(r){
+  const keys=Object.keys(r||{});
+  const valueKeys=keys.filter(k=>isValCol(k));
+  const nonValueKeys=keys.filter(k=>!isValCol(k));
+  const hasValue=valueKeys.some(k=>String(r[k]??'').trim()!=='');
+  const hasNonValue=nonValueKeys.some(k=>String(r[k]??'').trim()!=='');
+  return hasValue&&!hasNonValue;
 }
 
+function getReportRows(){
+  return rows.filter(r=>!isSummaryRow(r));
+}
+
+function getReportTotal(){
+  const key=getMainValueKey();
+  return getReportRows().reduce((acc,r)=>acc+parseMoney(r[key]),0);
+}
+
+function fmtMoneyBR(n){
+  return 'R$ '+Number(n||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+
+function buildTotalBox(){
+  return `<div class="rpt-total-box"><div class="rpt-total-label">TOTAL</div><div class="rpt-total-value">${fmtMoneyBR(getReportTotal())}</div></div>`;
+}
 
 function buildTbl(){
   const vc=getVisCols();
   let h=`<table class="rpt-tbl"><thead><tr>`;
   vc.forEach(([k,l,a])=>h+=`<th class="${a==='r'?'r':''}">${l}</th>`);
   h+=`</tr></thead><tbody>`;
-  rows.forEach((r,i)=>{
+  getReportRows().forEach((r,i)=>{
     h+=`<tr class="${i%2?'er':''}">`;
     vc.forEach(([k,l,a])=>{
       const v=r[k]??'';
@@ -387,7 +406,6 @@ function buildPreview(cfg){
   page.className='rpt'+(isL?'':' portrait');
   const today=new Date();
   const title=TYPE_TITLES[selectedType]||'Relatório';
-  const totalGeral=getTotalGeral();
   const obs=document.getElementById('obs-geral-inp');
   obsGeral=obs?obs.value:'';
 
@@ -427,7 +445,6 @@ function doPrint(){
   const docTitle=title+(cfg.client?' — '+cfg.client:'');
   const today=new Date();
   const tbl=buildTbl();
-  const totalGeral=getTotalGeral();
 
   const pcss=`
 @page{size:${pw} ${ph};margin:0;}
@@ -452,7 +469,10 @@ body{display:flex;flex-direction:column;min-height:100%;}
 .er{background:#F8F9FC!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
 .gn{color:#059669;font-weight:600;}
 .rd{color:#dc2626;font-weight:600;}
-.rpt-obs{margin-top:5mm;}
+.rpt-total-box{width:100%;border:1.5px solid #D1D5DB;border-radius:6px;background:#F8F9FC!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;padding:6px 10px;margin:3mm 0 5mm;text-align:center;}
+.rpt-total-label{font-size:0.65rem;font-weight:700;color:#6B7280;margin-bottom:2px;letter-spacing:0.04em;text-transform:uppercase;}
+.rpt-total-value{font-size:0.92rem;font-weight:700;color:#059669;line-height:1.1;}
+.rpt-obs{margin-top:0;}
 .rpt-obs-lbl{font-size:0.73rem;font-weight:700;color:#1A1A2E;margin-bottom:3mm;}
 .rpt-obs-box{border:1.5px solid #D1D5DB;border-radius:6px;min-height:20mm;background:#F8F9FC!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;padding:6px 9px;font-size:0.73rem;color:#374151;white-space:pre-wrap;}
 .rpt-foot{border-top:2px solid #D4C200;padding:3mm 11mm;font-size:0.62rem;color:#9CA3AF;text-align:center;margin-top:auto;}`;
@@ -466,8 +486,8 @@ body{display:flex;flex-direction:column;min-height:100%;}
   <div class="rpt-hr"><h1>${title}</h1><div class="cli">${esc(cfg.client)}</div><div class="per">Gerado em ${today.toLocaleDateString('pt-BR')}</div></div>
 </div>
 <div class="rpt-body">
-  <div class="rpt-sec"><div class="rpt-bar">${title} — ${rows.length} registros</div>${tbl}</div>
-  ${buildTotalBox(totalGeral)}
+  <div class="rpt-sec"><div class="rpt-bar">${title} — ${getReportRows().length} registros</div>${tbl}</div>
+  ${buildTotalBox()}
   <div class="rpt-obs">
     <div class="rpt-obs-lbl">Observações gerais</div>
     <div class="rpt-obs-box">${esc(obsGeral||'')}</div>
