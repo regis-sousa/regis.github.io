@@ -433,10 +433,34 @@ body{display:flex;flex-direction:column;min-height:100%;}
 </div>
 <div class="rpt-body">
   <div class="rpt-sec"><div class="rpt-bar">${SECTION_LABEL}</div>${tbl}</div>
-  <div class="rpt-total-wrap">
-    <div class="rpt-total-box">
-      <div class="rpt-total-label">TOTAL</div>
-      <div class="rpt-total-value">${fmtMoneyBR(totalGeral)}</div>
+  <div style="width:100%;margin-top:6mm;margin-bottom:5mm;">
+    <div style="
+      width:100%;
+      border:1.5px solid #D1D5DB;
+      border-radius:6px;
+      background:#F8F9FC;
+      padding:6px 10px;
+      text-align:center;
+      box-sizing:border-box;
+      -webkit-print-color-adjust:exact;
+      print-color-adjust:exact;
+    ">
+      <div style="
+        font-size:0.65rem;
+        font-weight:700;
+        color:#6B7280;
+        margin-bottom:2px;
+        letter-spacing:0.05em;
+      ">TOTAL</div>
+
+      <div style="
+        font-size:0.95rem;
+        font-weight:700;
+        color:#059669;
+        line-height:1.1;
+      ">
+        ${fmtMoneyBR(totalGeral)}
+      </div>
     </div>
   </div>
   <div class="rpt-obs">
