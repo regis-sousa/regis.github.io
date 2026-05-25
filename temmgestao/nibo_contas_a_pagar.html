@@ -122,6 +122,35 @@
 .col-cb{display:inline-flex;align-items:center;gap:6px;background:#12151F;border:1.5px solid var(--border);border-radius:7px;padding:5px 11px;cursor:pointer;font-size:0.76rem;color:var(--muted);font-weight:600;transition:all .2s;user-select:none;}
 .col-cb.on{border-color:var(--teal);color:var(--teal);background:rgba(0,201,167,0.07);}
 .col-cb input{display:none;}
+
+.group-option{
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  background:#12151F;
+  border:1.5px solid var(--border);
+  border-radius:9px;
+  padding:11px 12px;
+  margin-bottom:13px;
+  cursor:pointer;
+  user-select:none;
+}
+.group-option input{
+  margin-top:2px;
+  accent-color:var(--teal);
+}
+.group-option strong{
+  display:block;
+  font-size:0.8rem;
+  color:var(--text);
+  margin-bottom:3px;
+}
+.group-option span{
+  display:block;
+  font-size:0.72rem;
+  color:var(--muted);
+  line-height:1.45;
+}
 </style>
 </head>
 <body>
@@ -162,6 +191,13 @@
       <div><label>Seu nome (rodapé)</label><input type="text" id="author" value="Régis Sousa"></div>
       <div><label>Nome da empresa / cliente</label><input type="text" id="client" value=""></div>
     </div>
+    <label class="group-option">
+      <input type="checkbox" id="group-payments">
+      <span>
+        <strong>Juntar pagamentos pelo nome</strong>
+        <span>Quando ativado, linhas com o mesmo nome serão agrupadas em uma só e os valores serão somados.</span>
+      </span>
+    </label>
     <div style="margin-bottom:13px;">
       <label style="margin-bottom:7px;">Orientação</label>
       <div class="tg">
@@ -272,6 +308,13 @@ function toggleCol(key,on){
 // ── Generate ────────────────────────────────────────────────────
 function generate(){
   if(!rows.length)return;
+
+  const groupCb=document.getElementById('group-payments');
+  if(groupCb && !groupCb.checked && hasDuplicateNames()){
+    const resp=confirm('Identifiquei nomes repetidos na planilha. Deseja juntar a lista de pagamentos de cada pessoa em um só lançamento, somando os valores?');
+    groupCb.checked=resp;
+  }
+
   const cfg={author:document.getElementById('author').value||'Régis Sousa',client:document.getElementById('client').value||''};
   buildPreview(cfg);
   document.getElementById('preview-section').style.display='block';
@@ -280,6 +323,68 @@ function generate(){
 
 function getVisibleCols(){
   return allColDefs.filter(([key])=>activeCols.includes(key));
+}
+
+function normalizeName(v){
+  return String(v||'')
+    .trim()
+    .replace(/\s+/g,' ')
+    .toLowerCase();
+}
+
+function hasDuplicateNames(){
+  const seen=new Set();
+  for(const r of rows){
+    const name=normalizeName(r['Nome']);
+    if(!name)continue;
+    if(seen.has(name))return true;
+    seen.add(name);
+  }
+  return false;
+}
+
+function shouldGroupPayments(){
+  const cb=document.getElementById('group-payments');
+  return !!(cb&&cb.checked);
+}
+
+function joinUniqueValues(current,next){
+  const values=[];
+  String(current||'').split(' | ').forEach(v=>{v=String(v).trim();if(v)values.push(v);});
+  const n=String(next||'').trim();
+  if(n)values.push(n);
+  return [...new Set(values)].join(' | ');
+}
+
+function groupRowsByName(sourceRows){
+  const map=new Map();
+  sourceRows.forEach(row=>{
+    const key=normalizeName(row['Nome']);
+    if(!key){
+      map.set('sem_nome_'+map.size,{...row});
+      return;
+    }
+
+    if(!map.has(key)){
+      const copy={...row};
+      copy[VALUE_COL]=Math.abs(parseMoney(row[VALUE_COL]));
+      map.set(key,copy);
+      return;
+    }
+
+    const grouped=map.get(key);
+    grouped[VALUE_COL]=Math.abs(parseMoney(grouped[VALUE_COL])) + Math.abs(parseMoney(row[VALUE_COL]));
+
+    Object.keys(row).forEach(col=>{
+      if(col===VALUE_COL || col==='Nome')return;
+      grouped[col]=joinUniqueValues(grouped[col],row[col]);
+    });
+  });
+  return Array.from(map.values());
+}
+
+function getReportRows(){
+  return shouldGroupPayments() ? groupRowsByName(rows) : rows;
 }
 
 function fmtVal(v){
@@ -325,8 +430,9 @@ function parseMoney(v){
   return neg ? -n : n;
 }
 
-function calcTotal(){
-  return rows.reduce((acc,r)=>acc + Math.abs(parseMoney(r[VALUE_COL])),0);
+function calcTotal(reportRows){
+  const base=reportRows||getReportRows();
+  return base.reduce((acc,r)=>acc + Math.abs(parseMoney(r[VALUE_COL])),0);
 }
 
 function isNegVal(v){
@@ -344,13 +450,14 @@ function buildPreview(cfg){
   const page=document.createElement('div');
   page.className='rpt'+(isL?'':' portrait');
   const visCols=getVisibleCols();
+  const reportRows=getReportRows();
   const today=new Date();
-  const totalGeral=calcTotal();
+  const totalGeral=calcTotal(reportRows);
 
   let tbl=`<table class="rpt-tbl"><thead><tr>`;
   visCols.forEach(([k,l,a])=>tbl+=`<th class="${a==='r'?'r':''}">${l}</th>`);
   tbl+=`</tr></thead><tbody>`;
-  rows.forEach((r,i)=>{
+  reportRows.forEach((r,i)=>{
     tbl+=`<tr class="${i%2?'er':''}">`;
     visCols.forEach(([k,l,a])=>{
       const v=r[k]??'';
@@ -411,13 +518,14 @@ function doPrint(){
   const isL=orient==='landscape';
   const pw=isL?'297mm':'210mm', ph=isL?'210mm':'297mm';
   const visCols=getVisibleCols();
+  const reportRows=getReportRows();
   const today=new Date();
-  const totalGeral=calcTotal();
+  const totalGeral=calcTotal(reportRows);
 
   let tbl=`<table class="rpt-tbl"><thead><tr>`;
   visCols.forEach(([k,l,a])=>tbl+=`<th class="${a==='r'?'r':''}">${l}</th>`);
   tbl+=`</tr></thead><tbody>`;
-  rows.forEach((r,i)=>{
+  reportRows.forEach((r,i)=>{
     tbl+=`<tr class="${i%2?'er':''}">`;
     visCols.forEach(([k,l,a])=>{
       const v=r[k]??'';
