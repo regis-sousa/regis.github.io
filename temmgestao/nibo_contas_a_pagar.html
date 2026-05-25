@@ -151,6 +151,19 @@
   color:var(--muted);
   line-height:1.45;
 }
+
+.name-group-section{background:#12151F;border:1px solid var(--border);border-radius:10px;padding:12px 13px;margin-bottom:13px;}
+.name-group-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:9px;}
+.name-group-head strong{display:block;color:var(--text);font-size:0.82rem;margin-bottom:3px;}
+.name-group-head span{display:block;color:var(--muted);font-size:0.72rem;line-height:1.4;}
+.name-group-list{display:flex;flex-direction:column;gap:7px;max-height:220px;overflow:auto;padding-right:3px;}
+.name-group-item{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#0F1117;border:1px solid var(--border);border-radius:8px;padding:8px 9px;}
+.name-group-name{min-width:0;}
+.name-group-name strong{display:block;font-size:0.78rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.name-group-name span{display:block;font-size:0.67rem;color:var(--muted);margin-top:2px;}
+.name-group-btn{border:1.5px solid var(--border);background:transparent;color:var(--muted);border-radius:7px;padding:6px 10px;font-family:'Sora',sans-serif;font-size:0.72rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .2s;}
+.name-group-btn.on{border-color:var(--teal);background:rgba(0,201,167,0.1);color:var(--teal);}
+.name-group-empty{font-size:0.76rem;color:var(--muted);line-height:1.45;}
 </style>
 </head>
 <body>
@@ -191,13 +204,15 @@
       <div><label>Seu nome (rodapé)</label><input type="text" id="author" value="Régis Sousa"></div>
       <div><label>Nome da empresa / cliente</label><input type="text" id="client" value=""></div>
     </div>
-    <label class="group-option">
-      <input type="checkbox" id="group-payments">
-      <span>
-        <strong>Juntar pagamentos pelo nome</strong>
-        <span>Quando ativado, linhas com o mesmo nome serão agrupadas em uma só e os valores serão somados.</span>
-      </span>
-    </label>
+    <div class="name-group-section" id="name-group-section" style="display:none;">
+      <div class="name-group-head">
+        <div>
+          <strong>Juntar pagamentos por pessoa</strong>
+          <span>Ative individualmente quais nomes devem ter os lançamentos somados em uma única linha.</span>
+        </div>
+      </div>
+      <div class="name-group-list" id="name-group-list"></div>
+    </div>
     <div style="margin-bottom:13px;">
       <label style="margin-bottom:7px;">Orientação</label>
       <div class="tg">
@@ -233,6 +248,7 @@ const VALUE_COL = 'Valor categoria/centro de custo';
 const DEFAULT_COLS = [["Agendamento", "Agend.", "l"], ["Vencimento", "Vencimento", "l"], ["Competência", "Competência", "l"], ["Previsto para", "Previsto", "l"], ["Nome", "Nome", "l"], ["Descrição", "Descrição", "l"], ["Referência", "Referência", "l"], ["Categoria", "Categoria", "l"], ["Centro de Custo", "Centro Custo", "l"], ["Valor categoria/centro de custo", "Valor", "r"]];
 
 let rows = [], orient = 'landscape', obsGeral = '';
+let selectedGroupNames = new Set();
 let activeCols = DEFAULT_COLS.map(c => c[0]); // all on by default
 let allColDefs = []; // actual cols from file (may differ)
 
@@ -261,7 +277,9 @@ function readFile(file){
       }
       if(!parsed.length){showErr('Arquivo vazio ou sem dados.');return;}
       rows=parsed;
+      selectedGroupNames.clear();
       buildColToggles(Object.keys(parsed[0]));
+      renderNameGroupOptions();
       document.getElementById('uicon').textContent='✅';
       showOk('✓ '+file.name+' — '+rows.length+' registro(s)');
       document.getElementById('infobox').style.display='block';
@@ -309,16 +327,68 @@ function toggleCol(key,on){
 function generate(){
   if(!rows.length)return;
 
-  const groupCb=document.getElementById('group-payments');
-  if(groupCb && !groupCb.checked && hasDuplicateNames()){
-    const resp=confirm('Identifiquei nomes repetidos na planilha. Deseja juntar a lista de pagamentos de cada pessoa em um só lançamento, somando os valores?');
-    groupCb.checked=resp;
-  }
-
   const cfg={author:document.getElementById('author').value||'Régis Sousa',client:document.getElementById('client').value||''};
   buildPreview(cfg);
   document.getElementById('preview-section').style.display='block';
   setTimeout(()=>document.getElementById('preview-section').scrollIntoView({behavior:'smooth'}),80);
+}
+
+function getNameStats(){
+  const map=new Map();
+  rows.forEach(row=>{
+    const raw=String(row['Nome']||'').trim().replace(/\s+/g,' ');
+    const key=normalizeName(raw);
+    if(!key)return;
+    if(!map.has(key)){
+      map.set(key,{name:raw,count:0,total:0});
+    }
+    const item=map.get(key);
+    item.count+=1;
+    item.total+=Math.abs(parseMoney(row[VALUE_COL]));
+  });
+  return Array.from(map.entries()).sort((a,b)=>a[1].name.localeCompare(b[1].name,'pt-BR'));
+}
+
+function renderNameGroupOptions(){
+  const section=document.getElementById('name-group-section');
+  const list=document.getElementById('name-group-list');
+  if(!section||!list)return;
+
+  const stats=getNameStats();
+  if(!stats.length){
+    section.style.display='none';
+    list.innerHTML='';
+    return;
+  }
+
+  section.style.display='block';
+  list.innerHTML='';
+
+  stats.forEach(([key,item])=>{
+    const isOn=selectedGroupNames.has(key);
+    const div=document.createElement('div');
+    div.className='name-group-item';
+
+    const label=document.createElement('div');
+    label.className='name-group-name';
+    label.innerHTML=`<strong>${esc(item.name)}</strong><span>${item.count} lançamento(s) • ${'R$ '+item.total.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}</span>`;
+
+    const btn=document.createElement('button');
+    btn.type='button';
+    btn.className='name-group-btn'+(isOn?' on':'');
+    btn.textContent=isOn?'Juntando':'Juntar';
+    btn.onclick=()=>toggleNameGrouping(key);
+
+    div.appendChild(label);
+    div.appendChild(btn);
+    list.appendChild(div);
+  });
+}
+
+function toggleNameGrouping(key){
+  if(selectedGroupNames.has(key))selectedGroupNames.delete(key);
+  else selectedGroupNames.add(key);
+  renderNameGroupOptions();
 }
 
 function getVisibleCols(){
@@ -343,10 +413,6 @@ function hasDuplicateNames(){
   return false;
 }
 
-function shouldGroupPayments(){
-  const cb=document.getElementById('group-payments');
-  return !!(cb&&cb.checked);
-}
 
 function joinUniqueValues(current,next){
   const values=[];
@@ -358,10 +424,13 @@ function joinUniqueValues(current,next){
 
 function groupRowsByName(sourceRows){
   const map=new Map();
+  const output=[];
+
   sourceRows.forEach(row=>{
     const key=normalizeName(row['Nome']);
-    if(!key){
-      map.set('sem_nome_'+map.size,{...row});
+
+    if(!key || !selectedGroupNames.has(key)){
+      output.push({...row});
       return;
     }
 
@@ -369,6 +438,7 @@ function groupRowsByName(sourceRows){
       const copy={...row};
       copy[VALUE_COL]=Math.abs(parseMoney(row[VALUE_COL]));
       map.set(key,copy);
+      output.push(copy);
       return;
     }
 
@@ -380,11 +450,12 @@ function groupRowsByName(sourceRows){
       grouped[col]=joinUniqueValues(grouped[col],row[col]);
     });
   });
-  return Array.from(map.values());
+
+  return output;
 }
 
 function getReportRows(){
-  return shouldGroupPayments() ? groupRowsByName(rows) : rows;
+  return selectedGroupNames.size ? groupRowsByName(rows) : rows;
 }
 
 function fmtVal(v){
@@ -571,6 +642,19 @@ body{display:flex;flex-direction:column;min-height:100%;}
 .rpt-obs-box{border:1.5px solid #D1D5DB;border-radius:6px;min-height:20mm;background:#F8F9FC!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;padding:6px 9px;font-size:0.73rem;color:#374151;white-space:pre-wrap;}
 .rpt-foot{border-top:2px solid #D4C200;padding:3mm 11mm;font-size:0.62rem;color:#9CA3AF;text-align:center;margin-top:auto;}
 
+
+.name-group-section{background:#12151F;border:1px solid var(--border);border-radius:10px;padding:12px 13px;margin-bottom:13px;}
+.name-group-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:9px;}
+.name-group-head strong{display:block;color:var(--text);font-size:0.82rem;margin-bottom:3px;}
+.name-group-head span{display:block;color:var(--muted);font-size:0.72rem;line-height:1.4;}
+.name-group-list{display:flex;flex-direction:column;gap:7px;max-height:220px;overflow:auto;padding-right:3px;}
+.name-group-item{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#0F1117;border:1px solid var(--border);border-radius:8px;padding:8px 9px;}
+.name-group-name{min-width:0;}
+.name-group-name strong{display:block;font-size:0.78rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.name-group-name span{display:block;font-size:0.67rem;color:var(--muted);margin-top:2px;}
+.name-group-btn{border:1.5px solid var(--border);background:transparent;color:var(--muted);border-radius:7px;padding:6px 10px;font-family:'Sora',sans-serif;font-size:0.72rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .2s;}
+.name-group-btn.on{border-color:var(--teal);background:rgba(0,201,167,0.1);color:var(--teal);}
+.name-group-empty{font-size:0.76rem;color:var(--muted);line-height:1.45;}
 </style></head><body>
 <div class="rpt-head">
   <img src="data:image/png;base64,${LOGO}" alt="Temm Gestão" onerror="this.style.display='none'">
