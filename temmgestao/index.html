@@ -37,7 +37,6 @@
   .sys-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--ac,var(--blue));transition:opacity .2s;}
   .sys-card:hover{border-color:var(--ac,var(--blue));transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,.32);}
 
-  /* Card "em breve" — desabilitado */
   .sys-card.soon{cursor:default;opacity:.55;}
   .sys-card.soon:hover{transform:none;border-color:var(--border);box-shadow:none;}
 
@@ -47,6 +46,48 @@
   .card-tag{display:inline-flex;align-items:center;gap:5px;font-size:0.61rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:3px 9px;border-radius:50px;border:1px solid;width:fit-content;}
 
   .hub-foot{border-top:2px solid var(--yellow);padding:13px 40px;text-align:center;font-size:0.65rem;color:var(--muted);}
+
+  /* ===== Widget de feedback (canto inferior direito) ===== */
+  .fb-toggle{position:fixed;bottom:22px;right:22px;width:56px;height:56px;border-radius:50%;background:var(--blue);color:#fff;border:none;cursor:pointer;font-size:1.5rem;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 24px rgba(0,0,0,.4);z-index:1000;transition:transform .15s;}
+  .fb-toggle:hover{transform:scale(1.06);}
+
+  .fb-panel{position:fixed;bottom:88px;right:22px;width:360px;max-width:calc(100vw - 44px);max-height:calc(100vh - 130px);background:var(--card);border:1px solid var(--border);border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,.5);z-index:1000;display:none;flex-direction:column;overflow:hidden;}
+  .fb-panel.open{display:flex;}
+
+  .fb-head{padding:15px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+  .fb-head h3{font-size:0.95rem;font-weight:700;color:#fff;}
+  .fb-head .fb-close{background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;line-height:1;}
+
+  .fb-tabs{display:flex;border-bottom:1px solid var(--border);}
+  .fb-tab{flex:1;font-family:inherit;font-size:0.76rem;font-weight:600;color:var(--muted);background:none;border:none;padding:11px 0;cursor:pointer;border-bottom:2px solid transparent;}
+  .fb-tab.active{color:#fff;border-bottom-color:var(--blue);}
+
+  .fb-body{padding:14px 16px;overflow-y:auto;}
+
+  /* Formulário */
+  .fb-field{margin-bottom:11px;}
+  .fb-field label{display:block;font-size:0.68rem;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:0.05em;}
+  .fb-field input,.fb-field select,.fb-field textarea{width:100%;font-family:inherit;font-size:0.82rem;color:var(--text);background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:9px 10px;}
+  .fb-field textarea{resize:vertical;min-height:64px;}
+  .fb-submit{width:100%;font-family:inherit;font-size:0.84rem;font-weight:700;color:#fff;background:var(--blue);border:none;border-radius:8px;padding:11px;cursor:pointer;margin-top:4px;}
+  .fb-submit:disabled{opacity:.6;cursor:default;}
+  .fb-msg{font-size:0.74rem;margin-top:9px;text-align:center;}
+  .fb-msg.ok{color:var(--teal);}
+  .fb-msg.err{color:#f87171;}
+
+  /* Lista */
+  .fb-listbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+  .fb-link{background:none;border:none;color:var(--blue);font-family:inherit;font-size:0.72rem;font-weight:600;cursor:pointer;padding:0;}
+  .fb-item{border:1px solid var(--border);border-radius:9px;padding:10px 11px;margin-bottom:9px;}
+  .fb-item-top{display:flex;align-items:center;gap:7px;margin-bottom:5px;flex-wrap:wrap;}
+  .fb-badge{font-size:0.58rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;padding:2px 7px;border-radius:50px;border:1px solid;}
+  .fb-badge.bug{color:#f87171;border-color:rgba(248,113,113,.4);background:rgba(248,113,113,.08);}
+  .fb-badge.sug{color:#60a5fa;border-color:rgba(96,165,250,.4);background:rgba(96,165,250,.08);}
+  .fb-status{font-size:0.62rem;color:var(--muted);}
+  .fb-item-title{font-size:0.82rem;font-weight:600;color:#fff;}
+  .fb-item-desc{font-size:0.72rem;color:var(--muted);line-height:1.45;margin-top:3px;}
+  .fb-item-meta{font-size:0.62rem;color:var(--muted);margin-top:5px;opacity:.8;}
+  .fb-empty{font-size:0.76rem;color:var(--muted);text-align:center;padding:14px 0;}
 
   @media(max-width:860px){.grid{grid-template-columns:repeat(2,1fr);}}
   @media(max-width:480px){.grid{grid-template-columns:1fr;}}
@@ -166,21 +207,224 @@
 
 <div class="hub-foot">Temm Gestão · Hub de Ferramentas</div>
 
+<!-- ===== Widget de feedback ===== -->
+<button class="fb-toggle" id="fbToggle" title="Bugs e sugestões">🐞</button>
+
+<div class="fb-panel" id="fbPanel">
+  <div class="fb-head">
+    <h3>Bugs &amp; Sugestões</h3>
+    <button class="fb-close" id="fbClose">×</button>
+  </div>
+
+  <div class="fb-tabs">
+    <button class="fb-tab active" data-tab="lista">Registros</button>
+    <button class="fb-tab" data-tab="novo">Registrar</button>
+  </div>
+
+  <!-- Aba Lista -->
+  <div class="fb-body" id="fbTabLista">
+    <div class="fb-listbar">
+      <button class="fb-link" id="fbRefresh">↻ atualizar</button>
+      <button class="fb-link" id="fbToggleConcluidos">ver concluídos</button>
+    </div>
+    <div id="fbList"><div class="fb-empty">Carregando…</div></div>
+  </div>
+
+  <!-- Aba Novo -->
+  <div class="fb-body" id="fbTabNovo" style="display:none;">
+    <div class="fb-field">
+      <label>Tipo</label>
+      <select id="fbTipo">
+        <option value="Bug">Bug</option>
+        <option value="Sugestão">Sugestão</option>
+      </select>
+    </div>
+    <div class="fb-field">
+      <label>Título</label>
+      <input type="text" id="fbTitulo" placeholder="Resumo curto" maxlength="120">
+    </div>
+    <div class="fb-field">
+      <label>Descrição</label>
+      <textarea id="fbDescricao" placeholder="Descreva o bug ou a sugestão"></textarea>
+    </div>
+    <div class="fb-field">
+      <label>Seu nome</label>
+      <input type="text" id="fbAutor" placeholder="Quem está registrando" maxlength="60">
+    </div>
+    <button class="fb-submit" id="fbSubmit">Registrar</button>
+    <div class="fb-msg" id="fbMsg"></div>
+  </div>
+</div>
+
 <script>
-  const buttons = document.querySelectorAll('.filter-btn');
+  /* ===== Filtros das ilhas ===== */
+  const filterButtons = document.querySelectorAll('.filter-btn');
   const islands = document.querySelectorAll('.island');
-
-  buttons.forEach(function (btn) {
+  filterButtons.forEach(function (btn) {
     btn.addEventListener('click', function () {
-      buttons.forEach(function (b) { b.classList.remove('active'); });
+      filterButtons.forEach(function (b) { b.classList.remove('active'); });
       btn.classList.add('active');
-
       const filter = btn.getAttribute('data-filter');
       islands.forEach(function (island) {
         const show = filter === 'todos' || island.getAttribute('data-group') === filter;
         island.classList.toggle('hidden', !show);
       });
     });
+  });
+
+  /* ===== Widget de feedback ===== */
+  const API_URL = 'https://script.google.com/macros/s/AKfycbxhk_TnpsLp3RlJpDcLVZAC-njj7TBc_YnVI-HZjVNHiYxi_EoGEDlrvxbX4iXfQie_NQ/exec';
+
+  // Status que contam como "concluídos" (ficam ocultos por padrão)
+  const STATUS_CONCLUIDOS = ['Corrigido', 'Concluído'];
+
+  const fbToggle = document.getElementById('fbToggle');
+  const fbPanel = document.getElementById('fbPanel');
+  const fbClose = document.getElementById('fbClose');
+  const fbTabs = document.querySelectorAll('.fb-tab');
+  const fbTabLista = document.getElementById('fbTabLista');
+  const fbTabNovo = document.getElementById('fbTabNovo');
+  const fbList = document.getElementById('fbList');
+  const fbRefresh = document.getElementById('fbRefresh');
+  const fbToggleConcluidos = document.getElementById('fbToggleConcluidos');
+  const fbSubmit = document.getElementById('fbSubmit');
+  const fbMsg = document.getElementById('fbMsg');
+
+  let mostrarConcluidos = false;
+  let registros = [];
+
+  fbToggle.addEventListener('click', function () {
+    fbPanel.classList.toggle('open');
+    if (fbPanel.classList.contains('open')) carregar();
+  });
+  fbClose.addEventListener('click', function () { fbPanel.classList.remove('open'); });
+
+  fbTabs.forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      fbTabs.forEach(function (t) { t.classList.remove('active'); });
+      tab.classList.add('active');
+      const isLista = tab.getAttribute('data-tab') === 'lista';
+      fbTabLista.style.display = isLista ? 'block' : 'none';
+      fbTabNovo.style.display = isLista ? 'none' : 'block';
+    });
+  });
+
+  fbRefresh.addEventListener('click', carregar);
+  fbToggleConcluidos.addEventListener('click', function () {
+    mostrarConcluidos = !mostrarConcluidos;
+    fbToggleConcluidos.textContent = mostrarConcluidos ? 'ocultar concluídos' : 'ver concluídos';
+    render();
+  });
+
+  function carregar() {
+    fbList.innerHTML = '<div class="fb-empty">Carregando…</div>';
+    fetch(API_URL)
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        registros = (data && data.registros) ? data.registros : [];
+        render();
+      })
+      .catch(function () {
+        fbList.innerHTML = '<div class="fb-empty">Não foi possível carregar.</div>';
+      });
+  }
+
+  function escapeHtml(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function render() {
+    const visiveis = registros.filter(function (r) {
+      const concluido = STATUS_CONCLUIDOS.indexOf(r.status) !== -1;
+      return mostrarConcluidos ? true : !concluido;
+    });
+    // mais recentes primeiro
+    visiveis.sort(function (a, b) { return Number(b.id) - Number(a.id); });
+
+    if (visiveis.length === 0) {
+      fbList.innerHTML = '<div class="fb-empty">Nenhum registro ' +
+        (mostrarConcluidos ? '' : 'ativo ') + 'no momento.</div>';
+      return;
+    }
+
+    fbList.innerHTML = visiveis.map(function (r) {
+      const ehBug = String(r.tipo).toLowerCase().indexOf('bug') !== -1;
+      const badge = ehBug ? 'bug' : 'sug';
+      let data = '';
+      if (r.dataHora) {
+        const d = new Date(r.dataHora);
+        if (!isNaN(d)) data = d.toLocaleDateString('pt-BR');
+      }
+      return '' +
+        '<div class="fb-item">' +
+          '<div class="fb-item-top">' +
+            '<span class="fb-badge ' + badge + '">' + escapeHtml(r.tipo) + '</span>' +
+            '<span class="fb-status">' + escapeHtml(r.status) + '</span>' +
+          '</div>' +
+          '<div class="fb-item-title">' + escapeHtml(r.titulo) + '</div>' +
+          (r.descricao ? '<div class="fb-item-desc">' + escapeHtml(r.descricao) + '</div>' : '') +
+          '<div class="fb-item-meta">' +
+            (r.autor ? escapeHtml(r.autor) : 'anônimo') +
+            (data ? ' · ' + data : '') +
+          '</div>' +
+        '</div>';
+    }).join('');
+  }
+
+  function statusInicial(tipo) {
+    return tipo === 'Bug'
+      ? 'Bug identificado - em correção'
+      : 'Sugestão aceita - em desenvolvimento';
+  }
+
+  fbSubmit.addEventListener('click', function () {
+    const tipo = document.getElementById('fbTipo').value;
+    const titulo = document.getElementById('fbTitulo').value.trim();
+    const descricao = document.getElementById('fbDescricao').value.trim();
+    const autor = document.getElementById('fbAutor').value.trim();
+
+    fbMsg.textContent = '';
+    fbMsg.className = 'fb-msg';
+
+    if (!titulo) {
+      fbMsg.textContent = 'Informe um título.';
+      fbMsg.className = 'fb-msg err';
+      return;
+    }
+
+    fbSubmit.disabled = true;
+    fbSubmit.textContent = 'Enviando…';
+
+    fetch(API_URL, {
+      method: 'POST',
+      // text/plain evita o preflight CORS com Apps Script
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({
+        acao: 'criar',
+        tipo: tipo,
+        titulo: titulo,
+        descricao: descricao,
+        autor: autor,
+        status: statusInicial(tipo)
+      })
+    })
+      .then(function (r) { return r.json(); })
+      .then(function () {
+        fbMsg.textContent = 'Registrado com sucesso!';
+        fbMsg.className = 'fb-msg ok';
+        document.getElementById('fbTitulo').value = '';
+        document.getElementById('fbDescricao').value = '';
+        carregar();
+      })
+      .catch(function () {
+        fbMsg.textContent = 'Erro ao enviar. Tente novamente.';
+        fbMsg.className = 'fb-msg err';
+      })
+      .finally(function () {
+        fbSubmit.disabled = false;
+        fbSubmit.textContent = 'Registrar';
+      });
   });
 </script>
 
