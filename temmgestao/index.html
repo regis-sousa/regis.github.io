@@ -276,7 +276,7 @@
   const API_URL = 'https://script.google.com/macros/s/AKfycbxhk_TnpsLp3RlJpDcLVZAC-njj7TBc_YnVI-HZjVNHiYxi_EoGEDlrvxbX4iXfQie_NQ/exec';
 
   // Status que contam como "concluídos" (ficam ocultos por padrão)
-  const STATUS_CONCLUIDOS = ['Corrigido', 'Concluído'];
+  const STATUS_OCULTOS = ['Concluído', 'Recusado'];
 
   const fbToggle = document.getElementById('fbToggle');
   const fbPanel = document.getElementById('fbPanel');
@@ -336,7 +336,7 @@
 
   function render() {
     const visiveis = registros.filter(function (r) {
-      const concluido = STATUS_CONCLUIDOS.indexOf(r.status) !== -1;
+      const concluido = STATUS_OCULTOS.indexOf(r.status) !== -1;
       return mostrarConcluidos ? true : !concluido;
     });
     // mais recentes primeiro
@@ -360,7 +360,7 @@
         '<div class="fb-item">' +
           '<div class="fb-item-top">' +
             '<span class="fb-badge ' + badge + '">' + escapeHtml(r.tipo) + '</span>' +
-            '<span class="fb-status">' + escapeHtml(r.status) + '</span>' +
+            (r.status ? '<span class="fb-status">' + escapeHtml(r.status) + '</span>' : '') +
           '</div>' +
           '<div class="fb-item-title">' + escapeHtml(r.titulo) + '</div>' +
           (r.descricao ? '<div class="fb-item-desc">' + escapeHtml(r.descricao) + '</div>' : '') +
@@ -370,12 +370,6 @@
           '</div>' +
         '</div>';
     }).join('');
-  }
-
-  function statusInicial(tipo) {
-    return tipo === 'Bug'
-      ? 'Bug identificado - em correção'
-      : 'Sugestão aceita - em desenvolvimento';
   }
 
   fbSubmit.addEventListener('click', function () {
@@ -405,8 +399,7 @@
         tipo: tipo,
         titulo: titulo,
         descricao: descricao,
-        autor: autor,
-        status: statusInicial(tipo)
+        autor: autor
       })
     })
       .then(function (r) { return r.json(); })
