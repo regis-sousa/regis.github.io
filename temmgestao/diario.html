@@ -6,7 +6,7 @@
 <title>Diário de Anotações — Temm Gestão</title>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root{--bg:#0F1117;--card:#1C2033;--border:#2A2F45;--blue:#1A56FF;--teal:#00C9A7;--yellow:#D4C200;--text:#E8EAF0;--muted:#7B82A0;--radius:12px;}
+  :root{--bg:#0F1117;--card:#1C2033;--border:#2A2F45;--blue:#1A56FF;--teal:#00C9A7;--yellow:#D4C200;--text:#E8EAF0;--muted:#7B82A0;--radius:12px;--red:#f87171;--amber:#fbbf24;}
   *{box-sizing:border-box;margin:0;padding:0;}
   html,body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;}
 
@@ -19,38 +19,64 @@
 
   .wrap{max-width:1060px;margin:0 auto;padding:26px 20px 60px;width:100%;flex:1;}
 
-  /* Botões topo */
-  .toolbar{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:24px;}
+  .toolbar{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:20px;}
   .btn{font-family:inherit;font-size:0.8rem;font-weight:600;border-radius:50px;padding:10px 18px;cursor:pointer;transition:all .15s;border:1px solid var(--border);}
   .btn-primary{background:var(--blue);color:#fff;border-color:var(--blue);}
   .btn-primary:hover{filter:brightness(1.1);}
   .btn-ghost{background:var(--card);color:var(--muted);}
   .btn-ghost:hover{color:var(--text);border-color:var(--blue);}
 
+  /* Painel de resumo */
+  .summary{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:22px;}
+  .sum-card{flex:1;min-width:150px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;}
+  .sum-num{font-size:1.5rem;font-weight:700;line-height:1;color:#fff;}
+  .sum-num.red{color:var(--red);}
+  .sum-num.amber{color:var(--amber);}
+  .sum-num.teal{color:var(--teal);}
+  .sum-label{font-size:0.7rem;color:var(--muted);margin-top:5px;text-transform:uppercase;letter-spacing:0.06em;}
+
+  /* Busca */
+  .search-box{margin-bottom:18px;}
+  .search-box input{width:100%;font-family:inherit;font-size:0.86rem;color:var(--text);background:var(--card);border:1px solid var(--border);border-radius:10px;padding:11px 14px;}
+  .search-box input::placeholder{color:var(--muted);}
+
   /* Filtros */
   .filter-block{margin-bottom:16px;}
   .filter-label{font-size:0.64rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
   .chips{display:flex;flex-wrap:wrap;gap:8px;}
-  .chip{font-family:inherit;font-size:0.74rem;font-weight:600;color:var(--muted);background:var(--card);border:1px solid var(--border);border-radius:50px;padding:7px 15px;cursor:pointer;transition:all .15s;}
+  .chip{font-family:inherit;font-size:0.74rem;font-weight:600;color:var(--muted);background:var(--card);border:1px solid var(--border);border-radius:50px;padding:7px 15px;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:7px;}
   .chip:hover{color:var(--text);border-color:var(--blue);}
   .chip.active{color:#fff;background:var(--blue);border-color:var(--blue);}
+  .chip .cnt{font-size:0.64rem;font-weight:700;background:rgba(248,113,113,.18);color:var(--red);border-radius:50px;padding:1px 7px;min-width:18px;text-align:center;}
+  .chip.active .cnt{background:rgba(255,255,255,.22);color:#fff;}
 
-  .view-tabs{display:flex;gap:8px;margin:22px 0 16px;border-bottom:1px solid var(--border);}
+  .view-tabs{display:flex;gap:8px;margin:22px 0 14px;border-bottom:1px solid var(--border);}
   .view-tab{font-family:inherit;font-size:0.82rem;font-weight:600;color:var(--muted);background:none;border:none;padding:10px 4px;margin-right:14px;cursor:pointer;border-bottom:2px solid transparent;}
   .view-tab.active{color:#fff;border-bottom-color:var(--blue);}
 
-  /* Timeline / itens */
+  /* Filtros rápidos (aba tarefas) */
+  .quick{display:flex;gap:8px;margin-bottom:16px;}
+  .quick.hidden{display:none;}
+  .quick button{font-family:inherit;font-size:0.72rem;font-weight:600;color:var(--muted);background:var(--card);border:1px solid var(--border);border-radius:50px;padding:6px 14px;cursor:pointer;}
+  .quick button.active{color:#fff;background:var(--blue);border-color:var(--blue);}
+
   .empty{font-size:0.85rem;color:var(--muted);text-align:center;padding:40px 0;}
   .day-group{margin-bottom:22px;}
   .day-label{font-size:0.7rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--teal);margin-bottom:10px;}
-  .item{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 15px;margin-bottom:10px;position:relative;}
+
+  .item{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 15px;margin-bottom:10px;position:relative;overflow:hidden;}
+  .item.atrasada{border-color:rgba(248,113,113,.5);}
+  .item.atrasada::before{content:'';position:absolute;top:0;left:0;bottom:0;width:3px;background:var(--red);}
   .item-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:7px;}
   .badge{font-size:0.58rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;padding:2px 8px;border-radius:50px;border:1px solid;}
   .badge.anot{color:#60a5fa;border-color:rgba(96,165,250,.4);background:rgba(96,165,250,.08);}
-  .badge.tarefa{color:#fbbf24;border-color:rgba(251,191,36,.4);background:rgba(251,191,36,.08);}
-  .badge.empresa{color:#00C9A7;border-color:rgba(0,201,167,.4);background:rgba(0,201,167,.08);}
+  .badge.tarefa{color:var(--amber);border-color:rgba(251,191,36,.4);background:rgba(251,191,36,.08);}
+  .badge.empresa{color:var(--teal);border-color:rgba(0,201,167,.4);background:rgba(0,201,167,.08);}
   .badge.resp{color:#a78bfa;border-color:rgba(167,139,250,.4);background:rgba(167,139,250,.08);}
-  .badge.venc{color:#f87171;border-color:rgba(248,113,113,.4);background:rgba(248,113,113,.08);}
+  .badge.venc{color:var(--muted);border-color:var(--border);background:var(--bg);}
+  .badge.venc.atrasada{color:var(--red);border-color:rgba(248,113,113,.45);background:rgba(248,113,113,.1);}
+  .badge.venc.hoje{color:var(--amber);border-color:rgba(251,191,36,.45);background:rgba(251,191,36,.1);}
+  .badge.venc.amanha{color:#60a5fa;border-color:rgba(96,165,250,.4);background:rgba(96,165,250,.08);}
   .badge.done{color:#34d399;border-color:rgba(52,211,153,.4);background:rgba(52,211,153,.08);}
   .item-text{font-size:0.88rem;color:var(--text);line-height:1.5;white-space:pre-wrap;}
   .item.concluida .item-text{text-decoration:line-through;color:var(--muted);}
@@ -58,9 +84,8 @@
   .act{font-family:inherit;font-size:0.7rem;font-weight:600;background:none;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:5px 10px;cursor:pointer;transition:all .15s;}
   .act:hover{color:var(--text);border-color:var(--blue);}
   .act.done:hover{border-color:var(--teal);color:var(--teal);}
-  .act.del:hover{border-color:#f87171;color:#f87171;}
+  .act.del:hover{border-color:var(--red);color:var(--red);}
 
-  /* Modal */
   .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:2000;padding:20px;}
   .modal-bg.open{display:flex;}
   .modal{background:var(--card);border:1px solid var(--border);border-radius:14px;width:440px;max-width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 18px 50px rgba(0,0,0,.55);}
@@ -80,7 +105,7 @@
   .modal-foot .btn{flex:1;text-align:center;}
   .msg{font-size:0.74rem;margin-top:10px;text-align:center;}
   .msg.ok{color:var(--teal);}
-  .msg.err{color:#f87171;}
+  .msg.err{color:var(--red);}
 
   .inline-add{display:flex;gap:8px;margin-top:8px;}
   .inline-add input{flex:1;}
@@ -111,6 +136,15 @@
     <button class="btn btn-ghost" id="btnAtualizar">↻ Atualizar</button>
   </div>
 
+  <!-- Resumo -->
+  <div class="summary" id="summary"></div>
+
+  <!-- Busca -->
+  <div class="search-box">
+    <input type="text" id="busca" placeholder="🔎 Buscar por texto, empresa ou responsável…">
+  </div>
+
+  <!-- Filtros -->
   <div class="filter-block">
     <div class="filter-label">Empresa</div>
     <div class="chips" id="chipsEmpresa"></div>
@@ -124,6 +158,13 @@
     <button class="view-tab active" data-view="tudo">Tudo</button>
     <button class="view-tab" data-view="anotacoes">Anotações</button>
     <button class="view-tab" data-view="tarefas">Tarefas</button>
+  </div>
+
+  <!-- Filtros rápidos (só na aba Tarefas) -->
+  <div class="quick hidden" id="quickFilters">
+    <button data-quick="todas" class="active">Todas</button>
+    <button data-quick="aberto">Em aberto</button>
+    <button data-quick="atrasadas">Atrasadas</button>
   </div>
 
   <div id="timeline"><div class="empty">Carregando…</div></div>
@@ -217,6 +258,8 @@
   let filtroEmpresa = '__todas__';
   let filtroResp = '__todos__';
   let view = 'tudo';
+  let quick = 'todas';
+  let busca = '';
   let editandoId = null;
   let tipoSelecionado = 'Anotação';
 
@@ -226,12 +269,16 @@
     return String(s == null ? '' : s)
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
-  function hoje() {
+  function hojeStr() {
     const d = new Date();
+    return ymd(d);
+  }
+  function ymd(d) {
     const mm = String(d.getMonth() + 1).padStart(2, '0');
     const dd = String(d.getDate()).padStart(2, '0');
     return d.getFullYear() + '-' + mm + '-' + dd;
   }
+  function meiaNoite(d) { const x = new Date(d); x.setHours(0,0,0,0); return x; }
   function formataData(valor) {
     if (!valor) return '';
     const d = new Date(valor);
@@ -243,8 +290,22 @@
     if (isNaN(d)) return 'sem data';
     return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
   }
+  // -1 atrasada, 0 hoje, 1 amanhã, 2 futura, null sem venc
+  function situacaoVenc(valor) {
+    if (!valor) return null;
+    const v = meiaNoite(new Date(valor));
+    if (isNaN(v)) return null;
+    const h = meiaNoite(new Date());
+    const diff = Math.round((v - h) / 86400000);
+    if (diff < 0) return -1;
+    if (diff === 0) return 0;
+    if (diff === 1) return 1;
+    return 2;
+  }
+  function ehTarefaAberta(l) { return l.tipo === 'Tarefa' && l.statusTarefa !== 'Concluída'; }
+  function ehAtrasada(l) { return ehTarefaAberta(l) && situacaoVenc(l.vencimento) === -1; }
 
-  /* ===== Carregar dados ===== */
+  /* ===== Carregar ===== */
   function carregar() {
     $('timeline').innerHTML = '<div class="empty">Carregando…</div>';
     fetch(API_URL)
@@ -253,6 +314,7 @@
         empresas = data.empresas || [];
         responsaveis = data.responsaveis || [];
         lancamentos = data.lancamentos || [];
+        renderResumo();
         renderFiltros();
         renderSelects();
         renderCadastros();
@@ -263,46 +325,60 @@
       });
   }
 
+  /* ===== Resumo ===== */
+  function renderResumo() {
+    const abertas = lancamentos.filter(ehTarefaAberta).length;
+    const atrasadas = lancamentos.filter(ehAtrasada).length;
+    const anots = lancamentos.filter(function (l) { return l.tipo === 'Anotação'; }).length;
+    $('summary').innerHTML =
+      '<div class="sum-card"><div class="sum-num">' + abertas + '</div><div class="sum-label">Tarefas em aberto</div></div>' +
+      '<div class="sum-card"><div class="sum-num red">' + atrasadas + '</div><div class="sum-label">Atrasadas</div></div>' +
+      '<div class="sum-card"><div class="sum-num teal">' + anots + '</div><div class="sum-label">Anotações</div></div>';
+  }
+
+  /* ===== Contadores (tarefas em aberto) ===== */
+  function abertasPorEmpresa(nome) {
+    return lancamentos.filter(function (l) { return ehTarefaAberta(l) && l.empresa === nome; }).length;
+  }
+  function abertasPorResp(nome) {
+    return lancamentos.filter(function (l) { return ehTarefaAberta(l) && l.responsavel === nome; }).length;
+  }
+
   /* ===== Filtros (chips) ===== */
   function renderFiltros() {
     let he = '<button class="chip ' + (filtroEmpresa === '__todas__' ? 'active' : '') + '" data-emp="__todas__">Todas</button>';
     empresas.forEach(function (e) {
-      he += '<button class="chip ' + (filtroEmpresa === e.nome ? 'active' : '') + '" data-emp="' + escapeHtml(e.nome) + '">' + escapeHtml(e.nome) + '</button>';
+      const c = abertasPorEmpresa(e.nome);
+      he += '<button class="chip ' + (filtroEmpresa === e.nome ? 'active' : '') + '" data-emp="' + escapeHtml(e.nome) + '">' +
+            escapeHtml(e.nome) + (c > 0 ? '<span class="cnt">' + c + '</span>' : '') + '</button>';
     });
     $('chipsEmpresa').innerHTML = he;
 
     let hr = '<button class="chip ' + (filtroResp === '__todos__' ? 'active' : '') + '" data-resp="__todos__">Todos</button>';
     responsaveis.forEach(function (r) {
-      hr += '<button class="chip ' + (filtroResp === r.nome ? 'active' : '') + '" data-resp="' + escapeHtml(r.nome) + '">' + escapeHtml(r.nome) + '</button>';
+      const c = abertasPorResp(r.nome);
+      hr += '<button class="chip ' + (filtroResp === r.nome ? 'active' : '') + '" data-resp="' + escapeHtml(r.nome) + '">' +
+            escapeHtml(r.nome) + (c > 0 ? '<span class="cnt">' + c + '</span>' : '') + '</button>';
     });
     $('chipsResp').innerHTML = hr;
 
     $('chipsEmpresa').querySelectorAll('.chip').forEach(function (c) {
-      c.addEventListener('click', function () {
-        filtroEmpresa = c.getAttribute('data-emp');
-        renderFiltros(); render();
-      });
+      c.addEventListener('click', function () { filtroEmpresa = c.getAttribute('data-emp'); renderFiltros(); render(); });
     });
     $('chipsResp').querySelectorAll('.chip').forEach(function (c) {
-      c.addEventListener('click', function () {
-        filtroResp = c.getAttribute('data-resp');
-        renderFiltros(); render();
-      });
+      c.addEventListener('click', function () { filtroResp = c.getAttribute('data-resp'); renderFiltros(); render(); });
     });
   }
 
-  /* ===== Selects do formulário ===== */
   function renderSelects() {
     let opE = '<option value="">— selecione —</option>';
     empresas.forEach(function (e) { opE += '<option value="' + escapeHtml(e.nome) + '">' + escapeHtml(e.nome) + '</option>'; });
     $('inEmpresa').innerHTML = opE;
-
     let opR = '<option value="">— selecione —</option>';
     responsaveis.forEach(function (r) { opR += '<option value="' + escapeHtml(r.nome) + '">' + escapeHtml(r.nome) + '</option>'; });
     $('inResp').innerHTML = opR;
   }
 
-  /* ===== Lista de cadastros ===== */
   function renderCadastros() {
     $('listEmpresas').innerHTML = empresas.length
       ? empresas.map(function (e) { return '<span>' + escapeHtml(e.nome) + '</span>'; }).join('')
@@ -321,51 +397,57 @@
     if (view === 'anotacoes')          itens = itens.filter(function (l) { return l.tipo === 'Anotação'; });
     if (view === 'tarefas')            itens = itens.filter(function (l) { return l.tipo === 'Tarefa'; });
 
-    itens.sort(function (a, b) { return Number(b.id) - Number(a.id); });
+    if (view === 'tarefas' && quick === 'aberto')    itens = itens.filter(ehTarefaAberta);
+    if (view === 'tarefas' && quick === 'atrasadas') itens = itens.filter(ehAtrasada);
+
+    if (busca.trim()) {
+      const q = busca.trim().toLowerCase();
+      itens = itens.filter(function (l) {
+        return (String(l.texto || '') + ' ' + String(l.empresa || '') + ' ' + String(l.responsavel || ''))
+          .toLowerCase().indexOf(q) !== -1;
+      });
+    }
+
+    // ordenação
+    if (view === 'tarefas') {
+      // por vencimento: atrasadas/sem-fim primeiro; concluídas no fim
+      itens.sort(function (a, b) {
+        const ca = a.statusTarefa === 'Concluída' ? 1 : 0;
+        const cb = b.statusTarefa === 'Concluída' ? 1 : 0;
+        if (ca !== cb) return ca - cb;
+        const va = a.vencimento ? meiaNoite(new Date(a.vencimento)).getTime() : Infinity;
+        const vb = b.vencimento ? meiaNoite(new Date(b.vencimento)).getTime() : Infinity;
+        if (va !== vb) return va - vb;
+        return Number(b.id) - Number(a.id);
+      });
+    } else {
+      itens.sort(function (a, b) { return Number(b.id) - Number(a.id); });
+    }
 
     if (itens.length === 0) {
       $('timeline').innerHTML = '<div class="empty">Nenhum registro para esse filtro.</div>';
       return;
     }
 
-    // agrupa por dia
-    const grupos = {};
-    const ordem = [];
-    itens.forEach(function (l) {
-      const k = chaveDia(l.dataHora);
-      if (!grupos[k]) { grupos[k] = []; ordem.push(k); }
-      grupos[k].push(l);
-    });
-
+    // Aba Tarefas: lista única (já ordenada). Outras: agrupa por dia.
     let html = '';
-    ordem.forEach(function (k) {
-      html += '<div class="day-group"><div class="day-label">' + escapeHtml(k) + '</div>';
-      grupos[k].forEach(function (l) {
-        const ehTarefa = l.tipo === 'Tarefa';
-        const concluida = ehTarefa && l.statusTarefa === 'Concluída';
-        html += '<div class="item' + (concluida ? ' concluida' : '') + '">' +
-          '<div class="item-top">' +
-            '<span class="badge ' + (ehTarefa ? 'tarefa' : 'anot') + '">' + escapeHtml(l.tipo) + '</span>' +
-            (l.empresa ? '<span class="badge empresa">' + escapeHtml(l.empresa) + '</span>' : '') +
-            (l.responsavel ? '<span class="badge resp">' + escapeHtml(l.responsavel) + '</span>' : '') +
-            (ehTarefa && l.vencimento ? '<span class="badge venc">vence ' + escapeHtml(formataData(l.vencimento)) + '</span>' : '') +
-            (concluida ? '<span class="badge done">concluída</span>' : '') +
-          '</div>' +
-          '<div class="item-text">' + escapeHtml(l.texto) + '</div>' +
-          '<div class="item-actions">' +
-            (ehTarefa
-              ? '<button class="act done" data-act="toggle" data-id="' + l.id + '" data-status="' + (concluida ? 'A fazer' : 'Concluída') + '">' + (concluida ? '↶ Reabrir' : '✓ Concluir') + '</button>'
-              : '') +
-            '<button class="act" data-act="editar" data-id="' + l.id + '">✎ Editar</button>' +
-            '<button class="act del" data-act="excluir" data-id="' + l.id + '">🗑 Excluir</button>' +
-          '</div>' +
-        '</div>';
+    if (view === 'tarefas') {
+      itens.forEach(function (l) { html += cardItem(l); });
+    } else {
+      const grupos = {}; const ordem = [];
+      itens.forEach(function (l) {
+        const k = chaveDia(l.dataHora);
+        if (!grupos[k]) { grupos[k] = []; ordem.push(k); }
+        grupos[k].push(l);
       });
-      html += '</div>';
-    });
+      ordem.forEach(function (k) {
+        html += '<div class="day-group"><div class="day-label">' + escapeHtml(k) + '</div>';
+        grupos[k].forEach(function (l) { html += cardItem(l); });
+        html += '</div>';
+      });
+    }
 
     $('timeline').innerHTML = html;
-
     $('timeline').querySelectorAll('.act').forEach(function (b) {
       b.addEventListener('click', function () {
         const id = b.getAttribute('data-id');
@@ -377,15 +459,63 @@
     });
   }
 
+  function cardItem(l) {
+    const ehTarefa = l.tipo === 'Tarefa';
+    const concluida = ehTarefa && l.statusTarefa === 'Concluída';
+    const sit = ehTarefa ? situacaoVenc(l.vencimento) : null;
+    const atrasada = ehTarefaAberta(l) && sit === -1;
+
+    let vencBadge = '';
+    if (ehTarefa && l.vencimento) {
+      let cls = 'venc', label = 'vence ' + formataData(l.vencimento);
+      if (!concluida) {
+        if (sit === -1) { cls = 'venc atrasada'; label = 'atrasada · ' + formataData(l.vencimento); }
+        else if (sit === 0) { cls = 'venc hoje'; label = 'vence hoje'; }
+        else if (sit === 1) { cls = 'venc amanha'; label = 'vence amanhã'; }
+      }
+      vencBadge = '<span class="badge ' + cls + '">' + escapeHtml(label) + '</span>';
+    }
+
+    return '<div class="item' + (concluida ? ' concluida' : '') + (atrasada ? ' atrasada' : '') + '">' +
+      '<div class="item-top">' +
+        '<span class="badge ' + (ehTarefa ? 'tarefa' : 'anot') + '">' + escapeHtml(l.tipo) + '</span>' +
+        (l.empresa ? '<span class="badge empresa">' + escapeHtml(l.empresa) + '</span>' : '') +
+        (l.responsavel ? '<span class="badge resp">' + escapeHtml(l.responsavel) + '</span>' : '') +
+        vencBadge +
+        (concluida ? '<span class="badge done">concluída</span>' : '') +
+      '</div>' +
+      '<div class="item-text">' + escapeHtml(l.texto) + '</div>' +
+      '<div class="item-actions">' +
+        (ehTarefa
+          ? '<button class="act done" data-act="toggle" data-id="' + l.id + '" data-status="' + (concluida ? 'A fazer' : 'Concluída') + '">' + (concluida ? '↶ Reabrir' : '✓ Concluir') + '</button>'
+          : '') +
+        '<button class="act" data-act="editar" data-id="' + l.id + '">✎ Editar</button>' +
+        '<button class="act del" data-act="excluir" data-id="' + l.id + '">🗑 Excluir</button>' +
+      '</div>' +
+    '</div>';
+  }
+
   /* ===== Views ===== */
   document.querySelectorAll('.view-tab').forEach(function (t) {
     t.addEventListener('click', function () {
       document.querySelectorAll('.view-tab').forEach(function (x) { x.classList.remove('active'); });
       t.classList.add('active');
       view = t.getAttribute('data-view');
+      $('quickFilters').classList.toggle('hidden', view !== 'tarefas');
       render();
     });
   });
+  document.querySelectorAll('#quickFilters button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('#quickFilters button').forEach(function (x) { x.classList.remove('active'); });
+      b.classList.add('active');
+      quick = b.getAttribute('data-quick');
+      render();
+    });
+  });
+
+  /* ===== Busca ===== */
+  $('busca').addEventListener('input', function () { busca = this.value; render(); });
 
   /* ===== Modal lançamento ===== */
   function setTipo(tipo) {
@@ -399,11 +529,18 @@
     b.addEventListener('click', function () { setTipo(b.getAttribute('data-tipo')); });
   });
 
+  function ymdDe(valor, fallback) {
+    if (!valor) return fallback;
+    const d = new Date(valor);
+    if (isNaN(d)) return fallback;
+    return ymd(d);
+  }
+
   function abrirNovo() {
     editandoId = null;
     $('modalLancTitle').textContent = 'Novo lançamento';
     setTipo('Anotação');
-    $('inData').value = hoje();
+    $('inData').value = hojeStr();
     $('inEmpresa').value = '';
     $('inResp').value = '';
     $('inTexto').value = '';
@@ -418,25 +555,11 @@
     editandoId = id;
     $('modalLancTitle').textContent = 'Editar lançamento';
     setTipo(l.tipo === 'Tarefa' ? 'Tarefa' : 'Anotação');
-    // data do lançamento não é editável aqui (mantém a original)
-    $('inData').value = (function () {
-      const d = new Date(l.dataHora);
-      if (isNaN(d)) return hoje();
-      const mm = String(d.getMonth() + 1).padStart(2, '0');
-      const dd = String(d.getDate()).padStart(2, '0');
-      return d.getFullYear() + '-' + mm + '-' + dd;
-    })();
+    $('inData').value = ymdDe(l.dataHora, hojeStr());
     $('inEmpresa').value = l.empresa || '';
     $('inResp').value = l.responsavel || '';
     $('inTexto').value = l.texto || '';
-    $('inVenc').value = (function () {
-      if (!l.vencimento) return '';
-      const d = new Date(l.vencimento);
-      if (isNaN(d)) return '';
-      const mm = String(d.getMonth() + 1).padStart(2, '0');
-      const dd = String(d.getDate()).padStart(2, '0');
-      return d.getFullYear() + '-' + mm + '-' + dd;
-    })();
+    $('inVenc').value = ymdDe(l.vencimento, '');
     $('msgLanc').textContent = '';
     $('modalLanc').classList.add('open');
   }
@@ -447,8 +570,7 @@
     const resp = $('inResp').value;
     const venc = $('inVenc').value;
     const data = $('inData').value;
-    const msg = $('msgLanc');
-    msg.className = 'msg';
+    const msg = $('msgLanc'); msg.className = 'msg';
 
     if (!texto) { msg.textContent = 'Escreva o texto.'; msg.className = 'msg err'; return; }
     if (!empresa) { msg.textContent = 'Selecione a empresa.'; msg.className = 'msg err'; return; }
@@ -458,50 +580,28 @@
 
     let payload;
     if (editandoId) {
-      payload = {
-        acao: 'editarLancamento',
-        id: editandoId,
-        tipo: tipoSelecionado,
-        empresa: empresa,
-        responsavel: resp,
-        texto: texto,
-        vencimento: tipoSelecionado === 'Tarefa' ? venc : ''
-      };
+      payload = { acao: 'editarLancamento', id: editandoId, tipo: tipoSelecionado,
+        empresa: empresa, responsavel: resp, texto: texto,
+        vencimento: tipoSelecionado === 'Tarefa' ? venc : '' };
     } else {
-      payload = {
-        acao: 'criarLancamento',
-        tipo: tipoSelecionado,
-        dataLancamento: data,
-        empresa: empresa,
-        responsavel: resp,
-        texto: texto,
-        vencimento: tipoSelecionado === 'Tarefa' ? venc : ''
-      };
+      payload = { acao: 'criarLancamento', tipo: tipoSelecionado, dataLancamento: data,
+        empresa: empresa, responsavel: resp, texto: texto,
+        vencimento: tipoSelecionado === 'Tarefa' ? venc : '' };
     }
 
-    post(payload, function () {
-      $('modalLanc').classList.remove('open');
-      carregar();
-    }, function () {
-      msg.textContent = 'Erro ao salvar.'; msg.className = 'msg err';
-    }, function () {
-      btn.disabled = false; btn.textContent = 'Salvar';
-    });
+    post(payload, function () { $('modalLanc').classList.remove('open'); carregar(); },
+      function () { msg.textContent = 'Erro ao salvar.'; msg.className = 'msg err'; },
+      function () { btn.disabled = false; btn.textContent = 'Salvar'; });
   }
 
-  function concluirTarefa(id, novoStatus) {
-    post({ acao: 'concluirTarefa', id: id, status: novoStatus }, carregar);
-  }
-
+  function concluirTarefa(id, novoStatus) { post({ acao: 'concluirTarefa', id: id, status: novoStatus }, carregar); }
   function excluir(id) {
     if (!confirm('Excluir este lançamento? Esta ação não pode ser desfeita.')) return;
     post({ acao: 'excluirLancamento', id: id }, carregar);
   }
 
-  /* ===== Cadastros ===== */
   function addEmpresa() {
-    const nome = $('inNovaEmpresa').value.trim();
-    if (!nome) return;
+    const nome = $('inNovaEmpresa').value.trim(); if (!nome) return;
     post({ acao: 'criarEmpresa', nome: nome }, function () {
       $('inNovaEmpresa').value = '';
       $('msgCad').textContent = 'Empresa adicionada.'; $('msgCad').className = 'msg ok';
@@ -509,8 +609,7 @@
     });
   }
   function addResp() {
-    const nome = $('inNovoResp').value.trim();
-    if (!nome) return;
+    const nome = $('inNovoResp').value.trim(); if (!nome) return;
     post({ acao: 'criarResponsavel', nome: nome }, function () {
       $('inNovoResp').value = '';
       $('msgCad').textContent = 'Responsável adicionado.'; $('msgCad').className = 'msg ok';
@@ -518,7 +617,6 @@
     });
   }
 
-  /* ===== POST genérico ===== */
   function post(payload, onOk, onErr, onDone) {
     fetch(API_URL, {
       method: 'POST',
@@ -533,19 +631,13 @@
 
   /* ===== Ligações ===== */
   $('btnNovo').addEventListener('click', abrirNovo);
-  $('btnCadastros').addEventListener('click', function () {
-    $('msgCad').textContent = '';
-    $('modalCad').classList.add('open');
-  });
+  $('btnCadastros').addEventListener('click', function () { $('msgCad').textContent = ''; $('modalCad').classList.add('open'); });
   $('btnAtualizar').addEventListener('click', carregar);
   $('btnSalvarLanc').addEventListener('click', salvarLanc);
   $('btnAddEmpresa').addEventListener('click', addEmpresa);
   $('btnAddResp').addEventListener('click', addResp);
   document.querySelectorAll('[data-close]').forEach(function (b) {
-    b.addEventListener('click', function () {
-      $('modalLanc').classList.remove('open');
-      $('modalCad').classList.remove('open');
-    });
+    b.addEventListener('click', function () { $('modalLanc').classList.remove('open'); $('modalCad').classList.remove('open'); });
   });
   document.querySelectorAll('.modal-bg').forEach(function (bg) {
     bg.addEventListener('click', function (e) { if (e.target === bg) bg.classList.remove('open'); });
