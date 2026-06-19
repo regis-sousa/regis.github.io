@@ -6,8 +6,11 @@
 <title>Temm Gestão — Hub de Ferramentas</title>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root{--bg:#0F1117;--card:#1C2033;--border:#2A2F45;--blue:#1A56FF;--teal:#00C9A7;--yellow:#D4C200;--text:#E8EAF0;--muted:#7B82A0;--radius:12px;}
+  :root{--bg:#0F1117;--card:#1C2033;--border:#2A2F45;--blue:#0553F1;--teal:#00C9A7;--yellow:#D4C200;--text:#E8EAF0;--muted:#7B82A0;--radius:12px;}
   *{box-sizing:border-box;margin:0;padding:0;}
+  /* Sem scrollbars visíveis em nenhum elemento (mantém a rolagem funcional) */
+  *{scrollbar-width:none;-ms-overflow-style:none;}
+  *::-webkit-scrollbar{width:0;height:0;display:none;}
   html,body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;}
 
   .hub-header{background:var(--blue);padding:22px 40px 26px;border-bottom:3px solid var(--teal);text-align:center;}
