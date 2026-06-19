@@ -11,7 +11,22 @@
   html,body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;}
 
   .hub-header{background:var(--blue);padding:22px 40px 26px;border-bottom:3px solid var(--teal);text-align:center;}
-  .hub-header img{height:46px;margin-bottom:11px;}
+  /* Logo quadrado: mostramos só a faixa do meio (o texto), recortando por CSS.
+     Como o fundo do cabeçalho é o mesmo azul, o recorte fica imperceptível.
+     >>> AJUSTE FINO (se o texto ficar cortado ou pequeno):
+       --logo-h  : altura da janela visível (aumente p/ mostrar mais faixa)
+       --logo-w  : largura da janela (acompanhe a proporção do texto)
+       background-size: 'auto X%' — X maior = logo maior dentro da janela
+       background-position: 'center Y%' — Y ajusta a faixa vertical mostrada */
+  .hub-header .logo-wrap{
+    --logo-h:58px; --logo-w:240px;
+    height:var(--logo-h); width:var(--logo-w);
+    margin:0 auto 11px;
+    background-image:url('logo.png');
+    background-repeat:no-repeat;
+    background-position:center 50%;
+    background-size:auto 320%;
+  }
   .hub-header h1{font-size:1.4rem;font-weight:700;color:#fff;letter-spacing:-0.01em;}
   .hub-header p{font-size:0.81rem;color:rgba(255,255,255,0.62);margin-top:4px;}
 
@@ -96,7 +111,7 @@
 <body>
 
 <div class="hub-header">
-  <img src="COLE_AQUI_O_LOGO" alt="Temm Gestão">
+  <div class="logo-wrap" role="img" aria-label="Temm Gestão"></div>
   <h1>Temm Gestão — Hub de Ferramentas</h1>
   <p>Acesse todos os sistemas integrados da sua operação</p>
 </div>
