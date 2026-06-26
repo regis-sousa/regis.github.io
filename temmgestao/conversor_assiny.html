@@ -95,6 +95,15 @@
   .tab .cnt{font-size:0.66rem;opacity:.8;margin-left:5px;}
   .pane{display:none;}
   .pane.active{display:block;}
+  .subtabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;}
+  .subtab{padding:6px 13px;background:transparent;border:1px solid var(--border);border-radius:7px;font-size:0.74rem;font-weight:600;color:var(--muted);cursor:pointer;transition:all .15s;font-family:'Sora',sans-serif;}
+  .subtab:hover{color:var(--text);}
+  .subtab.active{background:rgba(0,201,167,.12);border-color:var(--teal);color:var(--teal);}
+  .subpane{display:none;}
+  .subpane.active{display:block;}
+  .btn-rowcopy{padding:4px 9px;background:rgba(5,83,241,.14);border:1px solid var(--blue);border-radius:6px;color:#6fa3ff;cursor:pointer;font-size:0.66rem;font-weight:600;font-family:'Sora',sans-serif;white-space:nowrap;transition:all .15s;}
+  .btn-rowcopy:hover{background:rgba(5,83,241,.26);}
+  .btn-rowcopy.done{border-color:var(--green);color:var(--green);background:rgba(52,211,153,.12);}
 
   /* stats */
   .stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(108px,1fr));gap:9px;margin-bottom:16px;}
@@ -182,8 +191,8 @@
     <div class="section-label">02 — Opções</div>
     <div class="opt-row">
       <div class="opt-text">
-        <div class="opt-title">Incluir TransactionId na descrição</div>
-        <div class="opt-desc">Acrescenta o ID após o nome do produto nos lançamentos.</div>
+        <div class="opt-title">Incluir TransactionId na descrição da taxa</div>
+        <div class="opt-desc">Acrescenta o ID após o nome do produto apenas nas linhas de Taxa. A venda fica só com o nome do produto.</div>
       </div>
       <label class="switch">
         <input type="checkbox" id="optTid">
@@ -240,18 +249,44 @@
     <!-- PANE: Conciliação -->
     <div class="pane" id="pane-conc">
       <div class="stats-grid" id="concStats"></div>
-      <div class="preview-header">
-        <span class="preview-count" id="concCount"></span>
+
+      <div class="subtabs" id="concSubtabs">
+        <button class="subtab active" data-sub="detalhe">Vendas (detalhe)</button>
+        <button class="subtab" data-sub="simples">Conciliação (Data/Descrição/Valor)</button>
       </div>
-      <div class="tbl-wrap">
-        <table>
-          <thead><tr><th>Data</th><th>Descrição</th><th>Valor</th></tr></thead>
-          <tbody id="concBody"></tbody>
-        </table>
+
+      <!-- SUB: detalhe -->
+      <div class="subpane active" id="sub-detalhe">
+        <div class="preview-header">
+          <span class="preview-count" id="concDetCount"></span>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr>
+              <th>Copiar</th><th>Cliente</th><th>Produto</th><th>ID transação</th>
+              <th>Dia mov.</th><th>Compra</th><th>Cancel.</th><th>Forma</th>
+              <th>Valor</th><th>Taxa</th><th>Líquido</th><th>Descontado</th><th>Mov.</th>
+            </tr></thead>
+            <tbody id="concDetBody"></tbody>
+          </table>
+        </div>
       </div>
-      <div class="actions">
-        <button class="btn-dl" id="btnDlConc">⬇ Baixar .xlsx</button>
-        <button class="btn-outline" id="btnCopyConc">📋 Copiar tudo</button>
+
+      <!-- SUB: simples -->
+      <div class="subpane" id="sub-simples">
+        <div class="preview-header">
+          <span class="preview-count" id="concCount"></span>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Data</th><th>Descrição</th><th>Valor</th></tr></thead>
+            <tbody id="concBody"></tbody>
+          </table>
+        </div>
+        <div class="actions">
+          <button class="btn-dl" id="btnDlConc">⬇ Baixar .xlsx</button>
+          <button class="btn-outline" id="btnCopyConc">📋 Copiar tudo</button>
+        </div>
       </div>
     </div>
 
@@ -314,10 +349,11 @@ window.removeFile=function(i){
 /* ===================== OPTION PREVIEW ===================== */
 const optTid = document.getElementById('optTid');
 function renderOptPreview(){
-  const ex = optTid.checked
+  const taxa = optTid.checked
     ? 'English Every Day - 7dad7fb8-efba-43d6-8ee3-cfa3bb37dc21'
     : 'English Every Day';
-  document.getElementById('optPreview').innerHTML = 'Descrição ficará: <code>'+ex+'</code>';
+  document.getElementById('optPreview').innerHTML =
+    'Venda: <code>English Every Day</code><br>Taxa: <code>'+taxa+'</code>';
 }
 optTid.addEventListener('change', renderOptPreview);
 renderOptPreview();
@@ -398,7 +434,16 @@ async function readFile(file){
             res(csvTextToRows(csvText)); return;
           }
         }
-        res(raw);
+        // Conserta acentos duplo-codificados também no caminho .xlsx (chaves e valores).
+        const cleaned=raw.map(row=>{
+          const o={};
+          for(const k of Object.keys(row)){
+            const v=row[k];
+            o[fixMojibake(k)]=(typeof v==='string')?fixMojibake(v):v;
+          }
+          return o;
+        });
+        res(cleaned);
       }catch(err){rej(err);}
     };
     r.onerror=rej;
@@ -417,13 +462,19 @@ function detectType(headers){
 
 /* financeiro column auto-map */
 const FIN_KNOWN={
-  data:['data da movimentacao','data da transacao','date','data'],
-  id:['id da transacao','id transacao','transaction id','id'],
+  idMov:['id da movimentacao','id movimentacao'],
+  data:['data da movimentacao','data da transacao','date'],
+  compra:['data da compra'],
+  cancel:['data do cancelamento'],
+  id:['id da transacao','id transacao','transaction id'],
+  produto:['produto'],
+  forma:['forma'],
   nome:['nome completo','nome','cliente','comprador','name'],
-  mov:['movimentacao','tipo','movimento'],
+  mov:['movimentacao','movimento'],
   motivo:['motivo','reason'],
-  valor:['valor da transacao (centavos)','valor da transacao','valor bruto','amount','valor'],
-  taxa:['taxa total (centavos)','taxa total','taxa','fee'],
+  valor:['valor da transacao (centavos)','valor da transacao','valor bruto','amount'],
+  taxa:['taxa total (centavos)','taxa total','fee'],
+  liquido:['valor liquido (centavos)','valor liquido'],
   desc:['valor descontado (centavos)','valor descontado'],
 };
 function finMap(headers){
@@ -466,7 +517,7 @@ document.getElementById('btnConvert').addEventListener('click', async ()=>{
   document.getElementById('logStatus').textContent='Processando...';
   document.getElementById('btnConvert').disabled=true;
 
-  niboWb=null; niboRows=[]; concWb=null; concRows=[]; clientes=[]; niboDateTag='';
+  niboWb=null; niboRows=[]; concWb=null; concRows=[]; concDetail=[]; clientes=[]; niboDateTag='';
 
   let vendasRows=[], finItems=[];
   let sawVendas=false, sawFin=false;
@@ -545,17 +596,20 @@ function buildNibo(rows){
     const offset = (pgto==='credit') ? 2 : 1;   // PIX/boleto = +1, cartão = +2
     const venc = addDaysBR(criado, offset);
 
-    const desc = optTid.checked ? `${produto} - ${tid}` : produto;
+    // A descrição da Entrada (venda) é sempre só o nome do produto.
+    // O toggle "Incluir TransactionId" vale apenas para a linha de Taxa.
+    const descEntrada = produto;
+    const descTaxa = optTid.checked ? `${produto} - ${tid}` : produto;
 
     // Entrada (cliente)
     niboRows.push({
-      Tipo:'Lançamento', Contato:cliente, Descricao:desc, Categoria:'Receita com produtos',
+      Tipo:'Lançamento', Contato:cliente, Descricao:descEntrada, Categoria:'Receita com produtos',
       Valor:valor, Venc:venc, Prev:venc, Comp:comp, Centro:'Infoprodutos', Fav:'Não',
       TipoContato:'Cliente', Ref:'Assiny', Conta:'', DataPag:'', Anotacao:tid, neg:false
     });
     // Taxa (fornecedor Assiny)
     niboRows.push({
-      Tipo:'Lançamento', Contato:ASSINY_FORNECEDOR, Descricao:desc, Categoria:'Taxa plataforma',
+      Tipo:'Lançamento', Contato:ASSINY_FORNECEDOR, Descricao:descTaxa, Categoria:'Taxa plataforma',
       Valor:-taxa, Venc:venc, Prev:venc, Comp:comp, Centro:'Infoprodutos', Fav:'Não',
       TipoContato:'Fornecedor', Ref:'Assiny', Conta:'', DataPag:'', Anotacao:tid, neg:true
     });
@@ -600,9 +654,11 @@ function buildNibo(rows){
 }
 
 /* ----- build Conciliação (Assiny > Financeiro) ----- */
+let concDetail=[]; // {cliente,produto,idTrans,dataMov,dataCompra,dataCancel,forma,mov,motivo,valor,taxa,liquido,desc}
 function buildConc(items){
   log(`\n🔄 Conciliação: processando ${items.length} linha(s)...`);
   items.sort((a,b)=>a.sortKey.localeCompare(b.sortKey));
+  concDetail=[];
   let nV=0,nT=0,nR=0,nC=0,nI=0;
   items.forEach(({row,cmap})=>{
     const data=parseDateFin(row[cmap.data]);
@@ -613,6 +669,25 @@ function buildConc(items){
     const valor=num(row[cmap.valor]);
     const taxa=num(row[cmap.taxa]);
     const desc=num(row[cmap.desc]);
+
+    // detalhe (todos os campos) — usado na tabela e no copiar p/ Nibo
+    concDetail.push({
+      cliente:nome,
+      produto:String(row[cmap.produto]||'').trim(),
+      idTrans:id,
+      idMov:String(row[cmap.idMov]||'').trim(),
+      dataMov:parseDateFin(row[cmap.data]),
+      dataCompra:parseDateFin(row[cmap.compra]),
+      dataCancel:parseDateFin(row[cmap.cancel]),
+      forma:String(row[cmap.forma]||'').trim(),
+      mov:String(row[cmap.mov]||'').trim(),
+      motivo:String(row[cmap.motivo]||'').trim(),
+      valor:valor/100,
+      taxa:taxa/100,
+      liquido:num(row[cmap.liquido])/100,
+      desc:desc/100,
+    });
+
     if(mov==='entrada'){
       concRows.push({Data:data,Descricao:`Venda ${id} ${nome}`.trim(),Valor:valor/100,neg:false});
       concRows.push({Data:data,Descricao:`Tarifa ${id} ${nome}`.trim(),Valor:taxa/100,neg:true});
@@ -627,7 +702,7 @@ function buildConc(items){
   });
 
   concRows._stats={nV,nT,nR,nC,nI};
-  log(`  ✓ ${concRows.length} linha(s) de conciliação`,'ok');
+  log(`  ✓ ${concRows.length} linha(s) de conciliação · ${concDetail.length} venda(s) detalhada(s)`,'ok');
 
   const aoa=[['Data','Descrição','Valor']];
   concRows.forEach(r=>aoa.push([r.Data,r.Descricao,r.Valor]));
@@ -638,6 +713,17 @@ function buildConc(items){
   const wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb,ws,'Conciliação');
   concWb=wb;
+}
+
+/* Gera as 2 linhas do Nibo (Entrada+Taxa) para uma venda do detalhe.
+   Competência = data da compra · Previsão/Vencimento = data da movimentação. */
+function concRowToNiboTSV(d){
+  const comp=d.dataCompra || d.dataMov;
+  const venc=d.dataMov;
+  const taxaNeg = -Math.abs(d.taxa);
+  const entrada=['Lançamento',d.cliente,d.produto,'Receita com produtos',decComma(d.valor),venc,venc,comp,'Infoprodutos','Não','Cliente','Assiny','','',d.idTrans];
+  const taxa=['Lançamento',ASSINY_FORNECEDOR,(optTid.checked?`${d.produto} - ${d.idTrans}`:d.produto),'Taxa plataforma',decComma(taxaNeg),venc,venc,comp,'Infoprodutos','Não','Fornecedor','Assiny','','',d.idTrans];
+  return entrada.join('\t')+'\n'+taxa.join('\t');
 }
 
 /* ===================== RENDER RESULT ===================== */
@@ -703,9 +789,9 @@ function renderNibo(){
 function renderConc(){
   const s=concRows._stats||{};
   const stats=[
-    {n:s.nV||0,l:'Vendas'},{n:s.nT||0,l:'Tarifas'},
+    {n:concDetail.length,l:'Vendas'},{n:s.nT||0,l:'Tarifas'},
     {n:s.nR||0,l:'Reembolsos'},{n:s.nC||0,l:'Cancelamentos'},
-    {n:concRows.length,l:'Total linhas'},
+    {n:concRows.length,l:'Linhas conc.'},
   ];
   if(s.nI) stats.push({n:s.nI,l:'Ignoradas',warn:true});
   document.getElementById('concStats').innerHTML=stats.map((x,i)=>`
@@ -713,12 +799,51 @@ function renderConc(){
       <div class="stat-num" style="${x.warn?'color:var(--red-dim)':''}">${x.n}</div>
       <div class="stat-lbl">${x.l}</div>
     </div>`).join('');
+
+  // --- tabela detalhada com copiar p/ Nibo por linha ---
+  document.getElementById('concDetCount').textContent=`${concDetail.length} venda(s) — botão copia Entrada + Taxa no formato Nibo (competência = compra, previsão/vencimento = dia da movimentação)`;
+  const dt=document.getElementById('concDetBody'); dt.innerHTML='';
+  concDetail.forEach((d,i)=>{
+    const tr=document.createElement('tr');
+    const cancelCell = d.dataCancel ? `<span class="val-neg">${d.dataCancel}</span>` : '—';
+    tr.innerHTML=
+      `<td><button class="btn-rowcopy" data-i="${i}">📋 Nibo</button></td>`+
+      `<td>${d.cliente||'—'}</td><td>${d.produto||'—'}</td>`+
+      `<td style="font-size:.66rem;color:var(--muted)">${d.idTrans||'—'}</td>`+
+      `<td>${d.dataMov||'—'}</td><td>${d.dataCompra||'—'}</td><td>${cancelCell}</td>`+
+      `<td>${d.forma||'—'}</td>`+
+      `<td class="val-pos">R$ ${brMoney(d.valor)}</td>`+
+      `<td class="val-neg">-R$ ${brMoney(d.taxa)}</td>`+
+      `<td>R$ ${brMoney(d.liquido)}</td>`+
+      `<td>${d.desc?('R$ '+brMoney(d.desc)):'—'}</td>`+
+      `<td>${d.mov||'—'}</td>`;
+    dt.appendChild(tr);
+  });
+  dt.querySelectorAll('.btn-rowcopy').forEach(btn=>{
+    btn.onclick=()=>{
+      copyText(concRowToNiboTSV(concDetail[+btn.dataset.i]));
+      const o=btn.textContent; btn.textContent='✓ Copiado'; btn.classList.add('done');
+      setTimeout(()=>{btn.textContent=o; btn.classList.remove('done');},1500);
+    };
+  });
+
+  // --- conciliação simples ---
   document.getElementById('concCount').textContent=`${concRows.length} linha(s) convertida(s)`;
   const tb=document.getElementById('concBody'); tb.innerHTML='';
   concRows.forEach(r=>{
     const tr=document.createElement('tr');
     tr.innerHTML=`<td>${r.Data}</td><td>${r.Descricao}</td><td class="${r.neg?'val-neg':'val-pos'}">${r.neg?'-':''}R$ ${brMoney(r.Valor)}</td>`;
     tb.appendChild(tr);
+  });
+
+  // subtab switching
+  document.querySelectorAll('#concSubtabs .subtab').forEach(st=>{
+    st.onclick=()=>{
+      document.querySelectorAll('#concSubtabs .subtab').forEach(x=>x.classList.remove('active'));
+      document.querySelectorAll('#pane-conc .subpane').forEach(x=>x.classList.remove('active'));
+      st.classList.add('active');
+      document.getElementById('sub-'+st.dataset.sub).classList.add('active');
+    };
   });
 }
 
@@ -809,7 +934,7 @@ document.getElementById('btnReset').addEventListener('click',()=>{
   document.getElementById('niboTblWrap').classList.add('hidden');
   document.getElementById('btnTogglePreview').textContent='👁 Visualização';
   optTid.checked=false; renderOptPreview();
-  niboWb=null; niboRows=[]; concWb=null; concRows=[]; clientes=[]; niboDateTag='';
+  niboWb=null; niboRows=[]; concWb=null; concRows=[]; concDetail=[]; clientes=[]; niboDateTag='';
 });
 </script>
 </body>
