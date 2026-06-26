@@ -343,6 +343,16 @@ function addDaysBR(v, n){
 }
 function brMoney(n){ return Math.abs(n).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
 function decComma(n){ return n.toFixed(2).replace('.',','); }
+/* Conserta acentos duplo-codificados (ex.: "AraÃºjo" -> "Araújo") caso o arquivo
+   tenha sido salvo com encoding errado. Só atua quando detecta o padrão de mojibake. */
+function fixMojibake(s){
+  if(typeof s!=='string' || !/[ÃÂ][\u0080-\u00BF]/.test(s)) return s;
+  try{
+    const fixed=decodeURIComponent(escape(s)); // latin1 -> utf8
+    // só aceita se removeu o padrão de mojibake e não quebrou nada
+    return /[ÃÂ][\u0080-\u00BF]/.test(fixed) ? s : fixed;
+  }catch(e){ return s; }
+}
 
 /* RFC-4180 CSV */
 function parseCsvLine(line){
@@ -361,16 +371,23 @@ function csvTextToRows(text){
   const rows=[];
   for(let i=1;i<lines.length;i++){
     const vals=parseCsvLine(lines[i]);
-    const o={}; headers.forEach((h,idx)=>o[h]=vals[idx]!==undefined?vals[idx].trim():'');
+    const o={}; headers.forEach((h,idx)=>o[h]=fixMojibake(vals[idx]!==undefined?vals[idx].trim():''));
     rows.push(o);
   }
   return rows;
 }
 async function readFile(file){
+  const isCsv=/\.csv$/i.test(file.name);
   return new Promise((res,rej)=>{
     const r=new FileReader();
     r.onload=e=>{
       try{
+        if(isCsv){
+          // Decode as UTF-8 to preserve acentos (ú, ç, ã...). Strips BOM if present.
+          let text=new TextDecoder('utf-8').decode(new Uint8Array(e.target.result));
+          if(text.charCodeAt(0)===0xFEFF) text=text.slice(1);
+          res(csvTextToRows(text)); return;
+        }
         const wb=XLSX.read(new Uint8Array(e.target.result),{type:'array',raw:true});
         const ws=wb.Sheets[wb.SheetNames[0]];
         const raw=XLSX.utils.sheet_to_json(ws,{defval:'',raw:true});
@@ -706,9 +723,9 @@ function renderConc(){
 }
 
 function renderCli(){
-  document.getElementById('cliCount').textContent=`${clientes.length} cliente(s) — clique em um campo para copiar`;
+  document.getElementById('cliCount').textContent=`${clientes.length} cliente(s)`;
   const grid=document.getElementById('cliGrid'); grid.innerHTML='';
-  clientes.forEach((c,idx)=>{
+  clientes.forEach(c=>{
     const fields=[
       {k:'Nome',v:c.nome},
       {k:'Email',v:c.email},
@@ -718,35 +735,14 @@ function renderCli(){
       {k:'Endereço',v:c.endereco},
     ];
     const card=document.createElement('div'); card.className='cli-card';
-    let html=`<div class="cli-head"><div class="cli-name">${c.nome||'(sem nome)'}</div>`+
-             `<button class="btn-copy-all-cli" data-i="${idx}">Copiar tudo</button></div>`;
+    let html=`<div class="cli-head"><div class="cli-name">${c.nome||'(sem nome)'}</div></div>`;
     fields.forEach(f=>{
       const empty=!f.v;
       html+=`<div class="cli-field"><span class="k">${f.k}</span>`+
-            `<span class="v${empty?' empty':''}">${empty?'—':f.v}</span>`+
-            (empty?'':`<button class="cli-copy" data-v="${encodeURIComponent(f.v)}">copiar</button>`)+`</div>`;
+            `<span class="v${empty?' empty':''}">${empty?'—':f.v}</span></div>`;
     });
     card.innerHTML=html;
     grid.appendChild(card);
-  });
-
-  // per-field copy
-  grid.querySelectorAll('.cli-copy').forEach(btn=>{
-    btn.onclick=()=>{
-      copyText(decodeURIComponent(btn.dataset.v));
-      const o=btn.textContent; btn.textContent='✓'; btn.classList.add('done');
-      setTimeout(()=>{btn.textContent=o; btn.classList.remove('done');},1200);
-    };
-  });
-  // copy-all per client (tab separated, header order)
-  grid.querySelectorAll('.btn-copy-all-cli').forEach(btn=>{
-    btn.onclick=()=>{
-      const c=clientes[+btn.dataset.i];
-      const line=[c.nome,c.email,c.telefone,c.endereco,c.doc,c.celular].join('\t');
-      copyText(line);
-      const o=btn.textContent; btn.textContent='✓ Copiado'; btn.classList.add('done');
-      setTimeout(()=>{btn.textContent=o; btn.classList.remove('done');},1500);
-    };
   });
 }
 
@@ -792,8 +788,8 @@ document.getElementById('btnCopyConc').addEventListener('click',e=>{
 });
 document.getElementById('btnCopyAllCli').addEventListener('click',e=>{
   if(!clientes.length) return;
-  const header=['Nome','Email','Telefone','Endereço','CPF/CNPJ','Celular'].join('\t');
-  const lines=[header,...clientes.map(c=>[c.nome,c.email,c.telefone,c.endereco,c.doc,c.celular].join('\t'))];
+  // Sem cabeçalho — colunas separadas por TAB, uma linha por cliente (igual colar do Excel).
+  const lines=clientes.map(c=>[c.nome,c.email,c.telefone,c.endereco,c.doc,c.celular].join('\t'));
   copyText(lines.join('\n')); flash(e.target,'✓ Copiado!');
 });
 
