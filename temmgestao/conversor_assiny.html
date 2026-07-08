@@ -104,6 +104,14 @@
   .btn-rowcopy{padding:4px 9px;background:rgba(5,83,241,.14);border:1px solid var(--blue);border-radius:6px;color:#6fa3ff;cursor:pointer;font-size:0.66rem;font-weight:600;font-family:'Sora',sans-serif;white-space:nowrap;transition:all .15s;}
   .btn-rowcopy:hover{background:rgba(5,83,241,.26);}
   .btn-rowcopy.done{border-color:var(--green);color:var(--green);background:rgba(52,211,153,.12);}
+  .btn-rowcopy:disabled{opacity:.4;cursor:not-allowed;}
+  .taxa-edit{display:inline-flex;align-items:center;gap:5px;color:var(--red);font-weight:600;}
+  .taxa-input{width:74px;background:#12151F;border:1px solid var(--border);border-radius:5px;color:var(--red);font-family:'Sora',sans-serif;font-size:0.72rem;font-weight:600;padding:3px 6px;text-align:right;outline:none;transition:border-color .15s;}
+  .taxa-input:focus{border-color:var(--yellow);}
+  .badge-calc{font-size:0.55rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;background:rgba(212,194,0,.16);color:var(--yellow);padding:1px 5px;border-radius:4px;}
+  .confirm-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:14px;padding:12px 15px;background:rgba(212,194,0,.06);border:1px solid rgba(212,194,0,.3);border-radius:9px;}
+  .confirm-status{font-size:0.76rem;font-weight:600;}
+  #btnDlConc:disabled,#btnCopyConc:disabled{opacity:.4;cursor:not-allowed;}
 
   /* stats */
   .stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(108px,1fr));gap:9px;margin-bottom:16px;}
@@ -269,6 +277,10 @@
             </tr></thead>
             <tbody id="concDetBody"></tbody>
           </table>
+        </div>
+        <div class="confirm-bar hidden" id="concConfirmBar">
+          <span class="confirm-status" id="concConfirmStatus"></span>
+          <button class="btn-dl" id="btnConfirmTaxas" style="padding:9px 18px;">Confirmar taxas</button>
         </div>
       </div>
 
@@ -517,7 +529,7 @@ document.getElementById('btnConvert').addEventListener('click', async ()=>{
   document.getElementById('logStatus').textContent='Processando...';
   document.getElementById('btnConvert').disabled=true;
 
-  niboWb=null; niboRows=[]; concWb=null; concRows=[]; concDetail=[]; clientes=[]; niboDateTag='';
+  niboWb=null; niboRows=[]; concWb=null; concRows=[]; concDetail=[]; concHasTaxaCol=false; concConfirmed=false; clientes=[]; niboDateTag='';
 
   let vendasRows=[], finItems=[];
   let sawVendas=false, sawFin=false;
@@ -654,23 +666,36 @@ function buildNibo(rows){
 }
 
 /* ----- build Conciliação (Assiny > Financeiro) ----- */
-let concDetail=[]; // {cliente,produto,idTrans,dataMov,dataCompra,dataCancel,forma,mov,motivo,valor,taxa,liquido,desc}
+let concDetail=[]; // {cliente,produto,idTrans,dataMov,dataCompra,dataCancel,forma,mov,motivo,valor,taxa,taxaCalc,liquido,desc}
+let concHasTaxaCol=false;   // arquivo já traz coluna de taxa?
+let concConfirmed=false;    // taxas confirmadas → libera baixar/copiar
 function buildConc(items){
   log(`\n🔄 Conciliação: processando ${items.length} linha(s)...`);
   items.sort((a,b)=>a.sortKey.localeCompare(b.sortKey));
   concDetail=[];
-  let nV=0,nT=0,nR=0,nC=0,nI=0;
+  // O arquivo tem coluna de taxa? (mapeada E com algum valor não-vazio)
+  concHasTaxaCol = items.some(({row,cmap})=> cmap.taxa && String(row[cmap.taxa]||'').trim()!=='');
+  concConfirmed = false;
+  let nSaidas=0;
   items.forEach(({row,cmap})=>{
-    const data=parseDateFin(row[cmap.data]);
     const id=String(row[cmap.id]||'').trim();
     const nome=String(row[cmap.nome]||'').trim();
     const mov=norm(row[cmap.mov]);
     const motivo=norm(row[cmap.motivo]);
-    const valor=num(row[cmap.valor]);
-    const taxa=num(row[cmap.taxa]);
-    const desc=num(row[cmap.desc]);
+    const valor=num(row[cmap.valor])/100;               // valor total da transação
+    const liquido=num(row[cmap.liquido])/100;
+    const desc=num(row[cmap.desc])/100;
 
-    // detalhe (todos os campos) — usado na tabela e no copiar p/ Nibo
+    // Taxa (magnitude positiva). Se o arquivo tem a coluna, usa ela;
+    // senão calcula: taxa = valor total da transação − líquido.
+    let taxaMag, taxaCalc=false;
+    if(concHasTaxaCol && String(row[cmap.taxa]||'').trim()!==''){
+      taxaMag = Math.abs(num(row[cmap.taxa])/100);
+    }else{
+      taxaMag = Math.max(0, valor - liquido);
+      taxaCalc = true;
+    }
+
     concDetail.push({
       cliente:nome,
       produto:String(row[cmap.produto]||'').trim(),
@@ -682,27 +707,44 @@ function buildConc(items){
       forma:String(row[cmap.forma]||'').trim(),
       mov:String(row[cmap.mov]||'').trim(),
       motivo:String(row[cmap.motivo]||'').trim(),
-      valor:valor/100,
-      taxa:taxa/100,
-      liquido:num(row[cmap.liquido])/100,
-      desc:desc/100,
+      valor:valor,
+      taxa:taxaMag,        // sempre positiva; vira negativa no Nibo
+      taxaCalc:taxaCalc,   // true = calculada (valor − líquido)
+      liquido:liquido,
+      desc:desc,
     });
+    if(mov==='saida') nSaidas++;
+  });
 
+  log(`  ✓ ${concDetail.length} venda(s) detalhada(s)`,'ok');
+  if(concHasTaxaCol) log(`  ✓ Coluna de taxa encontrada — usando a taxa do arquivo.`,'ok');
+  else log(`  ⚠ Sem coluna de taxa — calculando taxa = Valor − Líquido. Revise e confirme antes de baixar.`,'warn');
+  if(nSaidas) log(`  ℹ ${nSaidas} saída(s) no arquivo (reembolso/cancelamento).`,'warn');
+
+  buildConcOutputs(); // gera concRows + concWb a partir do concDetail atual
+}
+
+/* (Re)gera as linhas da conciliação simples e o workbook a partir do concDetail
+   (usa a taxa atual — possivelmente editada). */
+function buildConcOutputs(){
+  concRows=[];
+  let nV=0,nT=0,nR=0,nC=0,nI=0;
+  concDetail.forEach(d=>{
+    const mov=norm(d.mov), motivo=norm(d.motivo);
+    const idnome=`${d.idTrans} ${d.cliente}`.trim();
     if(mov==='entrada'){
-      concRows.push({Data:data,Descricao:`Venda ${id} ${nome}`.trim(),Valor:valor/100,neg:false});
-      concRows.push({Data:data,Descricao:`Tarifa ${id} ${nome}`.trim(),Valor:taxa/100,neg:true});
+      concRows.push({Data:d.dataMov,Descricao:`Venda ${idnome}`.trim(),Valor:d.valor,neg:false});
+      concRows.push({Data:d.dataMov,Descricao:`Tarifa ${idnome}`.trim(),Valor:-Math.abs(d.taxa),neg:true});
       nV++;nT++;
     }else if(mov==='saida'){
       if(motivo.includes('refund')){
-        concRows.push({Data:data,Descricao:`Reembolso ${id} ${nome}`.trim(),Valor:desc/100,neg:true}); nR++;
+        concRows.push({Data:d.dataMov,Descricao:`Reembolso ${idnome}`.trim(),Valor:-Math.abs(d.desc),neg:true}); nR++;
       }else if(motivo.includes('tarifa de cancelamento')){
-        concRows.push({Data:data,Descricao:`Tarifa de Cancelamento de Transações ${id}`,Valor:taxa/100,neg:true}); nC++;
-      }else{ log(`  ℹ Saída ignorada (motivo: "${motivo}") — ID ${id}`,'warn'); nI++; }
-    }else{ log(`  ℹ Movimentação desconhecida: "${row[cmap.mov]}" — ID ${id}`,'warn'); nI++; }
+        concRows.push({Data:d.dataMov,Descricao:`Tarifa de Cancelamento de Transações ${d.idTrans}`,Valor:-Math.abs(d.taxa),neg:true}); nC++;
+      }else{ nI++; }
+    }else{ nI++; }
   });
-
   concRows._stats={nV,nT,nR,nC,nI};
-  log(`  ✓ ${concRows.length} linha(s) de conciliação · ${concDetail.length} venda(s) detalhada(s)`,'ok');
 
   const aoa=[['Data','Descrição','Valor']];
   concRows.forEach(r=>aoa.push([r.Data,r.Descricao,r.Valor]));
@@ -800,41 +842,59 @@ function renderConc(){
       <div class="stat-lbl">${x.l}</div>
     </div>`).join('');
 
-  // --- tabela detalhada com copiar p/ Nibo por linha ---
-  document.getElementById('concDetCount').textContent=`${concDetail.length} venda(s) — botão copia Entrada + Taxa no formato Nibo (competência = compra, previsão/vencimento = dia da movimentação)`;
+  // --- barra de confirmação (só quando a taxa foi calculada) ---
+  const bar=document.getElementById('concConfirmBar');
+  if(concHasTaxaCol){
+    bar.classList.add('hidden');
+    concConfirmed=true;
+  }else{
+    bar.classList.remove('hidden');
+  }
+
+  // --- tabela detalhada ---
+  document.getElementById('concDetCount').innerHTML = concHasTaxaCol
+    ? `${concDetail.length} venda(s) — taxa lida do arquivo. Botão copia Entrada + Taxa no formato Nibo (competência = compra · previsão/vencimento = dia da movimentação).`
+    : `${concDetail.length} venda(s) — <b style="color:var(--yellow)">taxa calculada (Valor − Líquido)</b>. Revise, edite se precisar e clique em <b>Confirmar taxas</b> para liberar cópia/download.`;
+
   const dt=document.getElementById('concDetBody'); dt.innerHTML='';
   concDetail.forEach((d,i)=>{
     const tr=document.createElement('tr');
     const cancelCell = d.dataCancel ? `<span class="val-neg">${d.dataCancel}</span>` : '—';
+    const taxaCell = concHasTaxaCol
+      ? `<span class="val-neg">-R$ ${brMoney(d.taxa)}</span>`
+      : `<span class="taxa-edit">-R$ <input type="text" class="taxa-input" data-i="${i}" value="${brMoney(d.taxa)}">`+
+        (d.taxaCalc?`<span class="badge-calc" title="Calculada: Valor − Líquido">calc</span>`:'')+`</span>`;
     tr.innerHTML=
-      `<td><button class="btn-rowcopy" data-i="${i}">📋 Nibo</button></td>`+
+      `<td><button class="btn-rowcopy" data-i="${i}" ${concConfirmed?'':'disabled'}>📋 Nibo</button></td>`+
       `<td>${d.cliente||'—'}</td><td>${d.produto||'—'}</td>`+
       `<td style="font-size:.66rem;color:var(--muted)">${d.idTrans||'—'}</td>`+
       `<td>${d.dataMov||'—'}</td><td>${d.dataCompra||'—'}</td><td>${cancelCell}</td>`+
       `<td>${d.forma||'—'}</td>`+
       `<td class="val-pos">R$ ${brMoney(d.valor)}</td>`+
-      `<td class="val-neg">-R$ ${brMoney(d.taxa)}</td>`+
+      `<td>${taxaCell}</td>`+
       `<td>R$ ${brMoney(d.liquido)}</td>`+
       `<td>${d.desc?('R$ '+brMoney(d.desc)):'—'}</td>`+
       `<td>${d.mov||'—'}</td>`;
     dt.appendChild(tr);
   });
-  dt.querySelectorAll('.btn-rowcopy').forEach(btn=>{
-    btn.onclick=()=>{
-      copyText(concRowToNiboTSV(concDetail[+btn.dataset.i]));
-      const o=btn.textContent; btn.textContent='✓ Copiado'; btn.classList.add('done');
-      setTimeout(()=>{btn.textContent=o; btn.classList.remove('done');},1500);
-    };
+
+  // editar taxa → qualquer edição invalida a confirmação
+  dt.querySelectorAll('.taxa-input').forEach(inp=>{
+    inp.addEventListener('input',()=>{
+      const i=+inp.dataset.i;
+      concDetail[i].taxa=Math.abs(num(inp.value));
+      concDetail[i].taxaCalc=false;
+      if(concConfirmed){ concConfirmed=false; updateConcGating(); }
+    });
   });
+
+  bindRowCopy(dt);
 
   // --- conciliação simples ---
   document.getElementById('concCount').textContent=`${concRows.length} linha(s) convertida(s)`;
-  const tb=document.getElementById('concBody'); tb.innerHTML='';
-  concRows.forEach(r=>{
-    const tr=document.createElement('tr');
-    tr.innerHTML=`<td>${r.Data}</td><td>${r.Descricao}</td><td class="${r.neg?'val-neg':'val-pos'}">${r.neg?'-':''}R$ ${brMoney(r.Valor)}</td>`;
-    tb.appendChild(tr);
-  });
+  renderConcSimple();
+
+  updateConcGating();
 
   // subtab switching
   document.querySelectorAll('#concSubtabs .subtab').forEach(st=>{
@@ -845,6 +905,58 @@ function renderConc(){
       document.getElementById('sub-'+st.dataset.sub).classList.add('active');
     };
   });
+}
+
+function renderConcSimple(){
+  const tb=document.getElementById('concBody'); tb.innerHTML='';
+  concRows.forEach(r=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${r.Data}</td><td>${r.Descricao}</td><td class="${r.neg?'val-neg':'val-pos'}">${r.neg?'-':''}R$ ${brMoney(r.Valor)}</td>`;
+    tb.appendChild(tr);
+  });
+}
+
+function bindRowCopy(dt){
+  dt.querySelectorAll('.btn-rowcopy').forEach(btn=>{
+    btn.onclick=()=>{
+      if(btn.disabled) return;
+      copyText(concRowToNiboTSV(concDetail[+btn.dataset.i]));
+      const o=btn.textContent; btn.textContent='✓ Copiado'; btn.classList.add('done');
+      setTimeout(()=>{btn.textContent=o; btn.classList.remove('done');},1500);
+    };
+  });
+}
+
+/* Habilita/desabilita cópia e download conforme confirmação das taxas. */
+function updateConcGating(){
+  const on=concConfirmed;
+  document.querySelectorAll('#concDetBody .btn-rowcopy').forEach(b=>b.disabled=!on);
+  const dl=document.getElementById('btnDlConc'), cp=document.getElementById('btnCopyConc');
+  if(dl) dl.disabled=!on;
+  if(cp) cp.disabled=!on;
+  const st=document.getElementById('concConfirmStatus');
+  const bc=document.getElementById('btnConfirmTaxas');
+  if(st) st.textContent = on ? '✓ Taxas confirmadas — cópia e download liberados.' : '⚠ Revise as taxas calculadas e confirme para liberar.';
+  if(st) st.style.color = on ? 'var(--green)' : 'var(--yellow)';
+  if(bc) bc.textContent = on ? '✓ Confirmado' : 'Confirmar taxas';
+  if(bc) bc.classList.toggle('done', on);
+}
+
+function confirmTaxas(){
+  // relê os inputs (garante que o último valor digitado entrou), regenera saídas
+  document.querySelectorAll('#concDetBody .taxa-input').forEach(inp=>{
+    const i=+inp.dataset.i;
+    concDetail[i].taxa=Math.abs(num(inp.value));
+  });
+  buildConcOutputs();
+  concConfirmed=true;
+  document.getElementById('concCount').textContent=`${concRows.length} linha(s) convertida(s)`;
+  renderConcSimple();
+  // reflete a taxa confirmada na coluna Líquido? não — apenas normaliza o input exibido
+  document.querySelectorAll('#concDetBody .taxa-input').forEach(inp=>{
+    const i=+inp.dataset.i; inp.value=brMoney(concDetail[i].taxa);
+  });
+  updateConcGating();
 }
 
 function renderCli(){
@@ -900,11 +1012,13 @@ document.getElementById('btnCopyNibo').addEventListener('click',e=>{
   niboRows.forEach(r=>lines.push([r.Tipo,r.Contato,r.Descricao,r.Categoria,decComma(r.Valor),r.Venc,r.Prev,r.Comp,r.Centro,r.Fav,r.TipoContato,r.Ref,r.Conta,r.DataPag,r.Anotacao].join('\t')));
   copyText(lines.join('\n')); flash(e.target,'✓ Copiado!');
 });
+document.getElementById('btnConfirmTaxas').addEventListener('click',()=>{ confirmTaxas(); });
 document.getElementById('btnDlConc').addEventListener('click',()=>{
+  if(!concConfirmed) return;
   if(concWb) XLSX.writeFile(concWb,`conciliacao_assiny_${niboDateTag||''}.xlsx`.replace('_.xlsx','.xlsx'));
 });
 document.getElementById('btnCopyConc').addEventListener('click',e=>{
-  if(!concRows.length) return;
+  if(!concConfirmed || !concRows.length) return;
   const lines=concRows.map(r=>{
     const val=(r.neg?-Math.abs(r.Valor):Math.abs(r.Valor)).toFixed(2).replace('.',',');
     return `${r.Data}\t${r.Descricao}\t${val}`;
@@ -934,7 +1048,7 @@ document.getElementById('btnReset').addEventListener('click',()=>{
   document.getElementById('niboTblWrap').classList.add('hidden');
   document.getElementById('btnTogglePreview').textContent='👁 Visualização';
   optTid.checked=false; renderOptPreview();
-  niboWb=null; niboRows=[]; concWb=null; concRows=[]; concDetail=[]; clientes=[]; niboDateTag='';
+  niboWb=null; niboRows=[]; concWb=null; concRows=[]; concDetail=[]; concHasTaxaCol=false; concConfirmed=false; clientes=[]; niboDateTag='';
 });
 </script>
 </body>
