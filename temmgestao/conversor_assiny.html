@@ -674,7 +674,16 @@ function buildConc(items){
   items.sort((a,b)=>a.sortKey.localeCompare(b.sortKey));
   concDetail=[];
   // O arquivo tem coluna de taxa? (mapeada E com algum valor não-vazio)
-  concHasTaxaCol = items.some(({row,cmap})=> cmap.taxa && String(row[cmap.taxa]||'').trim()!=='');
+  // Decisão ÚNICA no nível do arquivo:
+  //  • Se existe coluna de taxa mapeada E ela está preenchida em toda linha de venda
+  //    (entrada) → MODO COLUNA: usa a taxa do arquivo, sem confirmação.
+  //  • Caso contrário → MODO CALCULADO: calcula taxa = Valor − Líquido em todas as
+  //    linhas e exige confirmação manual antes de liberar cópia/download.
+  const temColuna = !!(items[0] && items[0].cmap && items[0].cmap.taxa);
+  const entradas = items.filter(({row,cmap})=> norm(row[cmap.mov])==='entrada');
+  const todasPreenchidas = temColuna && entradas.length>0 &&
+    entradas.every(({row,cmap})=> String(row[cmap.taxa]||'').trim()!=='');
+  concHasTaxaCol = temColuna && todasPreenchidas;   // true = usa coluna, sem confirmar
   concConfirmed = false;
   let nSaidas=0;
   items.forEach(({row,cmap})=>{
@@ -686,11 +695,11 @@ function buildConc(items){
     const liquido=num(row[cmap.liquido])/100;
     const desc=num(row[cmap.desc])/100;
 
-    // Taxa (magnitude positiva). Se o arquivo tem a coluna, usa ela;
-    // senão calcula: taxa = valor total da transação − líquido.
-    let taxaMag, taxaCalc=false;
-    if(concHasTaxaCol && String(row[cmap.taxa]||'').trim()!==''){
+    // MODO COLUNA → taxa do arquivo. MODO CALCULADO → Valor − Líquido.
+    let taxaMag, taxaCalc;
+    if(concHasTaxaCol){
       taxaMag = Math.abs(num(row[cmap.taxa])/100);
+      taxaCalc = false;
     }else{
       taxaMag = Math.max(0, valor - liquido);
       taxaCalc = true;
