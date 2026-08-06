@@ -1,5 +1,42 @@
 @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Patrick+Hand&display=swap');
 
+/* =============================================
+   VARIÁVEIS
+   ============================================= */
+:root {
+    --cor-fundo: #fba919;
+    --cor-texto: #3a1a00;
+    --cor-texto-suave: #3a1a00cc;
+
+    --cor-vidro-bg: rgba(255, 255, 255, 0.28);
+    --cor-vidro-bg-hover: rgba(255, 255, 255, 0.55);
+    --cor-vidro-borda: rgba(0, 0, 0, 0.12);
+    --blur-vidro: blur(4px);
+
+    --cor-overlay: rgba(0, 0, 0, 0.45);
+    --blur-overlay: blur(3px);
+
+    --cor-popup-bg: #121212;
+    --cor-popup-borda: #333;
+    --cor-popup-borda-hover: #666;
+    --cor-popup-texto: #fff;
+    --cor-popup-texto-suave: #aaa;
+    --cor-popup-texto-fraca: #666;
+
+    --cor-accent: #fba919;
+    --cor-accent-hover: #ffd060;
+    --cor-spotify: #1DB954;
+    --cor-whatsapp: #25D366;
+
+    --fonte-display: 'Permanent Marker', cursive;
+    --fonte-corpo: 'Patrick Hand', cursive;
+
+    --sombra-popup: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+/* =============================================
+   RESET E BASE
+   ============================================= */
 * {
     margin: 0;
     padding: 0;
@@ -7,127 +44,300 @@
 }
 
 body {
-    background: #fba919;
-    font-family: 'Patrick Hand', cursive;
+    background: var(--cor-fundo);
+    font-family: var(--fonte-corpo);
     overflow: hidden;
     width: 100vw;
     height: 100vh;
 }
 
 /* =============================================
-   HORA ATUAL
+   CURSOR
+   ============================================= */
+.nose {
+    cursor: pointer;
+    transition: transform 0.15s ease;
+}
+
+.nose:hover { transform: scale(1.15); }
+.nose:active { transform: scale(0.92); }
+
+/* =============================================
+   HORA
    ============================================= */
 #hora-garfield {
     position: fixed;
     top: 16px;
     left: 50%;
     transform: translateX(-50%);
-    background: rgba(255,255,255,0.28);
-    border: 2px solid rgba(0,0,0,0.12);
+    background: var(--cor-vidro-bg);
+    border: 2px solid var(--cor-vidro-borda);
     border-radius: 30px;
     padding: 7px 18px;
-    font-family: 'Permanent Marker', cursive;
+    font-family: var(--fonte-display);
     font-size: clamp(10px, 2.5vw, 15px);
-    color: #3a1a00;
+    color: var(--cor-texto);
     white-space: nowrap;
     z-index: 9999;
-    backdrop-filter: blur(4px);
+    backdrop-filter: var(--blur-vidro);
     max-width: 90vw;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
+#relogio-emoji {
+    cursor: pointer;
+    display: inline-block;
+    margin-right: 4px;
+    transition: transform 0.15s ease;
+}
+#relogio-emoji:hover {
+    transform: scale(1.3) rotate(-10deg);
+}
+
 /* =============================================
-   CONTADOR DE SEGUNDAS
+   WHATSAPP
+   ============================================= */
+#wpp-overlay {
+    position: fixed;
+    inset: 0;
+    background: var(--cor-overlay);
+    z-index: 99998;
+    backdrop-filter: var(--blur-overlay);
+    transition: opacity 0.3s ease;
+}
+#wpp-overlay.escondido { opacity: 0; pointer-events: none; }
+
+#wpp-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.95);
+    background: var(--cor-popup-bg);
+    border-radius: 20px;
+    padding: 32px 28px 24px;
+    z-index: 99999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    box-shadow: var(--sombra-popup);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    min-width: 240px;
+}
+#wpp-popup.aparecendo { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+#wpp-popup.escondido { opacity: 0; pointer-events: none; }
+
+#wpp-label {
+    font-family: var(--fonte-display);
+    font-size: 20px;
+    color: var(--cor-popup-texto);
+    margin: 0;
+    text-align: center;
+}
+
+#btn-wpp {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--cor-whatsapp);
+    color: #000;
+    text-decoration: none;
+    border-radius: 999px;
+    padding: 10px 24px;
+    font-family: var(--fonte-corpo);
+    font-size: 15px;
+    font-weight: 700;
+    transition: transform 0.2s ease, background 0.2s ease;
+}
+#btn-wpp:hover { background: #2be874; transform: scale(1.05); }
+
+#fechar-wpp {
+    position: absolute;
+    top: 12px; right: 14px;
+    background: none; border: none;
+    color: var(--cor-popup-texto-fraca); font-size: 18px;
+    cursor: pointer; line-height: 1;
+    transition: color 0.2s ease;
+}
+#fechar-wpp:hover { color: var(--cor-popup-texto); }
+
+/* =============================================
+   CONTADOR
    ============================================= */
 #contador-segundas {
     position: fixed;
     bottom: 24px;
     left: 20px;
-    background: rgba(255,255,255,0.28);
-    border: 2px solid rgba(0,0,0,0.12);
+    background: var(--cor-vidro-bg);
+    border: 2px solid var(--cor-vidro-borda);
     border-radius: 16px;
     padding: 10px 16px;
     z-index: 9999;
     text-align: center;
-    backdrop-filter: blur(4px);
+    backdrop-filter: var(--blur-vidro);
 }
 
 #num-segundas {
     display: block;
-    font-family: 'Permanent Marker', cursive;
+    font-family: var(--fonte-display);
     font-size: clamp(20px, 5vw, 28px);
-    color: #3a1a00;
+    color: var(--cor-texto);
     line-height: 1;
 }
 
 #label-segundas {
     display: block;
-    font-family: 'Patrick Hand', cursive;
+    font-family: var(--fonte-corpo);
     font-size: clamp(9px, 2vw, 11px);
-    color: #3a1a00cc;
+    color: var(--cor-texto-suave);
     margin-top: 3px;
     text-transform: uppercase;
     letter-spacing: 1px;
 }
 
 /* =============================================
-   REDES SOCIAIS
+   MENU FLUTUANTE
    ============================================= */
-#redes-sociais {
+#menu-flutuante {
     position: fixed;
     bottom: 24px;
     right: 20px;
     z-index: 9999;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    align-items: flex-end;
+    gap: 14px;
 }
 
-.rede-link {
-    width: 44px;
-    height: 44px;
-    background: rgba(255,255,255,0.3);
-    border: 2px solid rgba(0,0,0,0.15);
-    border-radius: 12px;
+#menu-toggle {
+    width: 52px;
+    height: 52px;
+    background: var(--cor-vidro-bg);
+    border: 2px solid var(--cor-vidro-borda);
+    border-radius: 50%;
+    color: var(--cor-texto);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #3a1a00;
-    text-decoration: none;
     cursor: pointer;
-    transition: transform 0.2s ease, background 0.2s ease;
-    backdrop-filter: blur(4px);
+    backdrop-filter: var(--blur-vidro);
+    transition: background 0.2s ease, transform 0.2s ease;
+    order: 2;
+    flex-shrink: 0;
 }
 
-.rede-link svg {
-    width: 22px;
-    height: 22px;
+#menu-toggle:hover {
+    background: var(--cor-vidro-bg-hover);
 }
 
-.rede-link:hover {
-    transform: scale(1.15) rotate(-5deg);
-    background: rgba(255,255,255,0.55);
+#menu-toggle svg {
+    width: 24px;
+    height: 24px;
+    position: absolute;
+    transition: opacity 0.15s ease;
+}
+
+#menu-icone-x {
+    opacity: 0;
+}
+
+#menu-flutuante.aberto #menu-icone-pata { opacity: 0; }
+#menu-flutuante.aberto #menu-icone-x { opacity: 1; }
+
+#menu-painel {
+    order: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+    min-width: 220px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 20px;
+    box-shadow: 0 16px 40px rgba(58, 26, 0, 0.25);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    transform-origin: bottom right;
+}
+
+#menu-painel.escondido {
+    display: none;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: transparent;
+    border: none;
+    color: var(--cor-texto);
+    text-decoration: none;
+    font-family: var(--fonte-corpo);
+    font-size: 15px;
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+    width: 100%;
+    text-align: left;
+}
+
+.menu-item-icone {
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+}
+
+.menu-item-icone svg {
+    width: 20px;
+    height: 20px;
+}
+
+.menu-item-label {
+    white-space: nowrap;
+}
+
+.menu-item:hover {
+    background: rgba(255, 255, 255, 0.55);
+    transform: scale(1.03);
+    box-shadow: 0 6px 16px rgba(58, 26, 0, 0.15);
+}
+
+.menu-item:hover .menu-item-icone {
+    transform: translateX(3px);
+}
+
+.menu-separador {
+    height: 1px;
+    margin: 6px 4px;
+    background: rgba(0, 0, 0, 0.15);
 }
 
 /* =============================================
-   POPUP SPOTIFY
+   SPOTIFY
    ============================================= */
 #spotify-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.45);
+    background: var(--cor-overlay);
     z-index: 99998;
-    backdrop-filter: blur(3px);
+    backdrop-filter: var(--blur-overlay);
     transition: opacity 0.3s ease;
 }
+#spotify-overlay.escondido { opacity: 0; pointer-events: none; }
 
 #spotify-popup {
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%) scale(0.95);
-    background: #121212;
+    background: var(--cor-popup-bg);
     border-radius: 20px;
     padding: 24px 24px 20px;
     z-index: 99999;
@@ -135,7 +345,7 @@ body {
     flex-direction: column;
     align-items: center;
     gap: 14px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    box-shadow: var(--sombra-popup);
     transition: opacity 0.3s ease, transform 0.3s ease;
     min-width: 280px;
     max-width: 90vw;
@@ -151,15 +361,10 @@ body {
     pointer-events: none;
 }
 
-#spotify-overlay.escondido {
-    opacity: 0;
-    pointer-events: none;
-}
-
 #popup-label {
-    font-family: 'Permanent Marker', cursive;
+    font-family: var(--fonte-display);
     font-size: 14px;
-    color: #aaa;
+    color: var(--cor-popup-texto-suave);
     letter-spacing: 1px;
     text-transform: lowercase;
 }
@@ -177,7 +382,7 @@ body {
     right: 14px;
     background: none;
     border: none;
-    color: #666;
+    color: var(--cor-popup-texto-fraca);
     font-size: 18px;
     cursor: pointer;
     line-height: 1;
@@ -185,19 +390,19 @@ body {
 }
 
 #fechar-popup:hover {
-    color: #fff;
+    color: var(--cor-popup-texto);
 }
 
 #btn-perfil-spotify {
     display: flex;
     align-items: center;
     gap: 8px;
-    background: #1DB954;
+    background: var(--cor-spotify);
     color: #000;
     text-decoration: none;
     border-radius: 999px;
     padding: 8px 20px;
-    font-family: 'Patrick Hand', cursive;
+    font-family: var(--fonte-corpo);
     font-size: 14px;
     font-weight: 600;
     transition: transform 0.2s ease, background 0.2s ease;
@@ -209,7 +414,7 @@ body {
 }
 
 /* =============================================
-   BALÃO DE FALA
+   BALÃO DE FALA / DICA DO NARIZ
    ============================================= */
 #balao-fala {
     position: fixed;
@@ -223,7 +428,7 @@ body {
     max-width: min(320px, 85vw);
     min-width: 140px;
     text-align: center;
-    font-family: 'Permanent Marker', cursive;
+    font-family: var(--fonte-display);
     font-size: clamp(12px, 3.5vw, 15px);
     color: #1a1a1a;
     z-index: 99997;
@@ -266,35 +471,21 @@ body {
     border-top: 16px solid #fffde7;
 }
 
-/* =============================================
-   NARIZ CLICÁVEL
-   ============================================= */
-.nose {
-    cursor: pointer;
-    transition: transform 0.15s ease;
-}
-
-.nose:hover { transform: scale(1.15); }
-.nose:active { transform: scale(0.92); }
-
-/* =============================================
-   DICA DO NARIZ
-   ============================================= */
 #dica-nariz {
     position: fixed;
     bottom: 90px;
     left: 50%;
     transform: translateX(-50%);
-    background: rgba(255,255,255,0.28);
-    border: 2px solid rgba(0,0,0,0.12);
+    background: var(--cor-vidro-bg);
+    border: 2px solid var(--cor-vidro-borda);
     border-radius: 30px;
     padding: 7px 18px;
-    font-family: 'Permanent Marker', cursive;
+    font-family: var(--fonte-display);
     font-size: clamp(11px, 2.5vw, 14px);
-    color: #3a1a00;
+    color: var(--cor-texto);
     white-space: nowrap;
     z-index: 9999;
-    backdrop-filter: blur(4px);
+    backdrop-filter: var(--blur-vidro);
     animation: flutuarDica 3s ease-in-out infinite;
     pointer-events: none;
 }
@@ -311,28 +502,7 @@ body {
 }
 
 /* =============================================
-   PISCAR PREGUIÇOSO
-   ============================================= */
-.eye.left.piscando::before,
-.eye.right.piscando::before {
-    animation: piscar-palpebra 0.4s ease forwards;
-}
-
-@keyframes piscar-palpebra {
-    0%   { top: 163px; }
-    30%  { top: 30px; }
-    60%  { top: 30px; }
-    100% { top: 163px; }
-}
-
-/* Modo dormindo (ignora mouse) */
-.eye.left.dormindo::before,
-.eye.right.dormindo::before {
-    top: 30px !important;
-}
-
-/* =============================================
-   GARFIELD — WRAPPER RESPONSIVO
+   GARFIELD
    ============================================= */
 .garfield {
     position: fixed;
@@ -340,7 +510,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: #fba919;
+    background: var(--cor-fundo);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -385,7 +555,7 @@ body {
     position: absolute;
     top: 38px; left: 62px;
     width: 110px; height: 196px;
-    background: #fba919;
+    background: var(--cor-fundo);
     border-radius: 65% 35% 0% 55%/50% 15% 50% 50%;
     border: 3px solid #010101;
     overflow: hidden;
@@ -458,7 +628,7 @@ body {
     left: 175px; top: 38px;
     width: 110px; height: 196px;
     border-radius: 35% 65% 55% 0%/15% 50% 50% 50%;
-    background: #fba919;
+    background: var(--cor-fundo);
     border: 3px solid #010101;
     overflow: hidden;
     z-index: 1;
@@ -505,9 +675,7 @@ body {
 
 .mouth { position: absolute; top: 260px; left: 143px; width: 60px; height: 20px; border-bottom: 3px solid #010101; border-radius: 0 0 50% 50%; }
 
-/* =============================================
-   GARFIELD CARETA (irritado com Odie)
-   ============================================= */
+/* Garfield careta (irritado com Odie) */
 .garfield-inner.careta .eye.left,
 .garfield-inner.careta .eye.right {
     filter: none;
@@ -519,22 +687,40 @@ body {
     top: 80px !important;
 }
 
-/* Olho seguindo Odie */
 /* Olho seguindo Odie — valores calibrados pra não cortar */
-.garfield-inner.olho-esquerda .eyeball1 { left: 55px !important; }
-.garfield-inner.olho-esquerda .eyeball2 { left: 5px !important; }
-.garfield-inner.olho-direita .eyeball1  { left: 83px !important; }
-.garfield-inner.olho-direita .eyeball2  { left: 20px !important; }
+.garfield-inner.olho-esquerda .eyeball1 { left: 55px !important; top: 166px; }
+.garfield-inner.olho-esquerda .eyeball2 { left: 5px !important;  top: 166px; }
+.garfield-inner.olho-direita  .eyeball1 { left: 83px !important; top: 166px; }
+.garfield-inner.olho-direita  .eyeball2 { left: 20px !important; top: 166px; }
 
 .eyeball1, .eyeball2 { transition: left 0.3s ease; }
 
+/* Piscar preguiçoso */
+.eye.left.piscando::before,
+.eye.right.piscando::before {
+    animation: piscar-palpebra 0.4s ease forwards;
+}
+
+@keyframes piscar-palpebra {
+    0%   { top: 163px; }
+    30%  { top: 30px; }
+    60%  { top: 30px; }
+    100% { top: 163px; }
+}
+
+/* Modo dormindo (ignora mouse) */
+.eye.left.dormindo::before,
+.eye.right.dormindo::before {
+    top: 30px !important;
+}
+
 /* =============================================
-   POPUP JOGOS — BASE
+   POPUPS — BASE COMPARTILHADA
    ============================================= */
 .popup-label-jogo {
-    font-family: 'Permanent Marker', cursive;
+    font-family: var(--fonte-display);
     font-size: 14px;
-    color: #aaa;
+    color: var(--cor-popup-texto-suave);
     letter-spacing: 1px;
     text-transform: lowercase;
     margin: 0;
@@ -546,22 +732,22 @@ body {
     right: 14px;
     background: none;
     border: none;
-    color: #666;
+    color: var(--cor-popup-texto-fraca);
     font-size: 18px;
     cursor: pointer;
     line-height: 1;
     transition: color 0.2s ease;
 }
-.fechar-popup-btn:hover { color: #fff; }
+.fechar-popup-btn:hover { color: var(--cor-popup-texto); }
 
 /* =============================================
    JOGO DA VELHA
    ============================================= */
 #velha-overlay {
     position: fixed; inset: 0;
-    background: rgba(0,0,0,0.45);
+    background: var(--cor-overlay);
     z-index: 99998;
-    backdrop-filter: blur(3px);
+    backdrop-filter: var(--blur-overlay);
     transition: opacity 0.3s ease;
 }
 #velha-overlay.escondido { opacity: 0; pointer-events: none; }
@@ -570,7 +756,7 @@ body {
     position: fixed;
     top: 50%; left: 50%;
     transform: translate(-50%, -50%) scale(0.95);
-    background: #121212;
+    background: var(--cor-popup-bg);
     border-radius: 20px;
     padding: 28px 28px 24px;
     z-index: 99999;
@@ -578,7 +764,7 @@ body {
     flex-direction: column;
     align-items: center;
     gap: 14px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    box-shadow: var(--sombra-popup);
     transition: opacity 0.3s ease, transform 0.3s ease;
     min-width: 280px;
     max-width: 90vw;
@@ -587,7 +773,7 @@ body {
 #velha-popup.escondido { opacity: 0; pointer-events: none; }
 
 #velha-status {
-    font-family: 'Patrick Hand', cursive;
+    font-family: var(--fonte-corpo);
     font-size: 13px;
     color: #bbb;
     margin: 0;
@@ -598,7 +784,7 @@ body {
     grid-template-columns: repeat(3, 80px);
     grid-template-rows: repeat(3, 80px);
     gap: 0;
-    border: 3px solid #333;
+    border: 3px solid var(--cor-popup-borda);
     border-radius: 8px;
     overflow: hidden;
 }
@@ -606,18 +792,18 @@ body {
 .velha-cell {
     width: 80px; height: 80px;
     display: flex; align-items: center; justify-content: center;
-    font-family: 'Permanent Marker', cursive;
+    font-family: var(--fonte-display);
     font-size: 32px;
     cursor: pointer;
-    border: 1px solid #333;
-    color: #fff;
+    border: 1px solid var(--cor-popup-borda);
+    color: var(--cor-popup-texto);
     transition: background 0.15s ease;
     user-select: none;
 }
 .velha-cell:hover:not(.ocupada) { background: #1e1e1e; }
 .velha-cell.ocupada { cursor: default; }
-.velha-cell.x { color: #fba919; }
-.velha-cell.o { color: #1DB954; }
+.velha-cell.x { color: var(--cor-accent); }
+.velha-cell.o { color: var(--cor-spotify); }
 .velha-cell.vencedora { background: #2a2a2a; animation: pulsar-celula 0.5s ease; }
 
 @keyframes pulsar-celula {
@@ -626,134 +812,18 @@ body {
 }
 
 #velha-reiniciar {
-    background: #fba919;
+    background: var(--cor-accent);
     color: #1a0a00;
     border: none;
     border-radius: 999px;
     padding: 8px 22px;
-    font-family: 'Permanent Marker', cursive;
+    font-family: var(--fonte-display);
     font-size: 13px;
     cursor: pointer;
     transition: transform 0.2s ease, background 0.2s ease;
 }
-#velha-reiniciar:hover { background: #ffd060; transform: scale(1.05); }
+#velha-reiniciar:hover { background: var(--cor-accent-hover); transform: scale(1.05); }
 
-
-/* =============================================
-   PEDRA PAPEL TESOURA
-   ============================================= */
-#ppt-overlay {
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,0.45);
-    z-index: 99998;
-    backdrop-filter: blur(3px);
-    transition: opacity 0.3s ease;
-}
-#ppt-overlay.escondido { opacity: 0; pointer-events: none; }
-
-#ppt-popup {
-    position: fixed;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%) scale(0.95);
-    background: #121212;
-    border-radius: 20px;
-    padding: 28px 24px 24px;
-    z-index: 99999;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 14px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-    transition: opacity 0.3s ease, transform 0.3s ease;
-    min-width: 280px;
-    max-width: 90vw;
-}
-#ppt-popup.aparecendo { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-#ppt-popup.escondido { opacity: 0; pointer-events: none; }
-
-#ppt-placar {
-    font-family: 'Permanent Marker', cursive;
-    font-size: 13px;
-    color: #888;
-    margin: 0;
-}
-
-#ppt-arena {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 10px 0;
-}
-
-#ppt-arena > div {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-}
-
-#ppt-emoji-jogador, #ppt-emoji-garfield {
-    font-size: 52px;
-    transition: transform 0.3s ease;
-}
-
-.ppt-label {
-    font-family: 'Patrick Hand', cursive;
-    font-size: 11px;
-    color: #666;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-#ppt-vs {
-    font-family: 'Permanent Marker', cursive;
-    font-size: 18px;
-    color: #444;
-}
-
-#ppt-resultado {
-    font-family: 'Permanent Marker', cursive;
-    font-size: 16px;
-    color: #fff;
-    margin: 0;
-    min-height: 24px;
-    text-align: center;
-}
-
-#ppt-escolhas {
-    display: flex;
-    gap: 12px;
-}
-
-.ppt-btn {
-    width: 64px; height: 64px;
-    background: #1e1e1e;
-    border: 2px solid #333;
-    border-radius: 16px;
-    font-size: 28px;
-    cursor: pointer;
-    transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
-    display: flex; align-items: center; justify-content: center;
-}
-.ppt-btn:hover { background: #2a2a2a; border-color: #fba919; transform: scale(1.1); }
-.ppt-btn:active { transform: scale(0.95); }
-
-#ppt-reiniciar {
-    background: none;
-    border: 1px solid #333;
-    border-radius: 999px;
-    padding: 6px 18px;
-    font-family: 'Patrick Hand', cursive;
-    font-size: 12px;
-    color: #666;
-    cursor: pointer;
-    transition: color 0.2s ease, border-color 0.2s ease;
-}
-#ppt-reiniciar:hover { color: #fff; border-color: #666; }
-
-/* =============================================
-   JOGO DA VELHA — MODO SELEÇÃO
-   ============================================= */
 #velha-modo {
     display: flex;
     flex-direction: column;
@@ -763,9 +833,9 @@ body {
 }
 
 #velha-modo-titulo {
-    font-family: 'Permanent Marker', cursive;
+    font-family: var(--fonte-display);
     font-size: 15px;
-    color: #aaa;
+    color: var(--cor-popup-texto-suave);
     margin: 0;
 }
 
@@ -773,15 +843,15 @@ body {
     width: 200px;
     padding: 12px 20px;
     background: #1e1e1e;
-    border: 2px solid #333;
+    border: 2px solid var(--cor-popup-borda);
     border-radius: 14px;
-    font-family: 'Permanent Marker', cursive;
+    font-family: var(--fonte-display);
     font-size: 14px;
-    color: #fff;
+    color: var(--cor-popup-texto);
     cursor: pointer;
     transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
 }
-.velha-modo-btn:hover { background: #2a2a2a; border-color: #fba919; transform: scale(1.03); }
+.velha-modo-btn:hover { background: #2a2a2a; border-color: var(--cor-accent); transform: scale(1.03); }
 
 #velha-jogo.escondido { display: none; }
 #velha-modo.escondido { display: none; }
@@ -795,41 +865,44 @@ body {
 
 #velha-trocar-modo {
     background: none;
-    border: 1px solid #333;
+    border: 1px solid var(--cor-popup-borda);
     border-radius: 999px;
     padding: 8px 18px;
-    font-family: 'Patrick Hand', cursive;
+    font-family: var(--fonte-corpo);
     font-size: 12px;
-    color: #666;
+    color: var(--cor-popup-texto-fraca);
     cursor: pointer;
     transition: color 0.2s ease, border-color 0.2s ease;
 }
-#velha-trocar-modo:hover { color: #fff; border-color: #666; }
+#velha-trocar-modo:hover { color: var(--cor-popup-texto); border-color: var(--cor-popup-borda-hover); }
 
 /* =============================================
-   ODIE — CSS ART
+   ODIE
    ============================================= */
 #odie {
     position: fixed;
-    bottom: 120px;
+    bottom: 110px;
     z-index: 9998;
     pointer-events: none;
 }
-
 #odie.escondido { display: none; }
 
-#odie.correndo-direita { animation: correr-direita 4s linear forwards; }
+#odie.correndo-direita {
+    animation: odie-vai-direita 4s linear forwards;
+    transform-origin: center;
+}
 #odie.correndo-esquerda {
-    animation: correr-esquerda 4s linear forwards;
+    animation: odie-vai-esquerda 4s linear forwards;
     transform: scaleX(-1);
+    transform-origin: center;
 }
 
-@keyframes correr-direita {
-    from { left: -120px; }
+@keyframes odie-vai-direita {
+    from { left: -130px; }
     to   { left: calc(100vw + 20px); }
 }
-@keyframes correr-esquerda {
-    from { right: -120px; }
+@keyframes odie-vai-esquerda {
+    from { right: -130px; }
     to   { right: calc(100vw + 20px); }
 }
 
@@ -970,153 +1043,40 @@ body {
 }
 
 /* =============================================
-   RELOGIO EMOJI CLICÁVEL
-   ============================================= */
-#relogio-emoji {
-    cursor: pointer;
-    display: inline-block;
-    margin-right: 4px;
-    transition: transform 0.15s ease;
-}
-#relogio-emoji:hover {
-    transform: scale(1.3) rotate(-10deg);
-}
-
-/* =============================================
-   POPUP WHATSAPP
-   ============================================= */
-#wpp-overlay {
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,0.45);
-    z-index: 99998;
-    backdrop-filter: blur(3px);
-    transition: opacity 0.3s ease;
-}
-#wpp-overlay.escondido { opacity: 0; pointer-events: none; }
-
-#wpp-popup {
-    position: fixed;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%) scale(0.95);
-    background: #121212;
-    border-radius: 20px;
-    padding: 32px 28px 24px;
-    z-index: 99999;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 16px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-    transition: opacity 0.3s ease, transform 0.3s ease;
-    min-width: 240px;
-}
-#wpp-popup.aparecendo { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-#wpp-popup.escondido { opacity: 0; pointer-events: none; }
-
-#wpp-label {
-    font-family: 'Permanent Marker', cursive;
-    font-size: 20px;
-    color: #fff;
-    margin: 0;
-    text-align: center;
-}
-
-#btn-wpp {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: #25D366;
-    color: #000;
-    text-decoration: none;
-    border-radius: 999px;
-    padding: 10px 24px;
-    font-family: 'Patrick Hand', cursive;
-    font-size: 15px;
-    font-weight: 700;
-    transition: transform 0.2s ease, background 0.2s ease;
-}
-#btn-wpp:hover { background: #2be874; transform: scale(1.05); }
-
-#fechar-wpp {
-    position: absolute;
-    top: 12px; right: 14px;
-    background: none; border: none;
-    color: #666; font-size: 18px;
-    cursor: none; line-height: 1;
-    transition: color 0.2s ease;
-}
-#fechar-wpp:hover { color: #fff; }
-
-/* =============================================
-   ODIE SVG — ANIMAÇÕES
-   ============================================= */
-#odie {
-    position: fixed;
-    bottom: 110px;
-    z-index: 9998;
-    pointer-events: none;
-}
-#odie.escondido { display: none; }
-#odie.correndo-direita {
-    animation: odie-vai-direita 4s linear forwards;
-    transform-origin: center;
-}
-#odie.correndo-esquerda {
-    animation: odie-vai-esquerda 4s linear forwards;
-    transform: scaleX(-1);
-    transform-origin: center;
-}
-
-@keyframes odie-vai-direita {
-    from { left: -130px; }
-    to   { left: calc(100vw + 20px); }
-}
-@keyframes odie-vai-esquerda {
-    from { right: -130px; }
-    to   { right: calc(100vw + 20px); }
-}
-
-.pata-ani {
-    animation: pata-svg 0.3s ease-in-out infinite alternate;
-}
-.pata-a { animation-delay: 0s; transform-origin: 38px 82px; }
-.pata-b { animation-delay: 0.15s; transform-origin: 72px 82px; }
-
-@keyframes pata-svg {
-    from { transform: translateY(0); }
-    to   { transform: translateY(-5px); }
-}
-
-.rabo-odie {
-    animation: rabo-svg 0.25s ease-in-out infinite alternate;
-    transform-origin: 83px 65px;
-}
-@keyframes rabo-svg {
-    from { transform: rotate(-15deg); }
-    to   { transform: rotate(15deg); }
-}
-
-.lingua-odie {
-    animation: lingua-svg 0.4s ease-in-out infinite alternate;
-}
-@keyframes lingua-svg {
-    from { transform: translateY(0) translateX(-50%); }
-    to   { transform: translateY(3px) translateX(-50%); }
-}
-
-/* =============================================
-   BOTÕES — MOBILE HORIZONTAL
+   RESPONSIVIDADE
    ============================================= */
 @media (max-width: 600px) {
-    #redes-sociais {
-        bottom: 24px;
-        right: 12px;
-        left: auto;
-        transform: none;
-        flex-direction: row;
-        flex-wrap: wrap;
-        justify-content: flex-end;
-        gap: 8px;
-        max-width: 110px;
+    #menu-flutuante {
+        bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+        right: 16px;
+        align-items: flex-end;
+    }
+
+    #menu-toggle {
+        width: 60px;
+        height: 60px;
+    }
+
+    #menu-toggle svg {
+        width: 28px;
+        height: 28px;
+    }
+
+    #menu-painel {
+        min-width: min(260px, 78vw);
+        max-width: 82vw;
+        max-height: 70vh;
+        overflow-y: auto;
+        padding: 14px;
+    }
+
+    .menu-item {
+        padding: 13px 12px;
+        font-size: 16px;
+    }
+
+    .menu-item-icone {
+        width: 30px;
+        height: 30px;
     }
 }
