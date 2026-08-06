@@ -126,30 +126,32 @@ function initClock() {
 
 
 // =============================================
-// CONTADOR DE SEGUNDAS-FEIRAS SOBREVIVIDAS
-// desde 10/07/1999
+// SOM DO MIADO (sintetizado — sem depender de arquivo externo)
 // =============================================
-function initContador() {
-    function calcularSegundas() {
-        const inicio = new Date('1999-07-10');
-        const hoje = new Date();
-        const diffMs = hoje - inicio;
-        const diffDias = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-        return Math.floor(diffDias / 7);
+function tocarMiado() {
+    try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        const agora = ctx.currentTime;
+        // Contorno de "miado": sobe rápido e desce suave
+        osc.frequency.setValueAtTime(300, agora);
+        osc.frequency.exponentialRampToValueAtTime(700, agora + 0.12);
+        osc.frequency.exponentialRampToValueAtTime(380, agora + 0.35);
+
+        gain.gain.setValueAtTime(0.0001, agora);
+        gain.gain.exponentialRampToValueAtTime(0.25, agora + 0.08);
+        gain.gain.exponentialRampToValueAtTime(0.0001, agora + 0.4);
+
+        osc.start(agora);
+        osc.stop(agora + 0.42);
+    } catch (err) {
+        // Web Audio indisponível (ex: navegador bloqueou autoplay) — falha silenciosa
     }
-
-    const numEl = document.getElementById('num-segundas');
-    document.getElementById('label-segundas').textContent = 'segundas sobrevividas';
-
-    const total = calcularSegundas();
-    let atual = 0;
-    const passo = Math.max(1, Math.floor(total / 80));
-
-    const timer = setInterval(() => {
-        atual = Math.min(atual + passo, total);
-        numEl.textContent = atual.toLocaleString('pt-BR');
-        if (atual >= total) clearInterval(timer);
-    }, 20);
 }
 
 
@@ -215,8 +217,14 @@ function initSpeechBubble() {
     const nariz = document.getElementById('nariz');
     const balao = document.getElementById('balao-fala');
     const textoBalao = document.getElementById('texto-balao');
+    const zzz = document.getElementById('zzz-sono');
+
     let dicaSumiu = false;
     let balaoTimeout;
+    let miadoTocado = false;
+    let segurando = false;
+    let pressTimer = null;
+    const LIMIAR_SEGURAR = 350; // ms — a partir daqui conta como "segurar", não "clicar"
 
     function esconderDica() {
         if (!dicaSumiu) {
@@ -225,6 +233,8 @@ function initSpeechBubble() {
             setTimeout(() => dicaNariz.style.display = 'none', 500);
         }
     }
+    // A dica aparece ao carregar a página e some sozinha depois de 5s
+    setTimeout(esconderDica, 5000);
 
     function mostrarFrase(frase) {
         textoBalao.textContent = frase;
@@ -237,14 +247,63 @@ function initSpeechBubble() {
         }, 3500);
     }
 
-    nariz.addEventListener('click', () => {
+    function cliqueRapidoNoNariz() {
         esconderDica();
+        if (!miadoTocado) {
+            tocarMiado();
+            miadoTocado = true;
+        }
         const frase = frases[Math.floor(Math.random() * frases.length)];
         mostrarFrase(frase);
+    }
+
+    function iniciarSono() {
+        esconderDica();
+        const olhos = document.querySelectorAll('.eye.left, .eye.right');
+        olhos.forEach(o => o.classList.add('dormindo'));
+        if (zzz) zzz.classList.add('ativo');
+    }
+
+    function pararSono() {
+        const olhos = document.querySelectorAll('.eye.left, .eye.right');
+        olhos.forEach(o => o.classList.remove('dormindo'));
+        if (zzz) zzz.classList.remove('ativo');
+    }
+
+    // Pointer events cobrem mouse e toque com o mesmo código,
+    // permitindo diferenciar "clique rápido" de "segurar"
+    nariz.addEventListener('pointerdown', () => {
+        segurando = false;
+        pressTimer = setTimeout(() => {
+            segurando = true;
+            iniciarSono();
+        }, LIMIAR_SEGURAR);
     });
 
-    // Exposto para o easter egg do Odie mostrar seu próprio balão
-    return { textoBalao, balao, balaoTimeoutRef: () => balaoTimeout };
+    function finalizarPressao() {
+        clearTimeout(pressTimer);
+        if (segurando) {
+            pararSono();
+        } else {
+            cliqueRapidoNoNariz();
+        }
+        segurando = false;
+    }
+
+    nariz.addEventListener('pointerup', finalizarPressao);
+    nariz.addEventListener('pointerleave', () => {
+        clearTimeout(pressTimer);
+        if (segurando) pararSono();
+        segurando = false;
+    });
+    nariz.addEventListener('pointercancel', () => {
+        clearTimeout(pressTimer);
+        if (segurando) pararSono();
+        segurando = false;
+    });
+
+    // Exposto para outros easter eggs (Odie, reação a cliques) usarem o mesmo balão
+    return { textoBalao, balao };
 }
 
 
@@ -570,9 +629,148 @@ function initFloatingMenu({ abrirSpotify, abrirVelha } = {}) {
 
 
 // =============================================
+// ESTATÍSTICAS (Google Sheets via Apps Script)
+// =============================================
+function initEstatisticas() {
+    // Cole aqui a URL do seu Web App do Google Apps Script (veja apps-script.gs)
+    const ENDPOINT = 'COLE_AQUI_A_URL_DO_SEU_APPS_SCRIPT';
+
+    const elHoje = document.getElementById('cutuca-hoje');
+    const elTotal = document.getElementById('cutuca-total');
+
+    let ultimoEnvio = 0;
+    const INTERVALO_MIN_MS = 250; // evita floodar a planilha em cliques muito rápidos
+
+    function endpointConfigurado() {
+        return ENDPOINT && !ENDPOINT.startsWith('COLE_AQUI');
+    }
+
+    function atualizarTela(dados) {
+        if (!dados) return;
+        if (typeof dados.hoje === 'number') elHoje.textContent = dados.hoje.toLocaleString('pt-BR');
+        if (typeof dados.total === 'number') elTotal.textContent = dados.total.toLocaleString('pt-BR');
+    }
+
+    function ler() {
+        if (!endpointConfigurado()) return;
+        fetch(`${ENDPOINT}?acao=ler`)
+            .then(r => r.json())
+            .then(atualizarTela)
+            .catch(() => {});
+    }
+
+    function registrarCutucada() {
+        const agora = Date.now();
+        if (agora - ultimoEnvio < INTERVALO_MIN_MS) return;
+        ultimoEnvio = agora;
+
+        if (!endpointConfigurado()) return;
+        fetch(`${ENDPOINT}?acao=cutucar`)
+            .then(r => r.json())
+            .then(atualizarTela)
+            .catch(() => {});
+    }
+
+    ler();
+
+    return { registrarCutucada };
+}
+
+
+// =============================================
+// REAÇÃO A CLIQUES NO CORPO DO GARFIELD
+// =============================================
+function initGarfieldInteracoes(speechBubble, estatisticas, estadoEmocional) {
+    const garfieldInner = document.querySelector('.garfield-inner');
+    const { textoBalao, balao } = speechBubble;
+
+    const frasesIrritado = [
+        'PARA. DE. ME. COÇAR.',
+        'Já entendi, você tem dedos. Chega.',
+        'Mais um clique e eu mordo.',
+        'Eu não sou bola de estresse.'
+    ];
+
+    let cliquesRapidos = 0;
+    let ultimoCliqueTs = 0;
+    const JANELA_CLIQUE_MS = 700; // tempo máx. entre cliques pra contar como sequência
+    const LIMITE_IRRITADO = 10;
+    let balaoTimeout;
+
+    function reagirIrritado() {
+        if (estadoEmocional.ocupado) return;
+        estadoEmocional.ocupado = true;
+
+        garfieldInner.classList.add('careta');
+        const frase = frasesIrritado[Math.floor(Math.random() * frasesIrritado.length)];
+        textoBalao.textContent = frase;
+        balao.classList.remove('escondido');
+        balao.classList.add('aparecendo');
+        clearTimeout(balaoTimeout);
+        balaoTimeout = setTimeout(() => {
+            balao.classList.remove('aparecendo');
+            balao.classList.add('escondido');
+        }, 2200);
+
+        setTimeout(() => {
+            garfieldInner.classList.remove('careta');
+            estadoEmocional.ocupado = false;
+        }, 1600);
+    }
+
+    garfieldInner.addEventListener('click', () => {
+        estatisticas.registrarCutucada();
+
+        const agora = Date.now();
+        if (agora - ultimoCliqueTs > JANELA_CLIQUE_MS) {
+            cliquesRapidos = 0;
+        }
+        ultimoCliqueTs = agora;
+        cliquesRapidos++;
+
+        if (cliquesRapidos >= LIMITE_IRRITADO) {
+            cliquesRapidos = 0;
+            reagirIrritado();
+        }
+    });
+}
+
+
+// =============================================
+// POPUP DE DICAS
+// =============================================
+function initDicasPopup() {
+    const toggle = document.getElementById('dicas-toggle');
+    const overlay = document.getElementById('dicas-overlay');
+    const popup = document.getElementById('dicas-popup');
+    const fechar = document.getElementById('fechar-dicas');
+
+    function abrir() {
+        overlay.classList.remove('escondido');
+        popup.classList.remove('escondido');
+        popup.classList.add('aparecendo');
+        toggle.setAttribute('aria-expanded', 'true');
+    }
+    function fecharFn() {
+        overlay.classList.add('escondido');
+        popup.classList.remove('aparecendo');
+        popup.classList.add('escondido');
+        toggle.setAttribute('aria-expanded', 'false');
+    }
+
+    toggle.addEventListener('click', abrir);
+    fechar.addEventListener('click', fecharFn);
+    overlay.addEventListener('click', fecharFn);
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') fecharFn();
+    });
+}
+
+
+// =============================================
 // ODIE EASTER EGG
 // =============================================
-function initOdie(speechBubble) {
+function initOdie(speechBubble, estadoEmocional) {
     const odieEl = document.getElementById('odie');
     const garfieldInner = document.querySelector('.garfield-inner');
     const { textoBalao, balao } = speechBubble;
@@ -590,7 +788,13 @@ function initOdie(speechBubble) {
 
     function apareceOdie() {
         if (odieAtivo) return;
+        if (estadoEmocional && estadoEmocional.ocupado) {
+            // Garfield tá ocupado com outra reação (ex: cliques irritados) — tenta de novo em breve
+            inatividade = setTimeout(apareceOdie, 2000);
+            return;
+        }
         odieAtivo = true;
+        if (estadoEmocional) estadoEmocional.ocupado = true;
 
         odieEl.classList.remove('escondido', 'correndo-direita', 'correndo-esquerda');
         odieEl.style.left = '';
@@ -635,6 +839,7 @@ function initOdie(speechBubble) {
             setTimeout(() => {
                 garfieldInner.classList.remove('careta');
                 odieAtivo = false;
+                if (estadoEmocional) estadoEmocional.ocupado = false;
                 // Troca direção pra próxima vez
                 odieDir = odieDir === 'direita' ? 'esquerda' : 'direita';
                 // Agenda próximo em 15s
@@ -661,17 +866,23 @@ initCursor();
 initMouseSpeed();
 initPiscar();
 initClock();
-initContador();
 initConfeteKeyframes();
+
+// Estado compartilhado entre reações que mexem na expressão do Garfield
+// (evita o Odie e a "cara irritada" tentarem animar ao mesmo tempo)
+const estadoEmocional = { ocupado: false };
 
 const speechBubble = initSpeechBubble();
 initWhatsapp();
 const spotify = initSpotify();
 const ticTacToe = initTicTacToe();
+const estatisticas = initEstatisticas();
 
 initFloatingMenu({
     abrirSpotify: spotify.abrirPopup,
     abrirVelha: ticTacToe.abrirVelha
 });
 
-initOdie(speechBubble);
+initDicasPopup();
+initGarfieldInteracoes(speechBubble, estatisticas, estadoEmocional);
+initOdie(speechBubble, estadoEmocional);
