@@ -162,6 +162,7 @@ let audioCtxRonronar = null;
 let oscRonronar = null;
 let lfoRonronar = null;
 let gainRonronar = null;
+let filtroRonronar = null;
 
 function iniciarRonronar() {
     if (audioCtxRonronar) return; // já está tocando
@@ -170,25 +171,32 @@ function iniciarRonronar() {
         const ctx = audioCtxRonronar;
 
         oscRonronar = ctx.createOscillator();
-        oscRonronar.type = 'sawtooth';
-        oscRonronar.frequency.value = 30; // grave, tipo motorzinho
+        oscRonronar.type = 'triangle'; // onda mais macia que sawtooth, sem o "zumbido" de motor
+        oscRonronar.frequency.value = 60;
+
+        // Filtro passa-baixa tira os harmônicos agudos, deixando só o "corpo" grave do som
+        filtroRonronar = ctx.createBiquadFilter();
+        filtroRonronar.type = 'lowpass';
+        filtroRonronar.frequency.value = 180;
+        filtroRonronar.Q.value = 0.6;
 
         gainRonronar = ctx.createGain();
         gainRonronar.gain.setValueAtTime(0.0001, ctx.currentTime);
-        gainRonronar.gain.exponentialRampToValueAtTime(0.08, ctx.currentTime + 0.3);
+        gainRonronar.gain.exponentialRampToValueAtTime(0.05, ctx.currentTime + 0.3);
 
-        // LFO cria o "vibrado" característico do ronronar
+        // LFO cria a pulsação característica do ronronar (mais lenta = mais orgânico)
         lfoRonronar = ctx.createOscillator();
         lfoRonronar.type = 'sine';
-        lfoRonronar.frequency.value = 22;
+        lfoRonronar.frequency.value = 12;
 
         const lfoGain = ctx.createGain();
-        lfoGain.gain.value = 0.04;
+        lfoGain.gain.value = 0.035;
 
         lfoRonronar.connect(lfoGain);
         lfoGain.connect(gainRonronar.gain);
 
-        oscRonronar.connect(gainRonronar);
+        oscRonronar.connect(filtroRonronar);
+        filtroRonronar.connect(gainRonronar);
         gainRonronar.connect(ctx.destination);
 
         oscRonronar.start();
@@ -216,6 +224,7 @@ function pararRonronar() {
     oscRonronar = null;
     lfoRonronar = null;
     gainRonronar = null;
+    filtroRonronar = null;
 }
 
 
