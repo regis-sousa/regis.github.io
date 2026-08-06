@@ -35,11 +35,44 @@
     </div>
 
     <!-- ============================================= -->
-    <!-- Contador -->
+    <!-- Cutucômetro -->
     <!-- ============================================= -->
-    <div id="contador-segundas">
-        <span id="num-segundas">0</span>
-        <span id="label-segundas">segundas odiadas</span>
+    <div id="cutucometro">
+        <div class="cutucometro-item">
+            <span class="cutucometro-num" id="cutuca-hoje">0</span>
+            <span class="cutucometro-label">cutucadas hoje</span>
+        </div>
+        <div class="cutucometro-divisor"></div>
+        <div class="cutucometro-item">
+            <span class="cutucometro-num" id="cutuca-total">0</span>
+            <span class="cutucometro-label">no total</span>
+        </div>
+    </div>
+
+    <!-- ============================================= -->
+    <!-- Dicas -->
+    <!-- ============================================= -->
+    <button id="dicas-toggle" type="button" aria-label="dicas de como brincar" aria-haspopup="dialog" aria-expanded="false">
+        <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="12" cy="16.5" rx="6.2" ry="5"/>
+            <ellipse cx="5.3" cy="9.6" rx="2.6" ry="3.4"/>
+            <ellipse cx="10" cy="6.3" rx="2.6" ry="3.4"/>
+            <ellipse cx="14" cy="6.3" rx="2.6" ry="3.4"/>
+            <ellipse cx="18.7" cy="9.6" rx="2.6" ry="3.4"/>
+        </svg>
+        <span id="dicas-badge">?</span>
+    </button>
+    <div id="dicas-overlay" class="escondido"></div>
+    <div id="dicas-popup" class="escondido" role="dialog" aria-label="dicas de como brincar com o Garfield">
+        <button class="fechar-popup-btn" id="fechar-dicas">✕</button>
+        <p class="popup-label-jogo">como brincar comigo</p>
+        <ul id="dicas-lista">
+            <li>🐾 <strong>aperte</strong> meu nariz — eu solto uma frase.</li>
+            <li>😴 <strong>segure</strong> meu nariz — eu cochilo um pouco.</li>
+            <li>🐶 fique <strong>15 segundos parado</strong> sem fazer nada — o Odie aparece.</li>
+            <li>😾 me clique <strong>bem rápido, várias vezes seguidas</strong>... se tiver coragem.</li>
+            <li>🐾 tem mais coisinha escondida pela tela. procura com calma.</li>
+        </ul>
     </div>
 
     <!-- ============================================= -->
@@ -137,6 +170,7 @@
 
     <div class="garfield">
         <div class="garfield-inner">
+            <div id="zzz-sono">💤</div>
             <div class="face">
 
                 <div id="triangle-right">
