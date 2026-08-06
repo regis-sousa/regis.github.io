@@ -633,7 +633,7 @@ function initFloatingMenu({ abrirSpotify, abrirVelha } = {}) {
 // =============================================
 function initEstatisticas() {
     // Cole aqui a URL do seu Web App do Google Apps Script (veja apps-script.gs)
-    const ENDPOINT = 'COLE_AQUI_A_URL_DO_SEU_APPS_SCRIPT';
+    const ENDPOINT = 'https://script.google.com/macros/s/AKfycbxQG2_v6SGTzuDzCd-TUj_4nM9dqVNqUxuf3vsiwqxl0vKv3MbQZqkmhc7ASxkh6ctiBA/exec';
 
     const elHoje = document.getElementById('cutuca-hoje');
     const elTotal = document.getElementById('cutuca-total');
