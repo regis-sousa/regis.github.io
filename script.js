@@ -156,6 +156,70 @@ function tocarMiado() {
 
 
 // =============================================
+// SOM DO RONRONAR (enquanto segura o nariz)
+// =============================================
+let audioCtxRonronar = null;
+let oscRonronar = null;
+let lfoRonronar = null;
+let gainRonronar = null;
+
+function iniciarRonronar() {
+    if (audioCtxRonronar) return; // já está tocando
+    try {
+        audioCtxRonronar = new (window.AudioContext || window.webkitAudioContext)();
+        const ctx = audioCtxRonronar;
+
+        oscRonronar = ctx.createOscillator();
+        oscRonronar.type = 'sawtooth';
+        oscRonronar.frequency.value = 30; // grave, tipo motorzinho
+
+        gainRonronar = ctx.createGain();
+        gainRonronar.gain.setValueAtTime(0.0001, ctx.currentTime);
+        gainRonronar.gain.exponentialRampToValueAtTime(0.08, ctx.currentTime + 0.3);
+
+        // LFO cria o "vibrado" característico do ronronar
+        lfoRonronar = ctx.createOscillator();
+        lfoRonronar.type = 'sine';
+        lfoRonronar.frequency.value = 22;
+
+        const lfoGain = ctx.createGain();
+        lfoGain.gain.value = 0.04;
+
+        lfoRonronar.connect(lfoGain);
+        lfoGain.connect(gainRonronar.gain);
+
+        oscRonronar.connect(gainRonronar);
+        gainRonronar.connect(ctx.destination);
+
+        oscRonronar.start();
+        lfoRonronar.start();
+    } catch (err) {
+        // Web Audio indisponível — falha silenciosa
+        audioCtxRonronar = null;
+    }
+}
+
+function pararRonronar() {
+    if (!audioCtxRonronar) return;
+    try {
+        const ctx = audioCtxRonronar;
+        const agora = ctx.currentTime;
+        gainRonronar.gain.cancelScheduledValues(agora);
+        gainRonronar.gain.setValueAtTime(gainRonronar.gain.value, agora);
+        gainRonronar.gain.exponentialRampToValueAtTime(0.0001, agora + 0.2);
+        oscRonronar.stop(agora + 0.25);
+        lfoRonronar.stop(agora + 0.25);
+    } catch (err) {
+        // ignora
+    }
+    audioCtxRonronar = null;
+    oscRonronar = null;
+    lfoRonronar = null;
+    gainRonronar = null;
+}
+
+
+// =============================================
 // CONFETE
 // =============================================
 function dispararConfete() {
@@ -221,7 +285,6 @@ function initSpeechBubble() {
 
     let dicaSumiu = false;
     let balaoTimeout;
-    let miadoTocado = false;
     let segurando = false;
     let pressTimer = null;
     const LIMIAR_SEGURAR = 350; // ms — a partir daqui conta como "segurar", não "clicar"
@@ -249,10 +312,7 @@ function initSpeechBubble() {
 
     function cliqueRapidoNoNariz() {
         esconderDica();
-        if (!miadoTocado) {
-            tocarMiado();
-            miadoTocado = true;
-        }
+        tocarMiado();
         const frase = frases[Math.floor(Math.random() * frases.length)];
         mostrarFrase(frase);
     }
@@ -262,12 +322,14 @@ function initSpeechBubble() {
         const olhos = document.querySelectorAll('.eye.left, .eye.right');
         olhos.forEach(o => o.classList.add('dormindo'));
         if (zzz) zzz.classList.add('ativo');
+        iniciarRonronar();
     }
 
     function pararSono() {
         const olhos = document.querySelectorAll('.eye.left, .eye.right');
         olhos.forEach(o => o.classList.remove('dormindo'));
         if (zzz) zzz.classList.remove('ativo');
+        pararRonronar();
     }
 
     // Pointer events cobrem mouse e toque com o mesmo código,
@@ -629,58 +691,9 @@ function initFloatingMenu({ abrirSpotify, abrirVelha } = {}) {
 
 
 // =============================================
-// ESTATÍSTICAS (Google Sheets via Apps Script)
-// =============================================
-function initEstatisticas() {
-    // Cole aqui a URL do seu Web App do Google Apps Script (veja apps-script.gs)
-    const ENDPOINT = 'https://script.google.com/macros/s/AKfycbxQG2_v6SGTzuDzCd-TUj_4nM9dqVNqUxuf3vsiwqxl0vKv3MbQZqkmhc7ASxkh6ctiBA/exec';
-
-    const elHoje = document.getElementById('cutuca-hoje');
-    const elTotal = document.getElementById('cutuca-total');
-
-    let ultimoEnvio = 0;
-    const INTERVALO_MIN_MS = 250; // evita floodar a planilha em cliques muito rápidos
-
-    function endpointConfigurado() {
-        return ENDPOINT && !ENDPOINT.startsWith('COLE_AQUI');
-    }
-
-    function atualizarTela(dados) {
-        if (!dados) return;
-        if (typeof dados.hoje === 'number') elHoje.textContent = dados.hoje.toLocaleString('pt-BR');
-        if (typeof dados.total === 'number') elTotal.textContent = dados.total.toLocaleString('pt-BR');
-    }
-
-    function ler() {
-        if (!endpointConfigurado()) return;
-        fetch(`${ENDPOINT}?acao=ler`)
-            .then(r => r.json())
-            .then(atualizarTela)
-            .catch(() => {});
-    }
-
-    function registrarCutucada() {
-        const agora = Date.now();
-        if (agora - ultimoEnvio < INTERVALO_MIN_MS) return;
-        ultimoEnvio = agora;
-
-        if (!endpointConfigurado()) return;
-        fetch(`${ENDPOINT}?acao=cutucar`)
-            .then(r => r.json())
-            .then(atualizarTela)
-            .catch(() => {});
-    }
-
-    ler();
-
-    return { registrarCutucada };
-}
-
-
-// =============================================
 // REAÇÃO A CLIQUES NO CORPO DO GARFIELD
 // =============================================
-function initGarfieldInteracoes(speechBubble, estatisticas, estadoEmocional) {
+function initGarfieldInteracoes(speechBubble, estadoEmocional) {
     const garfieldInner = document.querySelector('.garfield-inner');
     const { textoBalao, balao } = speechBubble;
 
@@ -719,8 +732,6 @@ function initGarfieldInteracoes(speechBubble, estatisticas, estadoEmocional) {
     }
 
     garfieldInner.addEventListener('click', () => {
-        estatisticas.registrarCutucada();
-
         const agora = Date.now();
         if (agora - ultimoCliqueTs > JANELA_CLIQUE_MS) {
             cliquesRapidos = 0;
@@ -876,7 +887,6 @@ const speechBubble = initSpeechBubble();
 initWhatsapp();
 const spotify = initSpotify();
 const ticTacToe = initTicTacToe();
-const estatisticas = initEstatisticas();
 
 initFloatingMenu({
     abrirSpotify: spotify.abrirPopup,
@@ -884,5 +894,5 @@ initFloatingMenu({
 });
 
 initDicasPopup();
-initGarfieldInteracoes(speechBubble, estatisticas, estadoEmocional);
+initGarfieldInteracoes(speechBubble, estadoEmocional);
 initOdie(speechBubble, estadoEmocional);
