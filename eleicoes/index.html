@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Eleições 2026</title><meta name="description" content="Painel pessoal para acompanhar candidatos e resultados das Eleições 2026.">
+<link rel="stylesheet" href="./style.css">
+</head>
+<body>
+<header>
+  <div class="brand"><span class="mark">E</span><div><strong>Eleições 2026</strong><small>painel pessoal</small></div></div>
+  <nav>
+    <button data-page="home" class="active">Início</button><button data-page="candidates">Candidatos</button><button data-page="favorites">Favoritos</button><button data-page="results">Resultados</button>
+  </nav>
+</header>
+<main>
+<section id="home" class="page active">
+  <div class="hero"><div><p class="eyebrow">ACOMPANHAMENTO ELEITORAL</p><h1>Seus candidatos,<br><em>em um só lugar.</em></h1><p>Consulte candidatos das Eleições 2026, favorite os seus e acompanhe somente os resultados que importam para você.</p><div class="actions"><button class="primary" onclick="go('candidates')">Explorar candidatos</button><button class="secondary" onclick="go('favorites')">Meus favoritos</button></div></div><div class="hero-card"><div class="live-dot"></div><span>FONTE</span><strong>TSE</strong><small>Dados oficiais · 2026</small></div></div>
+  <div class="stats"><div><b id="total">—</b><span>candidatos carregados</span></div><div><b id="favCount">0</b><span>favoritos</span></div><div><b>27</b><span>UFs</span></div><div><b>5</b><span>cargos</span></div></div>
+</section>
+<section id="candidates" class="page"><div class="section-head"><div><p class="eyebrow">ELEIÇÕES 2026</p><h2>Todos os candidatos</h2></div><div class="count" id="candidateCount">—</div></div><div class="filters"><input id="q" placeholder="Buscar nome, número ou partido..."><select id="uf"><option value="">Todos os estados</option></select><select id="cargo"><option value="">Todos os cargos</option></select></div><div id="candidateGrid" class="grid"></div></section>
+<section id="favorites" class="page"><div class="section-head"><div><p class="eyebrow">MINHA LISTA</p><h2>Candidatos favoritos</h2><p class="muted">Os candidatos que você favoritar aparecem aqui e também na aba Resultados.</p></div></div><div id="favoriteGrid" class="grid"></div></section>
+<section id="results" class="page"><div class="section-head"><div><p class="eyebrow">APURAÇÃO</p><h2>Meus resultados</h2><p class="muted">Somente os candidatos que você favoritou serão exibidos aqui.</p></div><div class="live-pill"><span></span> dados oficiais</div></div><div id="resultsBox" class="results-box"></div></section>
+</main>
+<footer>Dados eleitorais: Tribunal Superior Eleitoral · Projeto independente</footer>
+<script src="./app.js"></script>
+</body></html>
