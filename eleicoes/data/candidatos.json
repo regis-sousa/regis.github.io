@@ -1,0 +1,5 @@
+[
+  {"id":"demo-1","nm_urna":"Exemplo Presidente","cargo":"Presidente","sg_uf":"BR","sg_partido":"EX","nr_candidato":"00","ds_situacao":"DEMONSTRAÇÃO"},
+  {"id":"demo-2","nm_urna":"Exemplo Governador CE","cargo":"Governador","sg_uf":"CE","sg_partido":"EX","nr_candidato":"00","ds_situacao":"DEMONSTRAÇÃO"},
+  {"id":"demo-3","nm_urna":"Exemplo Senador CE","cargo":"Senador","sg_uf":"CE","sg_partido":"EX","nr_candidato":"000","ds_situacao":"DEMONSTRAÇÃO"}
+]
