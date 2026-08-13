@@ -572,29 +572,6 @@ body {
 }
 
 /* =============================================
-   ZZZ DO SONO (segurar o nariz)
-   ============================================= */
-#zzz-sono {
-    position: absolute;
-    top: 6px;
-    left: 232px;
-    font-size: 30px;
-    z-index: 1000;
-    pointer-events: none;
-    opacity: 0;
-}
-
-#zzz-sono.ativo {
-    animation: zzz-flutuar 1.4s ease-in-out infinite;
-}
-
-@keyframes zzz-flutuar {
-    0%   { opacity: 0; transform: translateY(0) scale(0.75) rotate(-8deg); }
-    30%  { opacity: 1; transform: translateY(-12px) scale(1) rotate(-4deg); }
-    100% { opacity: 0; transform: translateY(-34px) scale(1.15) rotate(0deg); }
-}
-
-/* =============================================
    GARFIELD
    ============================================= */
 .garfield {
