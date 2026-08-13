@@ -156,79 +156,6 @@ function tocarMiado() {
 
 
 // =============================================
-// SOM DO RONRONAR (enquanto segura o nariz)
-// =============================================
-let audioCtxRonronar = null;
-let oscRonronar = null;
-let lfoRonronar = null;
-let gainRonronar = null;
-let filtroRonronar = null;
-
-function iniciarRonronar() {
-    if (audioCtxRonronar) return; // já está tocando
-    try {
-        audioCtxRonronar = new (window.AudioContext || window.webkitAudioContext)();
-        const ctx = audioCtxRonronar;
-
-        oscRonronar = ctx.createOscillator();
-        oscRonronar.type = 'triangle'; // onda mais macia que sawtooth, sem o "zumbido" de motor
-        oscRonronar.frequency.value = 60;
-
-        // Filtro passa-baixa tira os harmônicos agudos, deixando só o "corpo" grave do som
-        filtroRonronar = ctx.createBiquadFilter();
-        filtroRonronar.type = 'lowpass';
-        filtroRonronar.frequency.value = 180;
-        filtroRonronar.Q.value = 0.6;
-
-        gainRonronar = ctx.createGain();
-        gainRonronar.gain.setValueAtTime(0.0001, ctx.currentTime);
-        gainRonronar.gain.exponentialRampToValueAtTime(0.05, ctx.currentTime + 0.3);
-
-        // LFO cria a pulsação característica do ronronar (mais lenta = mais orgânico)
-        lfoRonronar = ctx.createOscillator();
-        lfoRonronar.type = 'sine';
-        lfoRonronar.frequency.value = 12;
-
-        const lfoGain = ctx.createGain();
-        lfoGain.gain.value = 0.035;
-
-        lfoRonronar.connect(lfoGain);
-        lfoGain.connect(gainRonronar.gain);
-
-        oscRonronar.connect(filtroRonronar);
-        filtroRonronar.connect(gainRonronar);
-        gainRonronar.connect(ctx.destination);
-
-        oscRonronar.start();
-        lfoRonronar.start();
-    } catch (err) {
-        // Web Audio indisponível — falha silenciosa
-        audioCtxRonronar = null;
-    }
-}
-
-function pararRonronar() {
-    if (!audioCtxRonronar) return;
-    try {
-        const ctx = audioCtxRonronar;
-        const agora = ctx.currentTime;
-        gainRonronar.gain.cancelScheduledValues(agora);
-        gainRonronar.gain.setValueAtTime(gainRonronar.gain.value, agora);
-        gainRonronar.gain.exponentialRampToValueAtTime(0.0001, agora + 0.2);
-        oscRonronar.stop(agora + 0.25);
-        lfoRonronar.stop(agora + 0.25);
-    } catch (err) {
-        // ignora
-    }
-    audioCtxRonronar = null;
-    oscRonronar = null;
-    lfoRonronar = null;
-    gainRonronar = null;
-    filtroRonronar = null;
-}
-
-
-// =============================================
 // CONFETE
 // =============================================
 function dispararConfete() {
@@ -290,13 +217,9 @@ function initSpeechBubble() {
     const nariz = document.getElementById('nariz');
     const balao = document.getElementById('balao-fala');
     const textoBalao = document.getElementById('texto-balao');
-    const zzz = document.getElementById('zzz-sono');
 
     let dicaSumiu = false;
     let balaoTimeout;
-    let segurando = false;
-    let pressTimer = null;
-    const LIMIAR_SEGURAR = 350; // ms — a partir daqui conta como "segurar", não "clicar"
 
     function esconderDica() {
         if (!dicaSumiu) {
@@ -319,58 +242,11 @@ function initSpeechBubble() {
         }, 3500);
     }
 
-    function cliqueRapidoNoNariz() {
+    nariz.addEventListener('click', () => {
         esconderDica();
         tocarMiado();
         const frase = frases[Math.floor(Math.random() * frases.length)];
         mostrarFrase(frase);
-    }
-
-    function iniciarSono() {
-        esconderDica();
-        const olhos = document.querySelectorAll('.eye.left, .eye.right');
-        olhos.forEach(o => o.classList.add('dormindo'));
-        if (zzz) zzz.classList.add('ativo');
-        iniciarRonronar();
-    }
-
-    function pararSono() {
-        const olhos = document.querySelectorAll('.eye.left, .eye.right');
-        olhos.forEach(o => o.classList.remove('dormindo'));
-        if (zzz) zzz.classList.remove('ativo');
-        pararRonronar();
-    }
-
-    // Pointer events cobrem mouse e toque com o mesmo código,
-    // permitindo diferenciar "clique rápido" de "segurar"
-    nariz.addEventListener('pointerdown', () => {
-        segurando = false;
-        pressTimer = setTimeout(() => {
-            segurando = true;
-            iniciarSono();
-        }, LIMIAR_SEGURAR);
-    });
-
-    function finalizarPressao() {
-        clearTimeout(pressTimer);
-        if (segurando) {
-            pararSono();
-        } else {
-            cliqueRapidoNoNariz();
-        }
-        segurando = false;
-    }
-
-    nariz.addEventListener('pointerup', finalizarPressao);
-    nariz.addEventListener('pointerleave', () => {
-        clearTimeout(pressTimer);
-        if (segurando) pararSono();
-        segurando = false;
-    });
-    nariz.addEventListener('pointercancel', () => {
-        clearTimeout(pressTimer);
-        if (segurando) pararSono();
-        segurando = false;
     });
 
     // Exposto para outros easter eggs (Odie, reação a cliques) usarem o mesmo balão
