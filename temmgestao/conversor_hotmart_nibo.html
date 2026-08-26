@@ -121,7 +121,6 @@
     font-weight:600;
   }
   .badge.detalhado{background:rgba(62,219,176,.14);color:var(--accent2);}
-  .badge.padrao{background:rgba(232,165,61,.16);color:var(--warn);}
   .badge.file{background:#20263a;color:var(--muted);font-weight:500;}
   .badge.count{background:rgba(91,141,239,.15);color:var(--accent);}
 
@@ -245,14 +244,14 @@
 
   <header>
     <h1>Conversor Hotmart → Nibo</h1>
-    <p>Envie o relatório <b>Detalhado</b> ou <b>Padrão</b> da Hotmart (.xls/.xlsx) e receba os lançamentos já no formato de importação do Nibo. Revise e edite qualquer célula na prévia antes de baixar.</p>
+    <p>Envie o relatório <b>Detalhado</b> da Hotmart (.xls/.xlsx) e receba os lançamentos já no formato de importação do Nibo. Revise e edite qualquer célula na prévia antes de baixar.</p>
   </header>
 
   <div class="alert">
     <div class="icon">⚠️</div>
     <div class="txt">
-      <b>Priorize sempre o relatório Detalhado.</b> Ele traz taxa Hotmart, coprodução, afiliado e streaming já separados por coluna, então o conversor consegue montar as linhas do Nibo com muito mais fidelidade.
-      <span class="sub">Só use o relatório Padrão se o Detalhado não estiver disponível — ele não separa as taxas individualmente e gera um lançamento agregado, exigindo mais revisão manual.</span>
+      <b>Este conversor aceita apenas o relatório Detalhado da Hotmart.</b> Ele é o único que traz taxa Hotmart, coprodução, afiliado e streaming já separados por coluna — necessário para montar as linhas do Nibo corretamente.
+      <span class="sub">Relatórios em outro formato (ex: Padrão) serão recusados. Exporte o relatório "Detalhado" direto no painel da Hotmart antes de subir aqui.</span>
     </div>
   </div>
 
@@ -260,7 +259,7 @@
     <div id="dropzone">
       <div class="icon">📄</div>
       <div class="main">Clique para selecionar ou arraste o arquivo aqui</div>
-      <div class="sub">Aceita relatório Detalhado (recomendado) ou Padrão da Hotmart (.xls / .xlsx)</div>
+      <div class="sub">Somente relatório Detalhado da Hotmart (.xls / .xlsx)</div>
       <input type="file" id="fileInput" accept=".xls,.xlsx">
     </div>
 
@@ -311,7 +310,14 @@
 <script>
 const HEADERS = ['Tipo de transação','Competência','Vencimento','Previsto para','Nome','Descrição','ReferÊncia','Categoria','Valor','Anotação'];
 const NOME_COL = 4;
-const CATEGORIA_COL = 7;
+
+// Nomes padrão aplicados automaticamente conforme a categoria do lançamento
+const DEFAULT_NOMES = {
+  'Comissão Co-Produtor': 'ROSANA MARUMO NEGOCIOS DIGITAIS LTDA',
+  'Tarifa Hotmart': 'LAUNCH PAD TECNOLOGIA, SERVICOS E PAGAMENTOS LTDA.',
+  'Tarifa Streaming': 'LAUNCH PAD TECNOLOGIA, SERVICOS E PAGAMENTOS LTDA.',
+  'Comissão de Venda': 'Cliente não identificado'
+};
 
 const dropzone = document.getElementById('dropzone');
 const fileInput = document.getElementById('fileInput');
@@ -324,7 +330,7 @@ const summaryText = document.getElementById('summaryText');
 const diasVencInput = document.getElementById('diasVenc');
 
 let currentRows = []; // array of row objects {tipo,comp,venc,prev,nome,desc,ref,cat,valor,anot}
-let compDates = [];   // parallel array of raw competência Date objects, for recálculo
+let compDates = [];   // parallel array of raw competência Date objects, para recálculo
 
 dropzone.addEventListener('click', ()=> fileInput.click());
 dropzone.addEventListener('dragover', e=>{e.preventDefault(); dropzone.classList.add('drag');});
@@ -386,26 +392,21 @@ function handleFile(file){
         return;
       }
       const headers = Object.keys(rows[0]);
-      const format = detectFormat(headers);
-      if(!format){
-        showEmpty('Não reconheci este formato. Envie o relatório "Detalhado" ou "Padrão" exportado da Hotmart.');
+      if(!isDetalhado(headers)){
+        showEmpty('Este arquivo não é o relatório Detalhado da Hotmart. Exporte o relatório "Detalhado" (com a coluna "Código da transação") e envie novamente.');
         return;
       }
-      const result = format === 'detalhado' ? convertDetalhado(rows) : convertPadrao(rows);
+      const result = convertDetalhado(rows);
       currentRows = result.rows;
       compDates = result.compDates;
 
-      showStatus(file.name, format, currentRows.length);
+      showStatus(file.name, currentRows.length);
       renderTable();
       controlsRow.classList.remove('hidden');
       previewCard.classList.remove('hidden');
       document.getElementById('emptyMsg').classList.add('hidden');
 
-      if(format === 'detalhado'){
-        noteBox.innerHTML = '<b>Relatório Detalhado detectado — ótima escolha.</b> Cada transação foi separada em linhas por categoria (Tarifa Streaming, Tarifa Hotmart, Comissão Co-Produtor, Comissão Afiliado, Comissão de Venda), usando os valores exatos de cada coluna de taxa/comissão. A Competência usa a data da transação e o Vencimento é Competência + ' + diasVencInput.value + ' dias (ajustável abaixo). Preencha o campo <b>Nome</b> em uma linha e o conversor vai perguntar se quer aplicar o mesmo nome às demais linhas da mesma categoria.';
-      } else {
-        noteBox.innerHTML = '<b>Relatório Padrão detectado.</b> Este relatório não separa taxa Hotmart, comissão de coprodução e comissão de afiliado individualmente — apenas o valor total e o valor líquido. Por isso foram geradas 2 linhas por venda: <b>Comissão de Venda</b> (valor bruto) e <b>Tarifa Hotmart (taxas agregadas)</b> (diferença entre bruto e líquido). Sempre que possível, prefira subir o relatório Detalhado para ter o detalhamento correto por categoria.';
-      }
+      noteBox.innerHTML = '<b>Relatório Detalhado reconhecido.</b> Cada transação foi separada em linhas por categoria (Tarifa Streaming, Tarifa Hotmart, Comissão Co-Produtor, Comissão Afiliado, Comissão de Venda), usando os valores exatos de cada coluna de taxa/comissão. O campo <b>Nome</b> já vem preenchido automaticamente para Coprodução (ROSANA MARUMO), Tarifa Hotmart/Streaming (LAUNCH PAD) e Comissão de Venda (Cliente não identificado). A Competência usa a data da transação e o Vencimento é Competência + ' + diasVencInput.value + ' dias (ajustável abaixo). Se editar um Nome manualmente, o conversor pergunta se quer aplicar o mesmo valor às demais linhas da mesma categoria.';
       noteBox.classList.remove('hidden');
     }catch(err){
       console.error(err);
@@ -424,19 +425,17 @@ function showEmpty(msg){
   noteBox.classList.add('hidden');
 }
 
-function showStatus(filename, format, count){
+function showStatus(filename, count){
   statusRow.style.display = 'flex';
   statusRow.innerHTML = `
     <span class="badge file">📎 ${escapeHtml(filename)}</span>
-    <span class="badge ${format}">${format === 'detalhado' ? '✓ Relatório Detalhado' : '⚠ Relatório Padrão'}</span>
+    <span class="badge detalhado">✓ Relatório Detalhado</span>
     <span class="badge count">${count} lançamentos gerados</span>
   `;
 }
 
-function detectFormat(headers){
-  if(headers.includes('Código da transação') && headers.includes('Produto')) return 'detalhado';
-  if(headers.includes('Transação') && headers.includes('Nome do Produto')) return 'padrao';
-  return null;
+function isDetalhado(headers){
+  return headers.includes('Código da transação') && headers.includes('Produto');
 }
 
 // ---------- helpers ----------
@@ -467,7 +466,7 @@ function escapeHtml(s){
   return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
-// ---------- converters ----------
+// ---------- converter ----------
 function convertDetalhado(rows){
   const dias = parseInt(diasVencInput.value, 10) || 30;
   const out = [];
@@ -488,7 +487,7 @@ function convertDetalhado(rows){
     const afiliado = num(r['Comissão do(a) Afiliado(a)']);
     const bruto = num(r['Valor de compra com impostos']) || num(r['Faturamento bruto (sem impostos)']);
 
-    const base = {tipo:'Lançamento', comp, venc, prev:venc, nome:'', desc:code, ref:'Hotmart', anot:produto};
+    const base = {tipo:'Lançamento', comp, venc, prev:venc, desc:code, ref:'Hotmart', anot:produto};
 
     if(streaming) push(base, 'Tarifa Streaming', -Math.abs(streaming));
     if(processamento) push(base, 'Tarifa Hotmart', -Math.abs(processamento));
@@ -498,38 +497,7 @@ function convertDetalhado(rows){
     if(bruto) push(base, 'Comissão de Venda', bruto);
 
     function push(base, cat, valor){
-      out.push({...base, cat, valor: round2(valor)});
-      dates.push(dataTx);
-    }
-  });
-  return {rows: out, compDates: dates};
-}
-
-function convertPadrao(rows){
-  const dias = parseInt(diasVencInput.value, 10) || 30;
-  const out = [];
-  const dates = [];
-  rows.forEach(r=>{
-    const code = r['Transação'] || '';
-    const produto = r['Nome do Produto'] || '';
-    const dataTx = parseDDMMYYYY(r['Data de Venda']);
-    if(!dataTx) return;
-    const comp = fmtDate(dataTx);
-    const vencDate = addDays(dataTx, dias);
-    const venc = fmtDate(vencDate);
-
-    const total = num(r['Preço Total']) || num(r['Preço Total Convertido']);
-    const liquido = num(r['Preço da Oferta']) || num(r['Faturamento líquido']);
-    const taxaAgregada = round2(total - liquido);
-
-    const base = {tipo:'Lançamento', comp, venc, prev:venc, nome:'', desc:code, ref:'Hotmart', anot:produto};
-
-    if(total){
-      out.push({...base, cat:'Comissão de Venda', valor: round2(total)});
-      dates.push(dataTx);
-    }
-    if(taxaAgregada){
-      out.push({...base, cat:'Tarifa Hotmart (taxas agregadas)', valor: -Math.abs(taxaAgregada)});
+      out.push({...base, cat, nome: DEFAULT_NOMES[cat] || '', valor: round2(valor)});
       dates.push(dataTx);
     }
   });
@@ -611,7 +579,7 @@ function onNomeBlur(e){
 
   if(!categoria) return;
 
-  // conta quantas outras linhas têm a mesma categoria e valor diferente
+  // conta quantas outras linhas têm a mesma categoria
   const outrasLinhas = previewBody.querySelectorAll('tr');
   let candidatos = 0;
   outrasLinhas.forEach((otherTr, otherIdx)=>{
