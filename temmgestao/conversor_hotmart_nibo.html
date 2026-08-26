@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conversor Hotmart → Nibo</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root{
+    --bg:#0f1115;
+    --panel:#161922;
+    --panel2:#1d212c;
+    --border:#2a2f3d;
+    --text:#e8eaf0;
+    --muted:#8b90a3;
+    --accent:#5b8def;
+    --accent2:#3edbb0;
+    --danger:#e8607a;
+    --warn:#e8a53d;
+    --radius:12px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+    background:linear-gradient(160deg,#0f1115 0%,#141821 100%);
+    color:var(--text);
+    min-height:100vh;
+    padding:32px 20px 80px;
+  }
+  .wrap{max-width:1180px;margin:0 auto;}
+  header{margin-bottom:28px;}
+  header h1{
+    font-size:26px;
+    margin:0 0 6px;
+    font-weight:700;
+    letter-spacing:-0.02em;
+  }
+  header p{color:var(--muted);margin:0;font-size:14.5px;line-height:1.5;max-width:760px;}
+
+  .card{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:24px;
+    margin-bottom:20px;
+  }
+
+  #dropzone{
+    border:2px dashed var(--border);
+    border-radius:var(--radius);
+    padding:40px 20px;
+    text-align:center;
+    cursor:pointer;
+    transition:.15s;
+    background:var(--panel2);
+  }
+  #dropzone:hover, #dropzone.drag{
+    border-color:var(--accent);
+    background:#1a2030;
+  }
+  #dropzone .icon{font-size:34px;margin-bottom:10px;}
+  #dropzone .main{font-size:15px;font-weight:600;}
+  #dropzone .sub{font-size:13px;color:var(--muted);margin-top:4px;}
+  #fileInput{display:none;}
+
+  .status-row{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    flex-wrap:wrap;
+    margin-top:16px;
+  }
+  .badge{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:6px 12px;
+    border-radius:999px;
+    font-size:12.5px;
+    font-weight:600;
+  }
+  .badge.detalhado{background:rgba(62,219,176,.14);color:var(--accent2);}
+  .badge.padrao{background:rgba(232,165,61,.16);color:var(--warn);}
+  .badge.file{background:#20263a;color:var(--muted);font-weight:500;}
+  .badge.count{background:rgba(91,141,239,.15);color:var(--accent);}
+
+  .controls{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:18px;
+  }
+  .controls label{font-size:13px;color:var(--muted);}
+  .controls input[type=number]{
+    width:64px;
+    background:var(--panel2);
+    border:1px solid var(--border);
+    color:var(--text);
+    border-radius:8px;
+    padding:6px 8px;
+    font-size:13px;
+  }
+  button{
+    font-family:inherit;
+    font-size:13.5px;
+    font-weight:600;
+    border:none;
+    border-radius:9px;
+    padding:9px 16px;
+    cursor:pointer;
+    transition:.15s;
+  }
+  button.primary{background:var(--accent);color:#fff;}
+  button.primary:hover{background:#4979dd;}
+  button.ghost{background:var(--panel2);color:var(--text);border:1px solid var(--border);}
+  button.ghost:hover{border-color:var(--accent);}
+  button.danger-outline{background:transparent;color:var(--danger);border:1px solid rgba(232,96,122,.4);padding:5px 9px;font-size:12px;}
+  button.danger-outline:hover{background:rgba(232,96,122,.1);}
+  button.download{background:var(--accent2);color:#0b1a15;font-size:14.5px;padding:12px 22px;}
+  button.download:hover{background:#33c7a0;}
+  button:disabled{opacity:.4;cursor:not-allowed;}
+
+  .note{
+    font-size:12.5px;
+    color:var(--muted);
+    background:var(--panel2);
+    border:1px solid var(--border);
+    border-radius:9px;
+    padding:10px 14px;
+    margin-top:14px;
+    line-height:1.55;
+  }
+  .note b{color:var(--text);}
+
+  .table-scroll{
+    overflow:auto;
+    max-height:65vh;
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+  }
+  table{
+    border-collapse:collapse;
+    width:100%;
+    font-size:12.8px;
+    min-width:1100px;
+  }
+  thead th{
+    position:sticky;
+    top:0;
+    background:#1d212c;
+    color:var(--muted);
+    text-align:left;
+    padding:10px 10px;
+    font-weight:600;
+    border-bottom:1px solid var(--border);
+    white-space:nowrap;
+    z-index:2;
+  }
+  tbody td{
+    padding:7px 10px;
+    border-bottom:1px solid #20242f;
+    white-space:nowrap;
+    max-width:260px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  tbody td[contenteditable="true"]{cursor:text;}
+  tbody td[contenteditable="true"]:focus{
+    outline:2px solid var(--accent);
+    outline-offset:-2px;
+    background:#1a2030;
+    white-space:normal;
+    overflow:visible;
+  }
+  tbody tr:hover td{background:#191d27;}
+  td.valor{text-align:right;font-variant-numeric:tabular-nums;}
+  td.valor.neg{color:var(--danger);}
+  td.valor.pos{color:var(--accent2);}
+  td.rowactions{text-align:center;}
+  tbody tr.new-row td{background:rgba(62,219,176,.06);}
+
+  .footer-bar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:14px;
+    margin-top:18px;
+  }
+  .summary{font-size:13px;color:var(--muted);}
+  .summary b{color:var(--text);}
+  #emptyMsg{color:var(--muted);font-size:13.5px;padding:30px;text-align:center;}
+  .hidden{display:none !important;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Conversor Hotmart → Nibo</h1>
+    <p>Envie o relatório <b>Detalhado</b> ou <b>Padrão</b> da Hotmart (.xls/.xlsx) e receba os lançamentos já no formato de importação do Nibo. Revise e edite qualquer célula na prévia antes de baixar.</p>
+  </header>
+
+  <div class="card">
+    <div id="dropzone">
+      <div class="icon">📄</div>
+      <div class="main">Clique para selecionar ou arraste o arquivo aqui</div>
+      <div class="sub">Aceita relatório Detalhado ou Padrão da Hotmart (.xls / .xlsx)</div>
+      <input type="file" id="fileInput" accept=".xls,.xlsx">
+    </div>
+
+    <div class="status-row" id="statusRow" style="display:none;"></div>
+
+    <div class="controls hidden" id="controlsRow">
+      <label for="diasVenc">Dias até vencimento:</label>
+      <input type="number" id="diasVenc" value="30" min="0">
+      <button class="ghost" id="recalcBtn">Recalcular vencimentos</button>
+      <span style="flex:1"></span>
+      <button class="ghost" id="addRowBtn">+ Adicionar linha</button>
+      <button class="primary" id="resetBtn">Enviar outro arquivo</button>
+    </div>
+
+    <div class="note hidden" id="noteBox"></div>
+  </div>
+
+  <div class="card hidden" id="previewCard">
+    <div class="table-scroll">
+      <table id="previewTable">
+        <thead>
+          <tr>
+            <th>Tipo de transação</th>
+            <th>Competência</th>
+            <th>Vencimento</th>
+            <th>Previsto para</th>
+            <th>Nome</th>
+            <th>Descrição</th>
+            <th>ReferÊncia</th>
+            <th>Categoria</th>
+            <th>Valor</th>
+            <th>Anotação</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="previewBody"></tbody>
+      </table>
+    </div>
+    <div class="footer-bar">
+      <div class="summary" id="summaryText"></div>
+      <button class="download" id="downloadBtn">⬇ Baixar planilha modelo Nibo (.xlsx)</button>
+    </div>
+  </div>
+
+  <div id="emptyMsg" class="hidden"></div>
+</div>
+
+<script>
+const HEADERS = ['Tipo de transação','Competência','Vencimento','Previsto para','Nome','Descrição','ReferÊncia','Categoria','Valor','Anotação'];
+
+const dropzone = document.getElementById('dropzone');
+const fileInput = document.getElementById('fileInput');
+const statusRow = document.getElementById('statusRow');
+const controlsRow = document.getElementById('controlsRow');
+const noteBox = document.getElementById('noteBox');
+const previewCard = document.getElementById('previewCard');
+const previewBody = document.getElementById('previewBody');
+const summaryText = document.getElementById('summaryText');
+const diasVencInput = document.getElementById('diasVenc');
+
+let currentRows = []; // array of row objects {tipo,comp,venc,prev,nome,desc,ref,cat,valor,anot}
+let compDates = [];   // parallel array of raw competência Date objects, for recálculo
+
+dropzone.addEventListener('click', ()=> fileInput.click());
+dropzone.addEventListener('dragover', e=>{e.preventDefault(); dropzone.classList.add('drag');});
+dropzone.addEventListener('dragleave', ()=> dropzone.classList.remove('drag'));
+dropzone.addEventListener('drop', e=>{
+  e.preventDefault();
+  dropzone.classList.remove('drag');
+  if(e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+});
+fileInput.addEventListener('change', e=>{
+  if(e.target.files.length) handleFile(e.target.files[0]);
+});
+
+document.getElementById('resetBtn').addEventListener('click', ()=>{
+  fileInput.value = '';
+  currentRows = [];
+  compDates = [];
+  previewBody.innerHTML = '';
+  previewCard.classList.add('hidden');
+  controlsRow.classList.add('hidden');
+  noteBox.classList.add('hidden');
+  statusRow.style.display = 'none';
+  document.getElementById('emptyMsg').classList.add('hidden');
+});
+
+document.getElementById('addRowBtn').addEventListener('click', ()=>{
+  const blank = {tipo:'Lançamento', comp:'', venc:'', prev:'', nome:'', desc:'', ref:'Hotmart', cat:'', valor:0, anot:''};
+  currentRows.push(blank);
+  compDates.push(null);
+  renderTable();
+});
+
+document.getElementById('recalcBtn').addEventListener('click', ()=>{
+  const dias = parseInt(diasVencInput.value, 10) || 0;
+  const rowsEls = previewBody.querySelectorAll('tr');
+  rowsEls.forEach((tr, i)=>{
+    const base = compDates[i];
+    if(!base) return;
+    const newDate = addDays(base, dias);
+    const s = fmtDate(newDate);
+    tr.children[2].textContent = s; // Vencimento
+    tr.children[3].textContent = s; // Previsto para
+  });
+});
+
+document.getElementById('downloadBtn').addEventListener('click', downloadXlsx);
+
+function handleFile(file){
+  const reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      const data = new Uint8Array(e.target.result);
+      const wb = XLSX.read(data, {type:'array'});
+      const sheetName = wb.SheetNames.includes('Report') ? 'Report' : wb.SheetNames[0];
+      const sheet = wb.Sheets[sheetName];
+      const rows = XLSX.utils.sheet_to_json(sheet, {defval:''});
+      if(!rows.length){
+        showEmpty('A planilha parece estar vazia ou em um formato inesperado.');
+        return;
+      }
+      const headers = Object.keys(rows[0]);
+      const format = detectFormat(headers);
+      if(!format){
+        showEmpty('Não reconheci este formato. Envie o relatório "Detalhado" ou "Padrão" exportado da Hotmart.');
+        return;
+      }
+      const result = format === 'detalhado' ? convertDetalhado(rows) : convertPadrao(rows);
+      currentRows = result.rows;
+      compDates = result.compDates;
+
+      showStatus(file.name, format, currentRows.length);
+      renderTable();
+      controlsRow.classList.remove('hidden');
+      previewCard.classList.remove('hidden');
+      document.getElementById('emptyMsg').classList.add('hidden');
+
+      if(format === 'detalhado'){
+        noteBox.innerHTML = '<b>Relatório Detalhado detectado.</b> Cada transação foi separada em linhas por categoria (Tarifa Streaming, Tarifa Hotmart, Comissão Co-Produtor, Comissão Afiliado, Comissão de Venda), usando os valores exatos de cada coluna de taxa/comissão. A Competência usa a data da transação e o Vencimento é Competência + ' + diasVencInput.value + ' dias (ajustável abaixo). Revise os campos <b>Nome</b> (em branco por padrão) e as categorias antes de importar.';
+      } else {
+        noteBox.innerHTML = '<b>Relatório Padrão detectado.</b> Este relatório não separa taxa Hotmart, comissão de coprodução e comissão de afiliado individualmente — apenas o valor total e o valor líquido. Por isso foram geradas 2 linhas por venda: <b>Comissão de Venda</b> (valor bruto) e <b>Tarifa Hotmart (taxas agregadas)</b> (diferença entre bruto e líquido). Se precisar do detalhamento exato por categoria, use o relatório Detalhado. Edite as categorias/valores conforme necessário antes de importar.';
+      }
+      noteBox.classList.remove('hidden');
+    }catch(err){
+      console.error(err);
+      showEmpty('Erro ao ler o arquivo: ' + err.message);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function showEmpty(msg){
+  const el = document.getElementById('emptyMsg');
+  el.textContent = msg;
+  el.classList.remove('hidden');
+  previewCard.classList.add('hidden');
+  controlsRow.classList.add('hidden');
+  noteBox.classList.add('hidden');
+}
+
+function showStatus(filename, format, count){
+  statusRow.style.display = 'flex';
+  statusRow.innerHTML = `
+    <span class="badge file">📎 ${escapeHtml(filename)}</span>
+    <span class="badge ${format}">${format === 'detalhado' ? '✓ Relatório Detalhado' : '✓ Relatório Padrão'}</span>
+    <span class="badge count">${count} lançamentos gerados</span>
+  `;
+}
+
+function detectFormat(headers){
+  if(headers.includes('Código da transação') && headers.includes('Produto')) return 'detalhado';
+  if(headers.includes('Transação') && headers.includes('Nome do Produto')) return 'padrao';
+  return null;
+}
+
+// ---------- helpers ----------
+function num(v){
+  if(v === '' || v === null || v === undefined) return 0;
+  const n = typeof v === 'number' ? v : parseFloat(String(v).replace(',', '.'));
+  return isNaN(n) ? 0 : n;
+}
+function parseDDMMYYYY(str){
+  if(!str) return null;
+  const m = String(str).match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if(!m) return null;
+  return new Date(Date.UTC(+m[3], +m[2]-1, +m[1]));
+}
+function fmtDate(d){
+  if(!d) return '';
+  const dd = String(d.getUTCDate()).padStart(2,'0');
+  const mm = String(d.getUTCMonth()+1).padStart(2,'0');
+  const yy = d.getUTCFullYear();
+  return `${dd}/${mm}/${yy}`;
+}
+function addDays(d, n){
+  const r = new Date(d.getTime());
+  r.setUTCDate(r.getUTCDate() + n);
+  return r;
+}
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// ---------- converters ----------
+function convertDetalhado(rows){
+  const dias = parseInt(diasVencInput.value, 10) || 30;
+  const out = [];
+  const dates = [];
+  rows.forEach(r=>{
+    const code = r['Código da transação'] || '';
+    const produto = r['Produto'] || '';
+    const dataTx = parseDDMMYYYY(r['Data da transação']);
+    if(!dataTx) return;
+    const comp = fmtDate(dataTx);
+    const vencDate = addDays(dataTx, dias);
+    const venc = fmtDate(vencDate);
+
+    const streaming = num(r['Taxa de streaming']);
+    const processamento = num(r['Taxa de processamento']);
+    const outrasTaxas = num(r['Outras Taxas']);
+    const coprodutor = num(r['Faturamento do(a) Coprodutor(a)']);
+    const afiliado = num(r['Comissão do(a) Afiliado(a)']);
+    const bruto = num(r['Valor de compra com impostos']) || num(r['Faturamento bruto (sem impostos)']);
+
+    const base = {tipo:'Lançamento', comp, venc, prev:venc, nome:'', desc:code, ref:'Hotmart', anot:produto};
+
+    if(streaming) push(base, 'Tarifa Streaming', -Math.abs(streaming));
+    if(processamento) push(base, 'Tarifa Hotmart', -Math.abs(processamento));
+    if(outrasTaxas) push(base, 'Outras Taxas', -Math.abs(outrasTaxas));
+    if(coprodutor) push(base, 'Comissão Co-Produtor', -Math.abs(coprodutor));
+    if(afiliado) push(base, 'Comissão Afiliado', -Math.abs(afiliado));
+    if(bruto) push(base, 'Comissão de Venda', bruto);
+
+    function push(base, cat, valor){
+      out.push({...base, cat, valor: round2(valor)});
+      dates.push(dataTx);
+    }
+  });
+  return {rows: out, compDates: dates};
+}
+
+function convertPadrao(rows){
+  const dias = parseInt(diasVencInput.value, 10) || 30;
+  const out = [];
+  const dates = [];
+  rows.forEach(r=>{
+    const code = r['Transação'] || '';
+    const produto = r['Nome do Produto'] || '';
+    const dataTx = parseDDMMYYYY(r['Data de Venda']);
+    if(!dataTx) return;
+    const comp = fmtDate(dataTx);
+    const vencDate = addDays(dataTx, dias);
+    const venc = fmtDate(vencDate);
+
+    const total = num(r['Preço Total']) || num(r['Preço Total Convertido']);
+    const liquido = num(r['Preço da Oferta']) || num(r['Faturamento líquido']);
+    const taxaAgregada = round2(total - liquido);
+
+    const base = {tipo:'Lançamento', comp, venc, prev:venc, nome:'', desc:code, ref:'Hotmart', anot:produto};
+
+    if(total){
+      out.push({...base, cat:'Comissão de Venda', valor: round2(total)});
+      dates.push(dataTx);
+    }
+    if(taxaAgregada){
+      out.push({...base, cat:'Tarifa Hotmart (taxas agregadas)', valor: -Math.abs(taxaAgregada)});
+      dates.push(dataTx);
+    }
+  });
+  return {rows: out, compDates: dates};
+}
+
+function round2(n){ return Math.round(n * 100) / 100; }
+
+// ---------- table rendering ----------
+function renderTable(){
+  previewBody.innerHTML = '';
+  currentRows.forEach((row, idx)=>{
+    const tr = document.createElement('tr');
+    tr.dataset.idx = idx;
+
+    const cells = [row.tipo, row.comp, row.venc, row.prev, row.nome, row.desc, row.ref, row.cat, formatValorCell(row.valor), row.anot];
+    cells.forEach((val, ci)=>{
+      const td = document.createElement('td');
+      td.contentEditable = 'true';
+      td.textContent = val;
+      if(ci === 8){
+        td.classList.add('valor');
+        td.classList.add(row.valor < 0 ? 'neg' : 'pos');
+      }
+      tr.appendChild(td);
+    });
+
+    const tdAction = document.createElement('td');
+    tdAction.className = 'rowactions';
+    const delBtn = document.createElement('button');
+    delBtn.className = 'danger-outline';
+    delBtn.textContent = '✕';
+    delBtn.title = 'Remover linha';
+    delBtn.addEventListener('click', ()=>{
+      currentRows.splice(idx, 1);
+      compDates.splice(idx, 1);
+      renderTable();
+    });
+    tdAction.appendChild(delBtn);
+    tr.appendChild(tdAction);
+
+    previewBody.appendChild(tr);
+  });
+  updateSummary();
+}
+
+function formatValorCell(v){
+  return (Math.round(v*100)/100).toFixed(2).replace('.', ',');
+}
+
+function updateSummary(){
+  const total = currentRows.reduce((s,r)=> s + (typeof r.valor === 'number' ? r.valor : 0), 0);
+  summaryText.innerHTML = `<b>${currentRows.length}</b> lançamentos · saldo líquido total: <b>R$ ${total.toFixed(2).replace('.', ',')}</b>`;
+}
+
+// ---------- export ----------
+function readTableToAoa(){
+  const rowsEls = previewBody.querySelectorAll('tr');
+  const aoa = [HEADERS];
+  rowsEls.forEach(tr=>{
+    const tds = tr.querySelectorAll('td');
+    const rowVals = [];
+    for(let i=0;i<10;i++){
+      let text = tds[i] ? tds[i].textContent.trim() : '';
+      if(i === 8){
+        // Valor column -> numeric
+        const n = parseFloat(text.replace(/\./g,'').replace(',', '.'));
+        rowVals.push(isNaN(n) ? 0 : n);
+      } else {
+        rowVals.push(text);
+      }
+    }
+    aoa.push(rowVals);
+  });
+  return aoa;
+}
+
+function downloadXlsx(){
+  const aoa = readTableToAoa();
+  const ws = XLSX.utils.aoa_to_sheet(aoa);
+  ws['!cols'] = [
+    {wch:14},{wch:12},{wch:12},{wch:12},{wch:28},
+    {wch:16},{wch:10},{wch:26},{wch:12},{wch:40}
+  ];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Report');
+  XLSX.writeFile(wb, 'nibo_import.xlsx');
+}
+</script>
+</body>
+</html>
