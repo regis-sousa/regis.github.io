@@ -146,7 +146,36 @@
   }
   .copy-feedback { display: none; font-size: .75rem; color: var(--teal); margin-left: 10px; }
 
+
+  /* Tax validation */
+  #tax-validation-section { display:none; }
+  .validation-head { display:flex; justify-content:space-between; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:14px; }
+  .validation-help { font-size:.76rem; color:var(--muted); line-height:1.55; }
+  .validation-summary { display:grid; grid-template-columns:repeat(4,1fr); gap:9px; margin-bottom:14px; }
+  .validation-stat { background:var(--surface2); border:1px solid var(--border); border-radius:9px; padding:11px; text-align:center; }
+  .validation-stat strong { display:block; font-size:1.05rem; }
+  .validation-stat span { display:block; font-size:.61rem; color:var(--muted); margin-top:3px; text-transform:uppercase; }
+  .tax-row { display:grid; grid-template-columns:minmax(160px,1.4fr) 120px 55px 100px 95px 95px 105px 100px 96px; gap:8px; align-items:center; padding:11px 10px; border-bottom:1px solid rgba(42,47,69,.65); }
+  .tax-row:last-child { border-bottom:none; }
+  .tax-row.tax-ok { background:rgba(0,201,167,.035); }
+  .tax-row.tax-error { background:rgba(248,113,113,.045); }
+  .tax-row.tax-pending { background:rgba(212,194,0,.035); }
+  .tax-info strong { display:block; font-size:.76rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .tax-info span { display:block; font-size:.62rem; color:var(--muted); margin-top:3px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .tax-number { font-family:'DM Mono',monospace; font-size:.7rem; }
+  .tax-input { width:100%; background:var(--surface2); border:1px solid var(--border); border-radius:7px; color:var(--text); padding:8px 7px; font-family:'DM Mono',monospace; font-size:.72rem; outline:none; }
+  .tax-input:focus { border-color:var(--teal); }
+  .tax-input.changed { border-color:var(--yellow); }
+  .tax-status { font-size:.64rem; font-weight:700; line-height:1.25; }
+  .status-ok { color:var(--teal); } .status-error { color:var(--danger); } .status-pending { color:var(--yellow); }
+  .btn-tax { padding:7px 9px; font-size:.65rem; border-radius:7px; }
+  .tax-table-wrap { overflow:auto; border:1px solid var(--border); border-radius:9px; }
+  .tax-table-header { display:grid; grid-template-columns:minmax(160px,1.4fr) 120px 55px 100px 95px 95px 105px 100px 96px; gap:8px; padding:9px 10px; background:var(--surface2); color:var(--muted); font-size:.59rem; text-transform:uppercase; letter-spacing:.06em; min-width:1000px; }
+  #tax-validation-body { min-width:1000px; }
+  .validation-note { margin-top:11px; font-size:.67rem; color:var(--muted); line-height:1.5; }
+  @media (max-width: 900px) { .validation-summary { grid-template-columns:repeat(2,1fr); } }
   @media (max-width: 600px) { .summary-grid { grid-template-columns: repeat(2, 1fr); } }
+
 </style>
 </head>
 <body>
@@ -186,13 +215,31 @@
     <div id="assin-list"></div>
   </div>
 
-  <!-- STEP 3: Resumo + Gerar -->
+
+  <!-- STEP 3: Validação de taxas -->
+  <div class="card" id="tax-validation-section">
+    <div class="card-title" data-num="03">Validação das taxas</div>
+    <div class="validation-head">
+      <div class="validation-help">Confira a taxa de cada venda. Quando a taxa da Guru estiver vazia ou zerada, o sistema calcula automaticamente. Diferenças de até R$ 0,01 são consideradas normais. O valor abaixo é editável.</div>
+      <button class="btn btn-outline" id="btn-confirm-all-taxes">✓ Confirmar todas as taxas</button>
+    </div>
+    <div class="validation-summary" id="validation-summary"></div>
+    <div class="tax-table-wrap">
+      <div class="tax-table-header">
+        <div>Venda</div><div>Pagamento</div><div>Parc.</div><div>Valor venda</div><div>Taxa Guru</div><div>Calculada</div><div>Taxa final</div><div>Status</div><div>Ação</div>
+      </div>
+      <div id="tax-validation-body"></div>
+    </div>
+    <div class="validation-note">A planilha do Nibo e a conciliação usarão exatamente os valores confirmados nesta tela.</div>
+  </div>
+
+  <!-- STEP 4: Resumo + Gerar -->
   <div class="card" id="summary">
-    <div class="card-title" data-num="03">Resumo da conversão</div>
+    <div class="card-title" data-num="04">Resumo da conversão</div>
     <div class="summary-grid" id="summary-grid"></div>
     <div class="divider"></div>
     <div class="actions">
-      <button class="btn btn-primary" id="btn-generate">⬇ Gerar planilha Nibo</button>
+      <button class="btn btn-primary" id="btn-generate" disabled>⬇ Gerar planilha Nibo</button>
       <button class="btn btn-outline" id="btn-conciliacao">📊 Gerar conciliação</button>
       <button class="btn btn-outline" id="btn-preview">👁 Visualizar linhas</button>
     </div>
@@ -258,6 +305,7 @@ let assinRows = [];    // rows with assinatura codigo
 let normalRows = [];   // rows without assinatura
 // Map: rowIndex -> bool (true = lançar avulso também)
 let avulsoMap = {};
+let taxMap = {}; // rowIndex -> {value, expected, confirmed, method, installments, source, diff, configured}
 
 // ─── Helpers ──────────────────────────────────────────────────
 const $ = id => document.getElementById(id);
@@ -318,9 +366,193 @@ function processFile(file) {
   reader.readAsArrayBuffer(file);
 }
 
+// ─── Tax validation ─────────────────────────────────────────────
+const CARD_RATES = {1:0.0306,2:0.0530,3:0.0646,4:0.0762,5:0.0878,6:0.0994,7:0.1133,8:0.1249,9:0.1365,10:0.1481,11:0.1597,12:0.1713};
+const BOLETO_FEE = 3.19;
+// A imagem enviada corta antes dos detalhes do PIX. 0,95% é uma configuração inicial
+// baseada na própria planilha anexada (R$ 1,54 sobre R$ 162,00). Altere aqui se necessário.
+const PIX_RATE = 0.0095;
+const TAX_TOLERANCE = 0.01;
+
+function normalizeText(v) {
+  return fmt(v).trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+}
+
+function getPayment(row) {
+  return fmt(row['pagamento'] || row['forma pagamento'] || row['forma de pagamento'] || row['meio de pagamento'] || row['metodo pagamento'] || '').trim();
+}
+
+function getInstallments(row) {
+  const raw = row['parcelas'] ?? row['numero parcelas'] ?? row['número parcelas'] ?? row['quantidade parcelas'] ?? row['qtd parcelas'] ?? '';
+  const m = String(raw).match(/\d+/);
+  return m ? parseInt(m[0],10) : 1;
+}
+
+function getOriginalTax(row) {
+  const raw = row['valor marketplace'];
+  if (raw === '' || raw == null) return 0;
+  const n = Number(raw);
+  return Number.isFinite(n) ? n : 0;
+}
+
+function calculateExpectedTax(row) {
+  const payment = normalizeText(getPayment(row));
+  const sale = Math.abs(parseFloat(row['valor venda']) || 0);
+  const installments = getInstallments(row);
+
+  if (payment.includes('cartao') || payment.includes('credito')) {
+    const rate = CARD_RATES[installments];
+    if (rate == null) return {value:null, rate:null, label:`Cartão ${installments}x não configurado`};
+    return {value:Math.round(sale * rate * 100) / 100, rate, label:`Cartão ${installments}x`};
+  }
+  if (payment.includes('boleto')) {
+    return {value:BOLETO_FEE, rate:null, label:'Boleto'};
+  }
+  if (payment.includes('pix')) {
+    return {value:Math.round(sale * PIX_RATE * 100) / 100, rate:PIX_RATE, label:'PIX'};
+  }
+  return {value:null, rate:null, label:payment || 'Pagamento não identificado'};
+}
+
+function initTaxMap(data) {
+  taxMap = {};
+  data.forEach((row,i) => {
+    const original = getOriginalTax(row);
+    const calc = calculateExpectedTax(row);
+    const hasCalc = calc.value != null;
+    const value = original > 0 ? Math.round(original*100)/100 : (hasCalc ? calc.value : 0);
+    const diff = hasCalc ? Math.abs(value - calc.value) : null;
+    taxMap[i] = {
+      value,
+      expected: calc.value,
+      confirmed:false,
+      method:getPayment(row),
+      installments:getInstallments(row),
+      original,
+      source: original > 0 ? 'informada' : (hasCalc ? 'calculada' : 'manual'),
+      diff,
+      configured:hasCalc,
+      autoCalculated: original <= 0 && hasCalc,
+      edited:false
+    };
+  });
+}
+
+function isTaxWithinTolerance(i) {
+  const t = taxMap[i];
+  if (!t || t.expected == null) return false;
+  return Math.abs(Number(t.value) - Number(t.expected)) <= TAX_TOLERANCE + 1e-9;
+}
+
+function taxStatus(i) {
+  const t = taxMap[i];
+  if (!t) return {cls:'status-pending', text:'Pendente'};
+  if (t.expected == null) return {cls:'status-pending', text:'Manual'};
+  if (isTaxWithinTolerance(i)) return {cls:'status-ok', text:t.confirmed ? 'Confirmada' : 'OK — confirmar'};
+  return {cls:'status-error', text:t.confirmed ? 'Confirmada' : 'Divergente'};
+}
+
+function allTaxesConfirmed() {
+  return rawData.length > 0 && rawData.every((_,i) => taxMap[i] && taxMap[i].confirmed);
+}
+
+function renderTaxSummary() {
+  const total = rawData.length;
+  const confirmed = rawData.filter((_,i)=>taxMap[i]?.confirmed).length;
+  const ok = rawData.filter((_,i)=>taxMap[i] && (taxMap[i].expected == null || isTaxWithinTolerance(i))).length;
+  const divergent = rawData.filter((_,i)=>taxMap[i]?.expected != null && !isTaxWithinTolerance(i)).length;
+  $('validation-summary').innerHTML = `
+    <div class="validation-stat"><strong>${total}</strong><span>Vendas</span></div>
+    <div class="validation-stat"><strong>${ok}</strong><span>Dentro da tolerância</span></div>
+    <div class="validation-stat"><strong>${divergent}</strong><span>Divergentes</span></div>
+    <div class="validation-stat"><strong>${confirmed}/${total}</strong><span>Confirmadas</span></div>`;
+}
+
+function renderTaxValidation() {
+  const sec = $('tax-validation-section');
+  const body = $('tax-validation-body');
+  if (!rawData.length) { sec.style.display='none'; return; }
+  sec.style.display='block';
+  body.innerHTML = rawData.map((row,i) => {
+    const t = taxMap[i];
+    const calc = calculateExpectedTax(row);
+    const status = taxStatus(i);
+    const rowClass = t.expected == null ? 'tax-pending' : (isTaxWithinTolerance(i) ? 'tax-ok' : 'tax-error');
+    const nome = fmt(row['nome contato'] || '');
+    const oferta = fmt(row['nome oferta'] || '');
+    const sale = parseFloat(row['valor venda']) || 0;
+    const expectedText = t.expected == null ? '—' : fmtBRL(t.expected);
+    const rateText = calc.rate != null ? ` (${(calc.rate*100).toFixed(2).replace('.',',')}%)` : '';
+    return `<div class="tax-row ${rowClass}" id="tax-row-${i}">
+      <div class="tax-info"><strong title="${escHtml(nome)}">${escHtml(nome)}</strong><span title="${escHtml(oferta)}">${escHtml(oferta)}</span></div>
+      <div class="tax-number">${escHtml(t.method || '—')}</div>
+      <div class="tax-number">${t.installments ? t.installments+'x' : '—'}</div>
+      <div class="tax-number">${fmtBRL(sale)}</div>
+      <div class="tax-number">${fmtBRL(t.original)}</div>
+      <div class="tax-number">${expectedText}${rateText}</div>
+      <div><input class="tax-input ${t.edited ? 'changed':''}" id="tax-input-${i}" value="${numberToInput(t.value)}" inputmode="decimal" onchange="editTax(${i}, this.value)" title="Esperada: ${expectedText}${rateText}"></div>
+      <div class="tax-status ${status.cls}">${status.text}</div>
+      <div><button class="btn btn-outline btn-tax" onclick="confirmTax(${i})">${t.confirmed ? '✓ Confirmada' : 'Confirmar'}</button></div>
+    </div>`;
+  }).join('');
+  renderTaxSummary();
+  updateGenerateButton();
+}
+
+function numberToInput(v) {
+  return Number.isFinite(Number(v)) ? Number(v).toFixed(2).replace('.',',') : '';
+}
+
+function parseInputMoney(v) {
+  let s = String(v ?? '').trim().replace(/R\$\s?/gi,'');
+  if (!s) return 0;
+  if (s.includes(',') && s.includes('.')) s = s.replace(/\./g,'').replace(',','.');
+  else if (s.includes(',')) s = s.replace(',','.');
+  const n = Number(s);
+  return Number.isFinite(n) ? Math.round(n*100)/100 : NaN;
+}
+
+function editTax(i, value) {
+  const n = parseInputMoney(value);
+  if (!Number.isFinite(n)) return;
+  taxMap[i].value = n;
+  taxMap[i].confirmed = false;
+  taxMap[i].edited = true;
+  renderTaxValidation();
+  const input = $('tax-input-'+i);
+  if (input) { input.focus(); input.setSelectionRange(input.value.length,input.value.length); }
+}
+
+function confirmTax(i) {
+  if (!taxMap[i]) return;
+  taxMap[i].confirmed = true;
+  renderTaxValidation();
+}
+
+function confirmAllTaxes() {
+  rawData.forEach((_,i) => { if (taxMap[i]) taxMap[i].confirmed = true; });
+  renderTaxValidation();
+}
+
+function updateGenerateButton() {
+  const btn = $('btn-generate');
+  if (!btn) return;
+  btn.disabled = !allTaxesConfirmed();
+  btn.title = btn.disabled ? 'Confirme todas as taxas antes de gerar a planilha.' : '';
+}
+
+function getTaxValue(i) {
+  return taxMap[i] ? Number(taxMap[i].value) || 0 : getOriginalTax(rawData[i]);
+}
+
+function escHtml(v) {
+  return String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+}
+
 // ─── Analyze ──────────────────────────────────────────────────
 function analyzeData(data) {
   assinRows = []; normalRows = []; avulsoMap = {};
+  initTaxMap(data);
 
   data.forEach((row, i) => {
     const cod = fmt(row['assinatura código'] || row['assinatura_código'] || row['assinatura codigo'] || '');
@@ -333,6 +565,7 @@ function analyzeData(data) {
   });
 
   renderAssinSection();
+  renderTaxValidation();
   renderSummary();
 }
 
@@ -407,14 +640,14 @@ function renderSummary() {
 function buildOutputRows() {
   const rows = [];
 
-  function addRow(row, isVenda) {
+  function addRow(row, isVenda, rowIndex) {
     const date = parseDate(row['data aprovacao'] || row['data_aprovacao'] || '');
     const nome = fmt(row['nome contato'] || '');
     const oferta = fmt(row['nome oferta'] || '');
     const produto = fmt(row['nome produto'] || '');
     const cc = centroCusto(produto);
     const venda = parseFloat(row['valor venda']) || 0;
-    const mkt = parseFloat(row['valor marketplace']) || 0;
+    const mkt = getTaxValue(rowIndex);
     const id = fmt(row['id transação'] || row['id_transação'] || row['id transacao'] || '');
 
     if (isVenda) {
@@ -467,10 +700,10 @@ function buildOutputRows() {
     });
   }
 
-  normalRows.forEach(({row}) => addRow(row, true));
+  normalRows.forEach(({row, i}) => addRow(row, true, i));
   assinRows.forEach(({row, i}) => {
     const avulso = avulsoMap[i];
-    addRow(row, avulso); // se avulso=true, adiciona venda; se false só taxa
+    addRow(row, avulso, i); // se avulso=true, adiciona venda; se false só taxa
   });
 
   return rows;
@@ -498,8 +731,12 @@ $('btn-preview').addEventListener('click', () => {
   $('btn-preview').textContent = sec.style.display === 'none' ? '👁 Visualizar linhas' : '✕ Fechar preview';
 });
 
+
+$('btn-confirm-all-taxes').addEventListener('click', confirmAllTaxes);
+
 // ─── Generate XLSX ────────────────────────────────────────────
 $('btn-generate').addEventListener('click', () => {
+  if (!allTaxesConfirmed()) { alert('Confirme todas as taxas antes de gerar a planilha.'); return; }
   const rows = buildOutputRows();
 
   const headers = [
