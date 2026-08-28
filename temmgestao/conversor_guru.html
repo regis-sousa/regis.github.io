@@ -813,9 +813,9 @@ function buildConciliacaoRows() {
   function addConc(row, includeVenda) {
     const date  = parseDate(row['data aprovacao'] || row['data_aprovacao'] || '');
     const nome  = fmt(row['nome contato'] || '');
-    const id    = fmt(row['id transação'] || row['id_transação'] || row['id transacao'] || '');
+    const id    = getTransactionId(row);
     const venda = parseFloat(row['valor venda']) || 0;
-    const mkt   = parseFloat(row['valor marketplace']) || 0;
+    const mkt   = getTaxValue(rawData.indexOf(row));
     const isReembolso = venda < 0;
 
     if (includeVenda) {
