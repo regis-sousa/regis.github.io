@@ -1,0 +1,4 @@
+{
+  "_comentario": "Atualize 'totalBrawlersNoJogo' manualmente quando a Supercell lançar brawlers novos. É o único número que mantemos fora da API.",
+  "totalBrawlersNoJogo": 88
+}

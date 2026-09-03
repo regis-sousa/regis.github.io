@@ -1,0 +1,398 @@
+/* ============================================
+   BRAWL TRACKER — design tokens
+   Paleta: roxo-noturno (fundo do menu do jogo) +
+   dourado de troféu + laranja de energia.
+   ============================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Manrope:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --bg:          #150E2E;
+  --bg-panel:    #201640;
+  --bg-panel-alt:#2A1D52;
+  --bg-raised:   #33236A;
+
+  --gold:        #FFC63D;
+  --gold-deep:   #E8A317;
+  --orange:      #FF6B35;
+  --teal:        #35D9A8;
+  --red:         #FF5C7A;
+
+  --text:        #F4EFFF;
+  --text-muted:  #A79BC9;
+  --text-faint:  #6E5D96;
+
+  --border:      rgba(255,255,255,0.08);
+  --border-gold: rgba(255,198,61,0.35);
+
+  --radius-sm: 10px;
+  --radius-md: 16px;
+
+  --font-display: 'Baloo 2', system-ui, sans-serif;
+  --font-body: 'Manrope', system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  background-image:
+    radial-gradient(circle at 15% 0%, rgba(255,198,61,0.06), transparent 40%),
+    radial-gradient(circle at 85% 20%, rgba(255,107,53,0.06), transparent 45%);
+  color: var(--text);
+  font-family: var(--font-body);
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+a { color: inherit; text-decoration: none; }
+
+.wrap {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 24px 80px;
+}
+
+/* ---------- Header / nav ---------- */
+
+.site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22px 24px;
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+.brand {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.brand .mark {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 22px;
+  color: var(--gold);
+  letter-spacing: 0.5px;
+}
+
+.brand .sub {
+  font-size: 13px;
+  color: var(--text-faint);
+}
+
+.nav {
+  display: flex;
+  gap: 4px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 4px;
+}
+
+.nav a {
+  padding: 8px 18px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text-muted);
+  transition: background 0.15s, color 0.15s;
+}
+
+.nav a:hover { color: var(--text); }
+
+.nav a.active {
+  background: var(--gold);
+  color: #241505;
+}
+
+/* ---------- Hero ---------- */
+
+.hero {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 20px;
+  margin: 8px 0 28px;
+}
+
+.hero-identity {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 28px 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+}
+
+.player-name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 32px;
+  color: var(--text);
+}
+
+.player-tag {
+  font-size: 14px;
+  color: var(--text-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.player-meta {
+  display: flex;
+  gap: 18px;
+  margin-top: 14px;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.player-meta strong {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.hero-trophies {
+  background: linear-gradient(155deg, var(--bg-raised), var(--bg-panel-alt));
+  border: 1px solid var(--border-gold);
+  border-radius: var(--radius-md);
+  padding: 28px 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-trophies::before {
+  content: "";
+  position: absolute;
+  right: -30px;
+  top: -30px;
+  width: 140px;
+  height: 140px;
+  background: radial-gradient(circle, rgba(255,198,61,0.18), transparent 70%);
+}
+
+.hero-trophies .label {
+  font-size: 13px;
+  color: var(--gold);
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.hero-trophies .value {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 46px;
+  color: var(--gold);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.hero-trophies .record {
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* ---------- Stat grid (irregular sizing, not identical cards) ---------- */
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.stat-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--orange);
+  border-radius: var(--radius-sm);
+  padding: 18px 20px;
+}
+
+.stat-card.accent-gold { border-left-color: var(--gold); }
+.stat-card.accent-teal { border-left-color: var(--teal); }
+.stat-card.accent-red { border-left-color: var(--red); }
+
+.stat-card .num {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 26px;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-card .lbl {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* ---------- Progress bars ---------- */
+
+.progress-section {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 24px 28px;
+  margin-bottom: 28px;
+}
+
+.progress-section h2 {
+  font-family: var(--font-display);
+  font-size: 18px;
+  margin: 0 0 18px;
+  color: var(--text);
+}
+
+.progress-row {
+  display: grid;
+  grid-template-columns: 140px 1fr 90px;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
+.progress-row:last-child { margin-bottom: 0; }
+
+.progress-row .name { color: var(--text-muted); font-weight: 600; }
+
+.progress-track {
+  height: 10px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--orange), var(--gold));
+}
+
+.progress-row .amount {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* ---------- Section headings ---------- */
+
+.section-title {
+  font-family: var(--font-display);
+  font-size: 20px;
+  margin: 36px 0 16px;
+  color: var(--text);
+}
+
+/* ---------- Brawler grid ---------- */
+
+.brawler-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+
+.brawler-count {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.brawler-count strong { color: var(--gold); }
+
+.sort-select {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 14px;
+}
+
+.brawler-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 14px;
+}
+
+.brawler-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  transition: border-color 0.15s, transform 0.15s;
+  cursor: default;
+}
+
+.brawler-card:hover {
+  border-color: var(--border-gold);
+  transform: translateY(-2px);
+}
+
+.brawler-card .bname {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+
+.brawler-card .brow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12.5px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.brawler-card .brow b {
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.power-pill {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(255,198,61,0.12);
+  color: var(--gold);
+}
+
+/* ---------- Empty / loading states ---------- */
+
+.state-msg {
+  text-align: center;
+  color: var(--text-faint);
+  padding: 60px 0;
+  font-size: 14px;
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 760px) {
+  .hero { grid-template-columns: 1fr; }
+  .stat-grid { grid-template-columns: repeat(2, 1fr); }
+  .progress-row { grid-template-columns: 100px 1fr 70px; }
+  .nav a { padding: 8px 12px; font-size: 13px; }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .brawler-card { transition: none; }
+}

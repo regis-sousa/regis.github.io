@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brawl Tracker — Brawlers</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="brand">
+    <span class="mark">BRAWL TRACKER</span>
+    <span class="sub">by regiss.me</span>
+  </div>
+  <nav class="nav">
+    <a href="index.html">Dashboard</a>
+    <a href="brawlers.html" class="active">Brawlers</a>
+  </nav>
+</header>
+
+<main class="wrap">
+
+  <div class="brawler-toolbar">
+    <div class="brawler-count" id="contagem">Carregando…</div>
+    <select class="sort-select" id="ordenar">
+      <option value="trophies-desc">Troféus (maior → menor)</option>
+      <option value="trophies-asc">Troféus (menor → maior)</option>
+      <option value="rank-desc">Rank (maior → menor)</option>
+      <option value="name-asc">Nome (A → Z)</option>
+      <option value="power-desc">Poder (maior → menor)</option>
+    </select>
+  </div>
+
+  <div id="grade" class="brawler-grid"></div>
+
+</main>
+
+<script src="js/common.js"></script>
+<script src="js/brawlers.js"></script>
+</body>
+</html>

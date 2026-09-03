@@ -1,0 +1,28 @@
+{
+  "atualizadoEm": "2026-09-03T04:00:00Z",
+  "tag": "#232CGY9VQV",
+  "name": "Régis",
+  "expLevel": 250,
+  "expPoints": 1834500,
+  "trophies": 52430,
+  "highestTrophies": 55821,
+  "3vs3Victories": 8102,
+  "soloVictories": 2140,
+  "duoVictories": 2240,
+  "club": {
+    "tag": "#20YCVJJC",
+    "name": "Sem clube"
+  },
+  "brawlers": [
+    { "id": 16000000, "name": "SHELLY", "power": 11, "rank": 30, "trophies": 965, "highestTrophies": 1002,
+      "gadgets": [{"id": 1, "name": "Fume de Fumaça"}], "starPowers": [{"id": 1, "name": "Escudo de Chumbo"}], "gears": [{"id": 1, "name": "Velocidade"}] },
+    { "id": 16000001, "name": "COLT", "power": 10, "rank": 27, "trophies": 981, "highestTrophies": 981,
+      "gadgets": [], "starPowers": [{"id": 1, "name": "Recarga Ligeira"}], "gears": [] },
+    { "id": 16000004, "name": "SPIKE", "power": 11, "rank": 30, "trophies": 1024, "highestTrophies": 1087,
+      "gadgets": [{"id": 1, "name": "Fertilizante"}, {"id": 2, "name": "Espinhos Pontudos"}], "starPowers": [{"id": 1, "name": "Espinho Vingativo"}], "gears": [{"id": 1, "name": "Dano"}] },
+    { "id": 16000015, "name": "LEON", "power": 11, "rank": 29, "trophies": 998, "highestTrophies": 1010,
+      "gadgets": [{"id": 1, "name": "Cortina de Fumaça"}], "starPowers": [{"id": 1, "name": "Camuflagem"}, {"id": 2, "name": "Cascas de Serpente"}], "gears": [] },
+    { "id": 16000020, "name": "CROW", "power": 10, "rank": 28, "trophies": 944, "highestTrophies": 944,
+      "gadgets": [], "starPowers": [{"id": 1, "name": "Voo Noturno"}], "gears": [{"id": 1, "name": "Velocidade"}] }
+  ]
+}
