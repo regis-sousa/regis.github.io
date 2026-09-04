@@ -27,7 +27,7 @@
   .back-btn{margin-left:auto;padding:6px 14px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:8px;color:#fff;font-size:0.76rem;font-weight:600;text-decoration:none;white-space:nowrap;transition:background .2s;}
   .back-btn:hover{background:rgba(255,255,255,0.2);}
 
-  .container { max-width: 1180px; margin: 0 auto; padding: 28px 18px 60px; position:relative; z-index:1; }
+  .container { max-width: 1700px; width: calc(100% - 28px); margin: 0 auto; padding: 28px 14px 60px; position:relative; z-index:1; }
 
   /* Cards */
   .card {
@@ -150,38 +150,88 @@
   /* Tax validation */
   #tax-validation-section { display:none; }
   .validation-head { display:flex; justify-content:space-between; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:14px; }
-  .validation-help { font-size:.76rem; color:var(--muted); line-height:1.55; }
-  .validation-summary { display:grid; grid-template-columns:repeat(4,1fr); gap:9px; margin-bottom:14px; }
-  .validation-stat { background:var(--surface2); border:1px solid var(--border); border-radius:9px; padding:11px; text-align:center; }
-  .validation-stat strong { display:block; font-size:1.05rem; }
-  .validation-stat span { display:block; font-size:.61rem; color:var(--muted); margin-top:3px; text-transform:uppercase; }
-  .tax-row { display:grid; grid-template-columns:92px minmax(125px,1.6fr) 105px 42px 88px 82px 92px 92px 72px 82px; gap:6px; align-items:center; padding:10px 10px; border-bottom:1px solid rgba(42,47,69,.65); }
+  .validation-help { font-size:.82rem; color:var(--muted); line-height:1.55; }
+  #btn-confirm-all-taxes { display:none; }
+  .validation-summary { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:14px; }
+  .validation-stat { background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:13px; text-align:center; }
+  .validation-stat strong { display:block; font-size:1.18rem; font-weight:800; }
+  .validation-stat span { display:block; font-size:.67rem; color:var(--muted); margin-top:4px; text-transform:uppercase; letter-spacing:.04em; }
+
+  .tax-table-wrap { overflow-x:auto; overflow-y:hidden; border:1px solid var(--border); border-radius:10px; }
+  .tax-table-header, .tax-row {
+    display:grid;
+    grid-template-columns: minmax(180px,1.65fr) 118px 48px 105px 105px 118px 118px 112px minmax(250px,2fr) 105px;
+    gap:9px;
+    min-width:1450px;
+  }
+  .tax-table-header {
+    padding:11px 13px; background:var(--surface2); color:#9da6c5;
+    font-size:.67rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em;
+  }
+  .tax-row {
+    align-items:center; padding:13px; border-bottom:1px solid rgba(42,47,69,.75);
+    transition:background .18s, opacity .18s;
+  }
   .tax-row:last-child { border-bottom:none; }
-  .tax-row.tax-ok { background:rgba(0,201,167,.035); }
-  .tax-row.tax-error { background:rgba(248,113,113,.045); }
-  .tax-row.tax-pending { background:rgba(212,194,0,.035); }
-  .tax-info strong { display:block; font-size:.72rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .tax-number { font-family:'DM Mono',monospace; font-size:.67rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .tax-calculated { min-width:0; font-family:'DM Mono',monospace; font-size:.67rem; line-height:1.15; overflow:visible; }
-  .tax-calculated strong { display:block; white-space:nowrap; }
-  .tax-calculated span { display:block; margin-top:4px; font-size:.60rem; color:var(--muted); white-space:nowrap; }
-  .tax-id { font-family:'DM Mono',monospace; font-size:.63rem; color:var(--teal); cursor:pointer; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; border:1px solid transparent; border-radius:6px; padding:5px 4px; transition:.15s; }
+  .tax-row.tax-ok { background:rgba(0,201,167,.045); }
+  .tax-row.tax-error { background:rgba(248,113,113,.055); }
+  .tax-row.tax-pending { background:rgba(212,194,0,.045); }
+
+  /* Confirmada = linha bloqueada e visualmente escurecida */
+  .tax-row.tax-confirmed {
+    background:#111522 !important;
+    box-shadow:inset 4px 0 0 var(--teal);
+    opacity:.78;
+  }
+  .tax-row.tax-confirmed:hover { background:#0d111c !important; }
+  .tax-row.tax-confirmed .tax-input { background:#0b0f18; color:#7f879f; border-color:#202638; cursor:not-allowed; }
+  .tax-row.tax-confirmed .btn-tax { background:#102b29; border-color:#167c6d; color:#55d8c1; cursor:not-allowed; }
+
+  .tax-info strong {
+    display:block; font-size:.88rem; font-weight:700; line-height:1.35;
+    white-space:normal; overflow-wrap:anywhere;
+  }
+  .tax-number {
+    font-family:'DM Mono',monospace; font-size:.82rem; font-weight:500;
+    line-height:1.35; white-space:normal; overflow-wrap:anywhere;
+  }
+  .tax-calculated { min-width:0; font-family:'DM Mono',monospace; font-size:.84rem; font-weight:600; line-height:1.25; }
+  .tax-calculated strong { display:block; white-space:normal; font-weight:700; }
+  .tax-calculated span { display:block; margin-top:4px; font-size:.72rem; color:#8d96b5; white-space:normal; }
+
+  .tax-id {
+    font-family:'DM Mono',monospace; font-size:.76rem; font-weight:500; color:var(--teal);
+    cursor:pointer; white-space:normal; overflow-wrap:anywhere; word-break:break-word;
+    border:1px solid transparent; border-radius:7px; padding:7px 6px; line-height:1.3; transition:.15s;
+  }
   .tax-id:hover { border-color:var(--teal); background:rgba(0,201,167,.08); }
   .tax-id.copied { border-color:var(--teal); background:rgba(0,201,167,.12); }
-  .tax-input { width:100%; box-sizing:border-box; background:var(--surface2); border:1px solid var(--border); border-radius:7px; color:var(--text); padding:8px 7px; font-family:'DM Mono',monospace; font-size:.72rem; outline:none; }
-  .tax-input:focus { border-color:var(--teal); }
+
+  .tax-input {
+    width:100%; box-sizing:border-box; background:#151a2a; border:1px solid var(--border); border-radius:8px;
+    color:#f3f5fa; padding:9px 8px; font-family:'DM Mono',monospace; font-size:.82rem; font-weight:600; outline:none;
+  }
+  .tax-input:focus { border-color:var(--teal); box-shadow:0 0 0 2px rgba(0,201,167,.10); }
   .tax-input.changed { border-color:var(--yellow); }
-  .tax-status { font-size:.64rem; font-weight:700; line-height:1.25; }
-  .status-ok { color:var(--teal); } .status-error { color:var(--danger); } .status-pending { color:var(--yellow); }
-  .btn-tax { padding:7px 9px; font-size:.65rem; border-radius:7px; }
-  .tax-table-wrap { overflow:hidden; border:1px solid var(--border); border-radius:9px; }
-  .tax-table-header { display:grid; grid-template-columns:92px minmax(125px,1.6fr) 105px 42px 88px 82px 92px 92px 72px 82px; gap:6px; padding:9px 10px; background:var(--surface2); color:var(--muted); font-size:.59rem; text-transform:uppercase; letter-spacing:.06em; }
-  #tax-validation-body { min-width:0; }
-  .tax-copy-hint { font-size:.58rem; color:var(--muted); margin-top:2px; }
-  @media (max-width: 900px) { .container { max-width: 100%; } .tax-table-wrap { overflow-x:auto; } .tax-table-header, #tax-validation-body { min-width:940px; } }
-  .validation-note { margin-top:11px; font-size:.67rem; color:var(--muted); line-height:1.5; }
-  @media (max-width: 900px) { .validation-summary { grid-template-columns:repeat(2,1fr); } }
-  @media (max-width: 600px) { .summary-grid { grid-template-columns: repeat(2, 1fr); } }
+
+  .tax-status {
+    display:inline-flex; align-items:center; justify-content:center; width:max-content; max-width:100%;
+    padding:6px 9px; border-radius:7px; font-size:.72rem; font-weight:800; line-height:1.25;
+    border:1px solid currentColor;
+  }
+  .status-ok { color:#20d8b7; background:rgba(0,201,167,.11); }
+  .status-error { color:#ff7777; background:rgba(248,113,113,.11); }
+  .status-pending { color:#e6cf20; background:rgba(212,194,0,.11); }
+
+  .btn-tax { padding:8px 11px; font-size:.72rem; font-weight:700; border-radius:8px; white-space:nowrap; }
+  .tax-copy-hint { font-size:.62rem; color:var(--muted); margin-top:3px; }
+  @media (max-width: 900px) {
+    .container { max-width:100%; width:100%; padding-left:10px; padding-right:10px; }
+    .tax-table-wrap { overflow-x:auto; }
+    .validation-summary { grid-template-columns:repeat(2,1fr); }
+  }
+  @media (max-width: 600px) { .summary-grid { grid-template-columns:repeat(2,1fr); } }
+
 
 </style>
 </head>
@@ -233,7 +283,7 @@
     <div class="validation-summary" id="validation-summary"></div>
     <div class="tax-table-wrap">
       <div class="tax-table-header">
-        <div>ID</div><div>Venda</div><div>Pagamento</div><div>Parc.</div><div>Valor venda</div><div>Taxa Guru</div><div>Calculada</div><div>Taxa final</div><div>Status</div><div>Ação</div>
+        <div>Venda</div><div>Pagamento</div><div>Parc.</div><div>Valor venda</div><div>Taxa Guru</div><div>Calculada</div><div>Taxa final</div><div>Status</div><div>ID transação</div><div>Ação</div>
       </div>
       <div id="tax-validation-body"></div>
     </div>
@@ -524,17 +574,19 @@ function renderTaxValidation() {
     const sale = parseFloat(row['valor venda']) || 0;
     const expectedText = t.expected == null ? '—' : fmtBRL(t.expected);
     const rateText = calc.rate != null ? ` (${(calc.rate*100).toFixed(2).replace('.',',')}%)` : '';
-    return `<div class="tax-row ${rowClass}" id="tax-row-${i}">
-      <div class="tax-id" id="tax-id-${i}" title="Clique para copiar: ${escHtml(transactionId)}" onclick="copyTransactionId(${i})">${escHtml(transactionId || '—')}</div>
+    const confirmedClass = t.confirmed ? ' tax-confirmed' : '';
+    const locked = t.confirmed ? 'disabled' : '';
+    return `<div class="tax-row ${rowClass}${confirmedClass}" id="tax-row-${i}" title="${t.confirmed ? 'Taxa confirmada — linha bloqueada' : ''}">
       <div class="tax-info"><strong title="${escHtml(nome)}">${escHtml(nome)}</strong></div>
       <div class="tax-number">${escHtml(t.method || '—')}</div>
       <div class="tax-number">${t.installments ? t.installments+'x' : '—'}</div>
       <div class="tax-number">${fmtBRL(sale)}</div>
       <div class="tax-number">${fmtBRL(t.original)}</div>
       <div class="tax-calculated"><strong>${expectedText}</strong>${rateText ? `<span>${escHtml(rateText.trim())}</span>` : ''}</div>
-      <div><input class="tax-input ${t.edited ? 'changed':''}" id="tax-input-${i}" value="${numberToInput(t.value)}" inputmode="decimal" onchange="editTax(${i}, this.value)" title="Esperada: ${expectedText}${rateText}"></div>
+      <div><input class="tax-input ${t.edited ? 'changed':''}" id="tax-input-${i}" value="${numberToInput(t.value)}" inputmode="decimal" onchange="editTax(${i}, this.value)" title="Esperada: ${expectedText}${rateText}" ${locked}></div>
       <div class="tax-status ${status.cls}">${status.text}</div>
-      <div><button class="btn btn-outline btn-tax" onclick="confirmTax(${i})">${t.confirmed ? '✓ Confirmada' : 'Confirmar'}</button></div>
+      <div class="tax-id" id="tax-id-${i}" title="Clique para copiar: ${escHtml(transactionId)}" onclick="copyTransactionId(${i})">${escHtml(transactionId || '—')}</div>
+      <div><button class="btn btn-outline btn-tax" onclick="confirmTax(${i})" ${locked}>${t.confirmed ? '✓ Confirmada' : 'Confirmar'}</button></div>
     </div>`;
   }).join('');
   renderTaxSummary();
@@ -555,6 +607,7 @@ function parseInputMoney(v) {
 }
 
 function editTax(i, value) {
+  if (taxMap[i]?.confirmed) return;
   const n = parseInputMoney(value);
   if (!Number.isFinite(n)) return;
   taxMap[i].value = n;
