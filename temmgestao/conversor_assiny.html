@@ -28,7 +28,7 @@
   .back-btn{margin-left:auto;padding:6px 14px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);border-radius:8px;color:#fff;font-size:0.76rem;font-weight:600;text-decoration:none;white-space:nowrap;transition:background .2s;}
   .back-btn:hover{background:rgba(255,255,255,0.22);}
 
-  .wrap{max-width:820px;margin:0 auto;padding:28px 18px 60px;}
+  .wrap{width:100%;max-width:none;margin:0;padding:28px 24px 60px;}
   .section{margin-bottom:22px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px 22px;}
   .section-label{font-size:0.62rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--teal);margin-bottom:14px;display:flex;align-items:center;gap:7px;}
   .section-label::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--teal);}
@@ -114,7 +114,7 @@
   #btnDlConc:disabled,#btnCopyConc:disabled{opacity:.4;cursor:not-allowed;}
 
   /* stats */
-  .stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(108px,1fr));gap:9px;margin-bottom:16px;}
+  .stats-grid{display:grid;grid-template-columns:repeat(5,minmax(120px,1fr));gap:9px;margin-bottom:16px;}
   .stat-card{background:var(--card2);border:1px solid var(--border);border-radius:9px;padding:13px;text-align:center;animation:fadeUp .25s ease both;}
   @keyframes fadeUp{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
   .stat-num{font-size:1.5rem;font-weight:700;color:var(--blue);font-family:'Sora',sans-serif;}
@@ -123,10 +123,34 @@
   /* table */
   .preview-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:10px;flex-wrap:wrap;}
   .preview-count{font-size:0.78rem;color:var(--muted);font-weight:500;}
-  .tbl-wrap{overflow-x:auto;border-radius:9px;border:1px solid var(--border);max-height:460px;overflow-y:auto;}
-  table{width:100%;border-collapse:collapse;font-size:0.74rem;}
-  th{background:var(--card2);padding:9px 11px;text-align:left;font-size:0.62rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);white-space:nowrap;position:sticky;top:0;z-index:2;}
-  td{padding:7px 11px;border-bottom:1px solid rgba(42,47,69,.6);white-space:nowrap;}
+  .tbl-wrap{width:100%;overflow-x:hidden;border-radius:9px;border:1px solid var(--border);max-height:460px;overflow-y:auto;}
+  table{width:100%;border-collapse:collapse;font-size:0.72rem;table-layout:fixed;}
+  th{background:var(--card2);padding:9px 8px;text-align:left;font-size:0.59rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);white-space:nowrap;position:sticky;top:0;z-index:2;}
+  td{padding:7px 8px;border-bottom:1px solid rgba(42,47,69,.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  #sub-detalhe th:nth-child(1){width:7%;}
+  #sub-detalhe th:nth-child(2){width:15%;}
+  #sub-detalhe th:nth-child(3){width:16%;}
+  #sub-detalhe th:nth-child(4){width:13%;}
+  #sub-detalhe th:nth-child(5){width:11%;}
+  #sub-detalhe th:nth-child(6){width:7%;}
+  #sub-detalhe th:nth-child(7){width:7%;}
+  #sub-detalhe th:nth-child(8){width:6%;}
+  #sub-detalhe th:nth-child(9){width:5%;}
+  #sub-detalhe th:nth-child(10){width:5%;}
+  #sub-detalhe th:nth-child(11){width:4%;}
+  #sub-detalhe th:nth-child(12){width:4%;}
+  #sub-detalhe th:nth-child(13){width:5%;}
+  #sub-detalhe td:nth-child(2),#sub-detalhe td:nth-child(3),#sub-detalhe td:nth-child(4){font-weight:600;}
+  #sub-detalhe td:nth-child(3){color:var(--text);}
+  #sub-detalhe td:nth-child(4){font-size:.65rem;color:var(--muted);}
+  #sub-detalhe .taxa-cell{display:flex;align-items:center;gap:5px;min-width:0;}
+  #sub-detalhe .taxa-cell .taxa-edit{min-width:0;}
+  #sub-detalhe .taxa-input{width:68px;}
+  #sub-detalhe .btn-confirm-row{padding:4px 7px;background:rgba(212,194,0,.12);border:1px solid rgba(212,194,0,.45);border-radius:6px;color:var(--yellow);cursor:pointer;font-size:.61rem;font-weight:700;font-family:'Sora',sans-serif;white-space:nowrap;transition:all .15s;}
+  #sub-detalhe .btn-confirm-row:hover{background:rgba(212,194,0,.22);}
+  #sub-detalhe .btn-confirm-row.done{background:rgba(52,211,153,.12);border-color:var(--green);color:var(--green);cursor:default;}
+  #sub-detalhe .btn-confirm-row:disabled{opacity:.45;cursor:not-allowed;}
+  #sub-detalhe .btn-rowcopy{padding:4px 7px;font-size:.61rem;}
   tr:last-child td{border-bottom:none;}
   .row-entrada td{background:rgba(0,201,167,.04);}
   .row-taxa td{background:rgba(248,113,113,.04);}
@@ -160,6 +184,14 @@
   .btn-copy-all-cli{padding:5px 12px;background:rgba(5,83,241,.12);border:1px solid var(--blue);border-radius:7px;color:#6fa3ff;cursor:pointer;font-size:0.7rem;font-weight:600;font-family:'Sora',sans-serif;transition:all .15s;}
   .btn-copy-all-cli:hover{background:rgba(5,83,241,.22);}
   .btn-copy-all-cli.done{border-color:var(--green);color:var(--green);}
+
+  @media (max-width:900px){
+    .wrap{padding:18px 12px 40px;}
+    .section{padding:16px 14px;}
+    .stats-grid{grid-template-columns:repeat(2,minmax(110px,1fr));}
+    #sub-detalhe .tbl-wrap{overflow-x:auto;}
+    #sub-detalhe table{min-width:1050px;table-layout:auto;}
+  }
 </style>
 </head>
 <body>
@@ -271,17 +303,14 @@
         <div class="tbl-wrap">
           <table>
             <thead><tr>
-              <th>Copiar</th><th>Cliente</th><th>Produto</th><th>ID transação</th>
-              <th>Dia mov.</th><th>Compra</th><th>Cancel.</th><th>Forma</th>
-              <th>Valor</th><th>Taxa</th><th>Líquido</th><th>Descontado</th><th>Mov.</th>
+              <th>Copiar</th><th>Cliente</th><th>ID transação</th><th>Taxa</th><th>Confirmar</th>
+              <th>Produto</th><th>Dia mov.</th><th>Compra</th><th>Cancel.</th><th>Forma</th>
+              <th>Valor</th><th>Líquido</th><th>Descontado</th><th>Mov.</th>
             </tr></thead>
             <tbody id="concDetBody"></tbody>
           </table>
         </div>
-        <div class="confirm-bar hidden" id="concConfirmBar">
-          <span class="confirm-status" id="concConfirmStatus"></span>
-          <button class="btn-dl" id="btnConfirmTaxas" style="padding:9px 18px;">Confirmar taxas</button>
-        </div>
+
       </div>
 
       <!-- SUB: simples -->
@@ -666,7 +695,7 @@ function buildNibo(rows){
 }
 
 /* ----- build Conciliação (Assiny > Financeiro) ----- */
-let concDetail=[]; // {cliente,produto,idTrans,dataMov,dataCompra,dataCancel,forma,mov,motivo,valor,taxa,taxaCalc,liquido,desc}
+let concDetail=[]; // {cliente,produto,idTrans,dataMov,dataCompra,dataCancel,forma,mov,motivo,valor,taxa,taxaCalc,taxaConfirmed,liquido,desc}
 let concHasTaxaCol=false;   // arquivo já traz coluna de taxa?
 let concConfirmed=false;    // taxas confirmadas → libera baixar/copiar
 function buildConc(items){
@@ -851,19 +880,13 @@ function renderConc(){
       <div class="stat-lbl">${x.l}</div>
     </div>`).join('');
 
-  // --- barra de confirmação (só quando a taxa foi calculada) ---
-  const bar=document.getElementById('concConfirmBar');
-  if(concHasTaxaCol){
-    bar.classList.add('hidden');
-    concConfirmed=true;
-  }else{
-    bar.classList.remove('hidden');
-  }
+  // Cada taxa calculada é confirmada individualmente.
+  // Se o arquivo já trouxe a taxa, todas entram automaticamente confirmadas.
+  concConfirmed = concHasTaxaCol || concDetail.every(d => d.taxaConfirmed);
 
-  // --- tabela detalhada ---
   document.getElementById('concDetCount').innerHTML = concHasTaxaCol
-    ? `${concDetail.length} venda(s) — taxa lida do arquivo. Botão copia Entrada + Taxa no formato Nibo (competência = compra · previsão/vencimento = dia da movimentação).`
-    : `${concDetail.length} venda(s) — <b style="color:var(--yellow)">taxa calculada (Valor − Líquido)</b>. Revise, edite se precisar e clique em <b>Confirmar taxas</b> para liberar cópia/download.`;
+    ? `${concDetail.length} venda(s) — taxa lida do arquivo.`
+    : `${concDetail.length} venda(s) — <b style="color:var(--yellow)">taxa calculada (Valor − Líquido)</b>. Revise cada taxa e confirme no próprio registro.`;
 
   const dt=document.getElementById('concDetBody'); dt.innerHTML='';
   concDetail.forEach((d,i)=>{
@@ -871,29 +894,63 @@ function renderConc(){
     const cancelCell = d.dataCancel ? `<span class="val-neg">${d.dataCancel}</span>` : '—';
     const taxaCell = concHasTaxaCol
       ? `<span class="val-neg">-R$ ${brMoney(d.taxa)}</span>`
-      : `<span class="taxa-edit">-R$ <input type="text" class="taxa-input" data-i="${i}" value="${brMoney(d.taxa)}">`+
-        (d.taxaCalc?`<span class="badge-calc" title="Calculada: Valor − Líquido">calc</span>`:'')+`</span>`;
+      : `<div class="taxa-cell"><span class="taxa-edit">-R$ <input type="text" class="taxa-input" data-i="${i}" value="${brMoney(d.taxa)}"></span>`+
+        (d.taxaCalc?`<span class="badge-calc" title="Calculada: Valor − Líquido">calc</span>`:'')+`</div>`;
+    const confirmCell = concHasTaxaCol
+      ? `<button class="btn-confirm-row done" disabled>✓</button>`
+      : `<button class="btn-confirm-row ${d.taxaConfirmed?'done':''}" data-i="${i}" ${d.taxaConfirmed?'disabled':''}>${d.taxaConfirmed?'✓ Confirmado':'Confirmar'}</button>`;
+
     tr.innerHTML=
-      `<td><button class="btn-rowcopy" data-i="${i}" ${concConfirmed?'':'disabled'}>📋 Nibo</button></td>`+
-      `<td>${d.cliente||'—'}</td><td>${d.produto||'—'}</td>`+
-      `<td style="font-size:.66rem;color:var(--muted)">${d.idTrans||'—'}</td>`+
+      `<td><button class="btn-rowcopy" data-i="${i}" ${d.taxaConfirmed?'':'disabled'}>📋 Nibo</button></td>`+
+      `<td title="${String(d.cliente||'').replace(/"/g,'&quot;')}">${d.cliente||'—'}</td>`+
+      `<td title="${String(d.idTrans||'').replace(/"/g,'&quot;')}">${d.idTrans||'—'}</td>`+
+      `<td>${taxaCell}</td>`+
+      `<td>${confirmCell}</td>`+
+      `<td title="${String(d.produto||'').replace(/"/g,'&quot;')}">${d.produto||'—'}</td>`+
       `<td>${d.dataMov||'—'}</td><td>${d.dataCompra||'—'}</td><td>${cancelCell}</td>`+
       `<td>${d.forma||'—'}</td>`+
       `<td class="val-pos">R$ ${brMoney(d.valor)}</td>`+
-      `<td>${taxaCell}</td>`+
       `<td>R$ ${brMoney(d.liquido)}</td>`+
       `<td>${d.desc?('R$ '+brMoney(d.desc)):'—'}</td>`+
       `<td>${d.mov||'—'}</td>`;
     dt.appendChild(tr);
   });
 
-  // editar taxa → qualquer edição invalida a confirmação
+  // Confirmar uma única taxa.
+  dt.querySelectorAll('.btn-confirm-row:not(.done)').forEach(btn=>{
+    btn.onclick=()=>{
+      const i=+btn.dataset.i;
+      const inp=dt.querySelector(`.taxa-input[data-i="${i}"]`);
+      if(inp) concDetail[i].taxa=Math.abs(num(inp.value));
+      concDetail[i].taxaConfirmed=true;
+      buildConcOutputs();
+      btn.textContent='✓ Confirmado';
+      btn.classList.add('done');
+      btn.disabled=true;
+      const copyBtn=dt.querySelector(`.btn-rowcopy[data-i="${i}"]`);
+      if(copyBtn) copyBtn.disabled=false;
+      updateConcGating();
+    };
+  });
+
+  // Editar uma taxa invalida somente a confirmação daquela linha.
   dt.querySelectorAll('.taxa-input').forEach(inp=>{
     inp.addEventListener('input',()=>{
       const i=+inp.dataset.i;
       concDetail[i].taxa=Math.abs(num(inp.value));
       concDetail[i].taxaCalc=false;
-      if(concConfirmed){ concConfirmed=false; updateConcGating(); }
+      concDetail[i].taxaConfirmed=false;
+
+      const row=inp.closest('tr');
+      const confirmBtn=row?.querySelector('.btn-confirm-row');
+      const copyBtn=row?.querySelector('.btn-rowcopy');
+      if(confirmBtn){
+        confirmBtn.disabled=false;
+        confirmBtn.textContent='Confirmar';
+        confirmBtn.classList.remove('done');
+      }
+      if(copyBtn) copyBtn.disabled=true;
+      updateConcGating();
     });
   });
 
@@ -936,36 +993,23 @@ function bindRowCopy(dt){
   });
 }
 
-/* Habilita/desabilita cópia e download conforme confirmação das taxas. */
+/* Habilita/desabilita cópia e download quando TODAS as taxas calculadas foram confirmadas. */
 function updateConcGating(){
-  const on=concConfirmed;
-  document.querySelectorAll('#concDetBody .btn-rowcopy').forEach(b=>b.disabled=!on);
-  const dl=document.getElementById('btnDlConc'), cp=document.getElementById('btnCopyConc');
-  if(dl) dl.disabled=!on;
-  if(cp) cp.disabled=!on;
-  const st=document.getElementById('concConfirmStatus');
-  const bc=document.getElementById('btnConfirmTaxas');
-  if(st) st.textContent = on ? '✓ Taxas confirmadas — cópia e download liberados.' : '⚠ Revise as taxas calculadas e confirme para liberar.';
-  if(st) st.style.color = on ? 'var(--green)' : 'var(--yellow)';
-  if(bc) bc.textContent = on ? '✓ Confirmado' : 'Confirmar taxas';
-  if(bc) bc.classList.toggle('done', on);
-}
+  concConfirmed = concHasTaxaCol || (concDetail.length>0 && concDetail.every(d=>d.taxaConfirmed));
 
-function confirmTaxas(){
-  // relê os inputs (garante que o último valor digitado entrou), regenera saídas
-  document.querySelectorAll('#concDetBody .taxa-input').forEach(inp=>{
-    const i=+inp.dataset.i;
-    concDetail[i].taxa=Math.abs(num(inp.value));
+  document.querySelectorAll('#concDetBody .btn-rowcopy').forEach(b=>{
+    const i=+b.dataset.i;
+    b.disabled=!concDetail[i]?.taxaConfirmed;
   });
-  buildConcOutputs();
-  concConfirmed=true;
-  document.getElementById('concCount').textContent=`${concRows.length} linha(s) convertida(s)`;
-  renderConcSimple();
-  // reflete a taxa confirmada na coluna Líquido? não — apenas normaliza o input exibido
-  document.querySelectorAll('#concDetBody .taxa-input').forEach(inp=>{
-    const i=+inp.dataset.i; inp.value=brMoney(concDetail[i].taxa);
-  });
-  updateConcGating();
+
+  const dl=document.getElementById('btnDlConc'), cp=document.getElementById('btnCopyConc');
+  if(dl) dl.disabled=!concConfirmed;
+  if(cp) cp.disabled=!concConfirmed;
+
+  const pending=concDetail.filter(d=>!d.taxaConfirmed).length;
+  document.getElementById('concDetCount').innerHTML = concHasTaxaCol
+    ? `${concDetail.length} venda(s) — taxa lida do arquivo.`
+    : `${concDetail.length} venda(s) — ${pending ? `<b style="color:var(--yellow)">${pending} taxa(s) pendente(s) de confirmação</b>.` : '<b style="color:var(--green)">Todas as taxas confirmadas.</b>'}`;
 }
 
 function renderCli(){
@@ -1021,7 +1065,6 @@ document.getElementById('btnCopyNibo').addEventListener('click',e=>{
   niboRows.forEach(r=>lines.push([r.Tipo,r.Contato,r.Descricao,r.Categoria,decComma(r.Valor),r.Venc,r.Prev,r.Comp,r.Centro,r.Fav,r.TipoContato,r.Ref,r.Conta,r.DataPag,r.Anotacao].join('\t')));
   copyText(lines.join('\n')); flash(e.target,'✓ Copiado!');
 });
-document.getElementById('btnConfirmTaxas').addEventListener('click',()=>{ confirmTaxas(); });
 document.getElementById('btnDlConc').addEventListener('click',()=>{
   if(!concConfirmed) return;
   if(concWb) XLSX.writeFile(concWb,`conciliacao_assiny_${niboDateTag||''}.xlsx`.replace('_.xlsx','.xlsx'));
