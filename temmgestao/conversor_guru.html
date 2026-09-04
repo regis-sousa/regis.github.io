@@ -157,19 +157,20 @@
   .validation-stat strong { display:block; font-size:1.18rem; font-weight:800; }
   .validation-stat span { display:block; font-size:.67rem; color:var(--muted); margin-top:4px; text-transform:uppercase; letter-spacing:.04em; }
 
-  .tax-table-wrap { overflow-x:auto; overflow-y:hidden; border:1px solid var(--border); border-radius:10px; }
+  .tax-table-wrap { overflow:hidden; width:100%; border:1px solid var(--border); border-radius:10px; }
   .tax-table-header, .tax-row {
     display:grid;
-    grid-template-columns: minmax(180px,1.65fr) 118px 48px 105px 105px 118px 118px 112px minmax(250px,2fr) 105px;
-    gap:9px;
-    min-width:1450px;
+    /* Tudo cabe na largura disponível. O ID fica controlado e o botão sempre recebe espaço fixo. */
+    grid-template-columns: minmax(150px,1.55fr) minmax(105px,.9fr) minmax(42px,.42fr) minmax(82px,.85fr) minmax(82px,.85fr) minmax(100px,1fr) minmax(100px,1fr) minmax(95px,.95fr) minmax(175px,1.55fr) minmax(92px,.78fr);
+    gap:7px;
+    width:100%;
   }
   .tax-table-header {
-    padding:11px 13px; background:var(--surface2); color:#9da6c5;
-    font-size:.67rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em;
+    padding:10px 12px; background:var(--surface2); color:#9da6c5;
+    font-size:.64rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em;
   }
   .tax-row {
-    align-items:center; padding:13px; border-bottom:1px solid rgba(42,47,69,.75);
+    align-items:center; padding:11px 12px; border-bottom:1px solid rgba(42,47,69,.75);
     transition:background .18s, opacity .18s;
   }
   .tax-row:last-child { border-bottom:none; }
@@ -200,9 +201,10 @@
   .tax-calculated span { display:block; margin-top:4px; font-size:.72rem; color:#8d96b5; white-space:normal; }
 
   .tax-id {
-    font-family:'DM Mono',monospace; font-size:.76rem; font-weight:500; color:var(--teal);
+    font-family:'DM Mono',monospace; font-size:.69rem; font-weight:500; color:var(--teal);
     cursor:pointer; white-space:normal; overflow-wrap:anywhere; word-break:break-word;
-    border:1px solid transparent; border-radius:7px; padding:7px 6px; line-height:1.3; transition:.15s;
+    border:1px solid transparent; border-radius:7px; padding:5px 5px; line-height:1.22; transition:.15s;
+    min-width:0;
   }
   .tax-id:hover { border-color:var(--teal); background:rgba(0,201,167,.08); }
   .tax-id.copied { border-color:var(--teal); background:rgba(0,201,167,.12); }
@@ -223,11 +225,23 @@
   .status-error { color:#ff7777; background:rgba(248,113,113,.11); }
   .status-pending { color:#e6cf20; background:rgba(212,194,0,.11); }
 
-  .btn-tax { padding:8px 11px; font-size:.72rem; font-weight:700; border-radius:8px; white-space:nowrap; }
+  .btn-tax { padding:8px 9px; font-size:.68rem; font-weight:700; border-radius:8px; white-space:nowrap; width:100%; justify-content:center; min-width:0; }
   .tax-copy-hint { font-size:.62rem; color:var(--muted); margin-top:3px; }
+  @media (max-width: 1250px) {
+    .tax-table-header, .tax-row { gap:5px; }
+    .tax-table-header { font-size:.58rem; }
+    .tax-row { padding-left:8px; padding-right:8px; }
+    .tax-info strong { font-size:.78rem; }
+    .tax-number { font-size:.72rem; }
+    .tax-calculated { font-size:.74rem; }
+    .tax-input { font-size:.74rem; padding:8px 6px; }
+    .tax-status { font-size:.64rem; padding:5px 6px; }
+    .tax-id { font-size:.62rem; }
+    .btn-tax { font-size:.61rem; padding:7px 5px; }
+  }
   @media (max-width: 900px) {
     .container { max-width:100%; width:100%; padding-left:10px; padding-right:10px; }
-    .tax-table-wrap { overflow-x:auto; }
+    .tax-table-wrap { overflow:hidden; }
     .validation-summary { grid-template-columns:repeat(2,1fr); }
   }
   @media (max-width: 600px) { .summary-grid { grid-template-columns:repeat(2,1fr); } }
