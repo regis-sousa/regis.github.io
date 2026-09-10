@@ -845,6 +845,8 @@ function buildConc(items){
   if(nSaidas) log(`  ℹ ${nSaidas} saída(s) no arquivo (reembolso/cancelamento).`,'warn');
 
   buildConcOutputs(); // gera concRows + concWb a partir do concDetail atual
+  const nI=(concRows._stats&&concRows._stats.nI)||0;
+  if(nI) log(`  ℹ ${nI} movimentação(ões) do financeiro não geraram linha de conciliação (não são venda, reembolso ou tarifa de cancelamento) — isso não afeta o lançamento das vendas.`,'warn');
 }
 
 /* (Re)gera as linhas da conciliação simples e o workbook a partir do concDetail
@@ -970,7 +972,6 @@ function renderConcStats(){
     {n:s.nR||0,l:'Reembolsos'},{n:s.nC||0,l:'Cancelamentos'},
     {n:concRows.length,l:'Linhas conc.'},
   ];
-  if(s.nI) stats.push({n:s.nI,l:'Ignoradas',warn:true});
   document.getElementById('concStats').innerHTML=stats.map((x,i)=>`
     <div class="stat-card" style="animation-delay:${i*0.05}s">
       <div class="stat-num" style="${x.warn?'color:var(--red-dim)':''}">${x.n}</div>
