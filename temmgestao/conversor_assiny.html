@@ -500,23 +500,34 @@ function fixMojibake(s){
   }catch(e){ return s; }
 }
 
-/* RFC-4180 CSV */
-function parseCsvLine(line){
+/* RFC-4180 CSV — aceita vírgula, ponto e vírgula (padrão BR do Excel) ou tab */
+function countChar(str, ch){ let n=0; for(let i=0;i<str.length;i++) if(str[i]===ch) n++; return n; }
+function detectDelimiter(line){
+  const opts=[',',';','\t'];
+  let best=',', bestN=-1;
+  opts.forEach(ch=>{
+    const n=countChar(line, ch);
+    if(n>bestN){ bestN=n; best=ch; }
+  });
+  return bestN>0 ? best : ',';
+}
+function parseCsvLine(line, delim=','){
   const f=[]; let cur='',inQ=false;
   for(let i=0;i<line.length;i++){
     const c=line[i];
     if(inQ){ if(c==='"'&&line[i+1]==='"'){cur+='"';i++;} else if(c==='"'){inQ=false;} else cur+=c; }
-    else { if(c==='"')inQ=true; else if(c===','){f.push(cur);cur='';} else cur+=c; }
+    else { if(c==='"')inQ=true; else if(c===delim){f.push(cur);cur='';} else cur+=c; }
   }
   f.push(cur); return f;
 }
 function csvTextToRows(text){
   const lines=text.split(/\r?\n/).filter(l=>l.trim()!=='');
   if(lines.length<2) return [];
-  const headers=parseCsvLine(lines[0]).map(h=>h.trim());
+  const delim=detectDelimiter(lines[0]);
+  const headers=parseCsvLine(lines[0], delim).map(h=>h.trim());
   const rows=[];
   for(let i=1;i<lines.length;i++){
-    const vals=parseCsvLine(lines[i]);
+    const vals=parseCsvLine(lines[i], delim);
     const o={}; headers.forEach((h,idx)=>o[h]=fixMojibake(vals[idx]!==undefined?vals[idx].trim():''));
     rows.push(o);
   }
@@ -539,7 +550,10 @@ async function readFile(file){
         const raw=XLSX.utils.sheet_to_json(ws,{defval:'',raw:true});
         if(raw.length>0){
           const fk=Object.keys(raw[0])[0];
-          if(fk.includes(',')&&fk.split(',').length>5){
+          // Excel às vezes joga o CSV inteiro (vírgula OU ponto e vírgula) numa única coluna.
+          // Detecta o delimitador mais provável no cabeçalho e, se fizer sentido (>5 campos), quebra tudo.
+          const delim=detectDelimiter(fk);
+          if(countChar(fk, delim)>5){
             const csvText=[fk,...raw.map(row=>String(row[fk]))].join('\n');
             res(csvTextToRows(csvText)); return;
           }
