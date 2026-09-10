@@ -477,6 +477,7 @@ function addDaysBR(v, n){
 }
 function brMoney(n){ return Math.abs(n).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
 function decComma(n){ return n.toFixed(2).replace('.',','); }
+function escAttr(s){ return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;'); }
 /* Parses a "dd/mm/yyyy" string into a UTC Date, or null if invalid/empty. */
 function parseBRDate(s){
   const m=String(s||'').trim().match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
@@ -998,9 +999,9 @@ function renderVendas(){
     const tr=document.createElement('tr');
     tr.className=rowClass;
     tr.innerHTML=
-      `<td>${d.cliente||'—'}</td>`+
+      `<td class="copyable" data-copy="${escAttr(d.cliente)}" title="Clique para copiar o nome completo">${d.cliente||'—'}</td>`+
       `<td title="${String(d.produto||'').replace(/"/g,'&quot;')}">${d.produto||'—'}</td>`+
-      `<td style="font-family:monospace;font-size:.62rem;word-break:break-all;">${d.idTrans||'—'}</td>`+
+      `<td class="copyable" style="font-family:monospace;font-size:.62rem;word-break:break-all;" data-copy="${escAttr(d.idTrans)}" title="Clique para copiar o ID completo">${d.idTrans||'—'}</td>`+
       `<td>${d.dataCompra||'—'}</td>`+
       `<td>${d.dataMov||'—'}</td>`+
       `<td>${diffHtml}</td>`+
@@ -1009,6 +1010,8 @@ function renderVendas(){
       `<td><button class="btn-del" data-id="${d.idTrans}">🗑</button></td>`;
     tb.appendChild(tr);
   });
+
+  bindCellCopy(tb);
 
   tb.querySelectorAll('.btn-del').forEach(btn=>{
     btn.onclick=()=>{
@@ -1157,32 +1160,51 @@ function renderConcSimple(){
   document.getElementById('concCount').textContent=`${concRows.length} linha(s) convertida(s)`;
 }
 
+/* Generalizada: copia o valor em data-copy (usada na aba Vendas). Mantida também a
+   variante por índice (data-i/data-copy-type) usada na aba Detalhe/Taxas. */
 function bindCellCopy(dt){
-  dt.querySelectorAll('.copyable').forEach(cell=>{
+  dt.querySelectorAll('.copyable[data-copy]').forEach(cell=>{
     cell.addEventListener('click', async ()=>{
-      const i=+cell.dataset.i;
-      const type=cell.dataset.copyType;
-      const value=type==='id' ? concDetail[i]?.idTrans : concDetail[i]?.cliente;
+      const value=cell.dataset.copy;
       if(!value) return;
-      try{
-        await copyText(value);
+      const ok=await copyOrPrompt(value);
+      if(ok){
         cell.classList.add('copied');
         const original=cell.dataset.originalText || cell.textContent;
         cell.dataset.originalText=original;
         cell.textContent='✓ Copiado';
         setTimeout(()=>{ cell.textContent=original; cell.classList.remove('copied'); },1200);
-      }catch(e){}
+      }
+    });
+  });
+  dt.querySelectorAll('.copyable[data-copy-type]').forEach(cell=>{
+    cell.addEventListener('click', async ()=>{
+      const i=+cell.dataset.i;
+      const type=cell.dataset.copyType;
+      const value=type==='id' ? concDetail[i]?.idTrans : concDetail[i]?.cliente;
+      if(!value) return;
+      const ok=await copyOrPrompt(value);
+      if(ok){
+        cell.classList.add('copied');
+        const original=cell.dataset.originalText || cell.textContent;
+        cell.dataset.originalText=original;
+        cell.textContent='✓ Copiado';
+        setTimeout(()=>{ cell.textContent=original; cell.classList.remove('copied'); },1200);
+      }
     });
   });
 }
 
 function bindRowCopy(dt){
   dt.querySelectorAll('.btn-rowcopy').forEach(btn=>{
-    btn.onclick=()=>{
+    btn.onclick=async ()=>{
       if(btn.disabled) return;
-      copyText(concRowToNiboTSV(concDetail[+btn.dataset.i]));
-      const o=btn.textContent; btn.textContent='✓ Copiado'; btn.classList.add('done');
-      setTimeout(()=>{btn.textContent=o; btn.classList.remove('done');},1500);
+      const o=btn.textContent;
+      const ok=await copyOrPrompt(concRowToNiboTSV(concDetail[+btn.dataset.i]));
+      if(ok){
+        btn.textContent='✓ Copiado'; btn.classList.add('done');
+        setTimeout(()=>{btn.textContent=o; btn.classList.remove('done');},1500);
+      }
     };
   });
 }
@@ -1231,18 +1253,32 @@ function renderCli(){
 }
 
 /* ===================== COPY / DOWNLOAD ===================== */
-function copyText(text){
+/* Tenta a Clipboard API moderna; se não existir ou for bloqueada (ex.: site sem HTTPS,
+   iframe sem permissão), cai para execCommand. Retorna true/false — antes disso o app
+   mostrava "✓ Copiado" mesmo quando a cópia falhava silenciosamente. */
+async function copyText(text){
   if(navigator.clipboard && navigator.clipboard.writeText){
-    return navigator.clipboard.writeText(text).catch(()=>fallbackCopy(text));
+    try{ await navigator.clipboard.writeText(text); return true; }catch(e){ /* cai pro fallback */ }
   }
-  fallbackCopy(text);
+  return fallbackCopy(text);
 }
 function fallbackCopy(text){
-  const ta=document.createElement('textarea'); ta.value=text;
-  ta.style.position='fixed'; ta.style.opacity='0';
-  document.body.appendChild(ta); ta.select();
-  try{document.execCommand('copy');}catch(e){}
-  document.body.removeChild(ta);
+  try{
+    const ta=document.createElement('textarea'); ta.value=text;
+    ta.style.position='fixed'; ta.style.top='0'; ta.style.left='0'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    const ok=document.execCommand('copy');
+    document.body.removeChild(ta);
+    return ok;
+  }catch(e){ return false; }
+}
+/* Última garantia: se as duas formas de copiar automaticamente falharem, mostra o valor
+   num prompt para o usuário copiar manualmente (Ctrl+C) — nunca fica sem opção. */
+function copyOrPrompt(text, msg){
+  return copyText(text).then(ok=>{
+    if(!ok) window.prompt(msg||'Não consegui copiar automaticamente. Copie o valor abaixo (Ctrl+C):', text);
+    return ok;
+  });
 }
 function flash(btn,msg){
   const o=btn.textContent; btn.textContent=msg;
@@ -1252,30 +1288,33 @@ function flash(btn,msg){
 document.getElementById('btnDlNibo').addEventListener('click',()=>{
   if(niboWb) XLSX.writeFile(niboWb,`nibo_lancamentos_assiny_${niboDateTag}.xlsx`);
 });
-document.getElementById('btnCopyNibo').addEventListener('click',e=>{
+document.getElementById('btnCopyNibo').addEventListener('click',async e=>{
   if(!niboRows.length) return;
   const header=['Tipo de transação','Nome do contato','Descrição','Categoria','Valor','Vencimento','Previsto para','Competência','Centro de custo','Favorito','Tipo de contato','Referência','Conta','Data pag/rec/transferência','Anotação'];
   const lines=[header.join('\t')];
   niboRows.forEach(r=>lines.push([r.Tipo,r.Contato,r.Descricao,r.Categoria,decComma(r.Valor),r.Venc,r.Prev,r.Comp,r.Centro,r.Fav,r.TipoContato,r.Ref,r.Conta,r.DataPag,r.Anotacao].join('\t')));
-  copyText(lines.join('\n')); flash(e.target,'✓ Copiado!');
+  const ok=await copyOrPrompt(lines.join('\n'));
+  if(ok) flash(e.target,'✓ Copiado!');
 });
 document.getElementById('btnDlConc').addEventListener('click',()=>{
   if(!concConfirmed) return;
   if(concWb) XLSX.writeFile(concWb,`conciliacao_assiny_${niboDateTag||''}.xlsx`.replace('_.xlsx','.xlsx'));
 });
-document.getElementById('btnCopyConc').addEventListener('click',e=>{
+document.getElementById('btnCopyConc').addEventListener('click',async e=>{
   if(!concConfirmed || !concRows.length) return;
   const lines=concRows.map(r=>{
     const val=(r.neg?-Math.abs(r.Valor):Math.abs(r.Valor)).toFixed(2).replace('.',',');
     return `${r.Data}\t${r.Descricao}\t${val}`;
   });
-  copyText(lines.join('\n')); flash(e.target,'✓ Copiado!');
+  const ok=await copyOrPrompt(lines.join('\n'));
+  if(ok) flash(e.target,'✓ Copiado!');
 });
-document.getElementById('btnCopyAllCli').addEventListener('click',e=>{
+document.getElementById('btnCopyAllCli').addEventListener('click',async e=>{
   if(!clientes.length) return;
   // Sem cabeçalho — colunas separadas por TAB, uma linha por cliente (igual colar do Excel).
   const lines=clientes.map(c=>[c.nome,c.email,c.telefone,c.endereco,c.doc,c.celular].join('\t'));
-  copyText(lines.join('\n')); flash(e.target,'✓ Copiado!');
+  const ok=await copyOrPrompt(lines.join('\n'));
+  if(ok) flash(e.target,'✓ Copiado!');
 });
 
 document.getElementById('btnTogglePreview').addEventListener('click',e=>{
