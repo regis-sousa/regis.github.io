@@ -88,7 +88,7 @@
   .cmp-day-total b{color:#fff;}
   .cmp-transfer{padding:8px 12px;border-radius:7px;border:1px solid rgba(0,201,167,.4);background:rgba(0,201,167,.10);color:var(--teal);font:700 .65rem 'Sora',sans-serif;cursor:pointer;}
   .cmp-transfer.done{background:rgba(52,211,153,.12);border-color:var(--green);color:var(--green);}.cmp-transfer:disabled{opacity:.35;cursor:not-allowed;}
-  .cmp-unmatched{padding:12px;color:var(--muted);font-size:.65rem;text-align:center;}
+  .cmp-assiny-drop{margin-top:8px;min-height:34px;padding:7px;border:1px dashed rgba(0,201,167,.45);border-radius:7px;background:rgba(0,201,167,.04);color:var(--muted);font-size:.60rem;line-height:1.5;} .cmp-assiny-drop.drag-over{border-color:var(--teal);background:rgba(0,201,167,.13);box-shadow:0 0 0 2px rgba(0,201,167,.08) inset;} .cmp-assiny-entry.validated{background:rgba(0,201,167,.035);}.cmp-nibo-entry{cursor:grab;}.cmp-nibo-entry:active{cursor:grabbing;}.cmp-nibo-entry.linked{opacity:.62;}.cmp-linked{display:inline-flex;align-items:center;gap:4px;margin:2px 4px 0 0;padding:3px 5px;border-radius:4px;background:rgba(5,83,241,.10);color:#b8ccff;}.cmp-remove-nibo{border:0;background:transparent;color:inherit;cursor:pointer;font-weight:700;padding:0 2px;}.cmp-validated{padding:3px 6px;border-radius:4px;background:rgba(52,211,153,.12);color:var(--green);font-size:.58rem;font-weight:700;}.cmp-relation-calc{margin-top:7px;padding-top:7px;border-top:1px solid rgba(42,47,69,.5);}.cmp-diff-log{border:1px solid var(--border);border-radius:8px;overflow:auto;background:#12151F;}.cmp-diff-row{display:grid;grid-template-columns:100px 1fr 1fr 1fr 1fr;gap:8px;padding:8px 10px;border-bottom:1px solid rgba(42,47,69,.65);font-size:.60rem;color:var(--muted);}.cmp-diff-row:last-child{border-bottom:0;} .cmp-diff-row span:first-child{color:#fff;font-weight:700;}  .cmp-unmatched{padding:12px;color:var(--muted);font-size:.65rem;text-align:center;}
   .cmp-relation{margin:12px 0;padding:10px 12px;border:1px dashed var(--border);border-radius:8px;font-size:.64rem;color:var(--muted);line-height:1.6;}
   @media(max-width:900px){.cmp-day-head{grid-template-columns:1fr 1fr;}.cmp-day-arrow{grid-column:2;text-align:right}.cmp-day-columns{grid-template-columns:1fr}.compare-summary{grid-template-columns:repeat(2,1fr)}}
   @media(max-width:900px){.top-nav{margin-left:0}.compare-grid,.compare-config{grid-template-columns:1fr}.compare-summary{grid-template-columns:repeat(2,1fr)}}
@@ -540,7 +540,7 @@
     <div class="balance-box" id="cmpBalanceResult"></div>
     <div class="section-label" style="margin-top:12px;">Conciliação por dia</div>
     <div class="hint">Clique em um dia para abrir todos os lançamentos daquele dia. A esquerda mostra tudo que entrou/movimentou na <b>Assiny</b>; a direita mostra os lançamentos encontrados no <b>Nibo</b>. Cada venda pode ser confirmada individualmente. O botão de transferência existe somente no fechamento do próprio dia.</div>
-    <div id="cmpDailyBody" class="cmp-days"></div>
+    <div id="cmpDailyBody" class="cmp-days"></div><div id="cmpDifferenceLog"></div>
   </div>
 </div>
 </div>
@@ -1470,40 +1470,35 @@ document.getElementById('btnTogglePreview').addEventListener('click',e=>{
 
 /* ===================== ASSINY × NIBO ===================== */
 let cmpAssinyFile=null, cmpNiboFile=null;
-let cmpAssinyRows=[], cmpNiboRows=[], cmpMatches=[];
-const CMP_KEY='assinyNiboConciliacao_v2';
+let cmpAssinyRows=[], cmpNiboRows=[], cmpAssinyEntries=[], cmpNiboEntries=[];
+const CMP_KEY='assinyNiboConciliacao_v3';
+const CMP_TOL=0.01;
+let cmpOpenDays=new Set();
 
+function loadCmpState(){try{return JSON.parse(localStorage.getItem(CMP_KEY)||'null');}catch(e){return null;}}
 function saveCmpState(){
   try{
-    localStorage.setItem(CMP_KEY, JSON.stringify({
-      balanceDate:document.getElementById('cmpBalanceDate').value,
-      balanceValue:document.getElementById('cmpBalanceValue').value,
-      confirmed:cmpMatches.filter(x=>x.confirmed).map(x=>x.key),
-      transferredDays:Object.fromEntries(buildCmpDays().map(d=>[d.date,!!d.transferred]))
+    const relations={};
+    cmpAssinyEntries.forEach(a=>relations[a.uid]=a.niboIds||[]);
+    const confirmed=cmpAssinyEntries.filter(a=>a.confirmed).map(a=>a.uid);
+    const transferredDays={};
+    buildCmpDays().forEach(d=>transferredDays[d.date]=!!d.transferred);
+    const differences=cmpAssinyEntries.filter(a=>a.confirmed&&Math.abs(a.difference||0)>0).map(a=>({
+      key:a.uid,date:a.data,assiny:a.net,niboNet:a.niboNet,difference:a.difference,source:a.difference>0?'Nibo':'Assiny',
+      niboIds:a.niboIds||[],savedAt:new Date().toISOString()
     }));
+    localStorage.setItem(CMP_KEY,JSON.stringify({balanceDate:document.getElementById('cmpBalanceDate').value,balanceValue:document.getElementById('cmpBalanceValue').value,relations,confirmed,transferredDays,differences}));
   }catch(e){}
-}
-function loadCmpState(){
-  try{return JSON.parse(localStorage.getItem(CMP_KEY)||'null');}catch(e){return null;}
 }
 function brToISO(s){const m=String(s||'').match(/^(\d{2})\/(\d{2})\/(\d{4})$/);return m?`${m[3]}-${m[2]}-${m[1]}`:String(s||'');}
 function isoDateOnly(v){const s=String(v||'').trim();let m=s.match(/^(\d{4})-(\d{2})-(\d{2})/);if(m)return `${m[3]}/${m[2]}/${m[1]}`;return parseDateFin(s);}
 function moneyVal(v){
-  if(v===undefined||v===null||v==='')return 0;
-  let s=String(v).trim().replace(/\s/g,'');
-  if(s.includes(',')&&s.includes('.'))s=s.replace(/\./g,'').replace(',','.');
-  else if(s.includes(','))s=s.replace(',','.');
+  if(v===undefined||v===null||v==='')return 0;let s=String(v).trim().replace(/\s/g,'');
+  if(s.includes(',')&&s.includes('.'))s=s.replace(/\./g,'').replace(',','.');else if(s.includes(','))s=s.replace(',','.');
   return parseFloat(s.replace(/[^\d.-]/g,''))||0;
 }
-function getCol(row,candidates){
-  const keys=Object.keys(row||{});
-  for(const c of candidates){const k=keys.find(x=>norm(x)===norm(c));if(k!==undefined)return row[k];}
-  for(const c of candidates){const k=keys.find(x=>norm(x).includes(norm(c)));if(k!==undefined)return row[k];}
-  return '';
-}
-function extractId(s){
-  const m=String(s||'').match(/[0-9a-f]{8}-[0-9a-f-]{27,}/i);return m?m[0]:'';
-}
+function getCol(row,candidates){const keys=Object.keys(row||{});for(const c of candidates){const k=keys.find(x=>norm(x)===norm(c));if(k!==undefined)return row[k];}for(const c of candidates){const k=keys.find(x=>norm(x).includes(norm(c)));if(k!==undefined)return row[k];}return '';}
+function extractId(s){const m=String(s||'').match(/[0-9a-f]{8}-[0-9a-f-]{27,}/i);return m?m[0]:'';}
 function parseCmpAssiny(rows){
   return rows.map((r,idx)=>{
     const mov=norm(getCol(r,['Movimentação','Movimentacao']));
@@ -1513,190 +1508,123 @@ function parseCmpAssiny(rows){
     const credited=Math.abs(moneyVal(getCol(r,['Valor creditado (centavos)','Valor creditado'])))/100;
     const gross=Math.abs(moneyVal(getCol(r,['Valor da transação (centavos)','Valor da transacao'])))/100;
     const net=Math.abs(moneyVal(getCol(r,['Valor líquido (centavos)','Valor liquido'])))/100;
+    const fee=Math.max(0,gross-net);
     const discounted=Math.abs(moneyVal(getCol(r,['Valor descontado (centavos)','Valor descontado'])))/100;
     const notAnt=Math.abs(moneyVal(getCol(r,['Valor Não antecipado (centavos)','Valor Nao antecipado (centavos)','Valor Não antecipado'])))/100;
     const cliente=String(getCol(r,['Nome completo','Nome'])).trim();
     const produto=String(getCol(r,['Produto'])).trim();
     const motivo=String(getCol(r,['Motivo'])).trim();
-    return {uid:'a'+idx,id,data,purchase,mov,credited,gross,net,discounted,notAnt,cliente,produto,motivo,confirmed:false};
-  }).filter(x=>x.id || x.mov==='entrada');
+    return {uid:'a'+idx,id,data,purchase,mov,credited,gross,net,fee,discounted,notAnt,cliente,produto,motivo,niboIds:[],confirmed:false,difference:0,niboNet:0};
+  }).filter(x=>x.mov==='entrada' || x.id);
 }
 function parseCmpNibo(rows){
-  const entries=[];
+  const out=[];
   rows.forEach((r,idx)=>{
     const desc=String(getCol(r,['Descrição','Descricao'])).trim();
-    const cat=norm(getCol(r,['Categoria']));
-    const contato=String(getCol(r,['Contato'])).trim();
+    const cat=norm(getCol(r,['Categoria']));const contato=String(getCol(r,['Contato'])).trim();
     const date=isoDateOnly(getCol(r,['Pagamento ou recebimento','Data pag/rec/transferência','Vencimento','Previsto Para']));
-    const recebido=Math.abs(moneyVal(getCol(r,['Valor recebido'])));
-    const pago=Math.abs(moneyVal(getCol(r,['Valor pago'])));
-    const categoria=Math.abs(moneyVal(getCol(r,['Valor da Categoria'])));
-    const receber=Math.abs(moneyVal(getCol(r,['Valor a receber'])));
-    const pagar=Math.abs(moneyVal(getCol(r,['Valor a pagar'])));
-    const id=String(getCol(r,['Anotação','TransactionId','ID da transação','ID da transacao'])).trim() || extractId(desc);
-    const isFee=cat.includes('taxa plataforma') || norm(contato)===norm(ASSINY_FORNECEDOR) || cat.includes('tarifa');
+    const recebido=Math.abs(moneyVal(getCol(r,['Valor recebido'])));const pago=Math.abs(moneyVal(getCol(r,['Valor pago'])));
+    const categoria=Math.abs(moneyVal(getCol(r,['Valor da Categoria'])));const receber=Math.abs(moneyVal(getCol(r,['Valor a receber'])));const pagar=Math.abs(moneyVal(getCol(r,['Valor a pagar'])));
+    const id=String(getCol(r,['Anotação','TransactionId','ID da transação','ID da transacao'])).trim()||extractId(desc);
+    const isFee=cat.includes('taxa plataforma')||norm(contato)===norm(ASSINY_FORNECEDOR)||cat.includes('tarifa');
     const isSale=cat.includes('receita com produtos');
-    let value=isFee?(pago||pagar||categoria):(recebido||receber||categoria);
-    entries.push({uid:'n'+idx,id,date,desc,contato,cat,value,isFee,isSale,confirmed:false,row:r});
+    if(!isFee&&!isSale)return;
+    const value=isFee?(pago||pagar||categoria):(recebido||receber||categoria);
+    out.push({uid:'n'+idx,id,date,desc,contato,cat,value,isFee,isSale,row:r});
   });
-  return entries;
+  return out;
+}
+function findNiboAuto(a){
+  const candidates=cmpNiboEntries.filter(n=>n.isSale&&!n.assinyUid);
+  if(a.id){const exact=candidates.find(n=>n.id&&n.id===a.id);if(exact)return exact;}
+  const c=candidates.filter(n=>{
+    if(a.cliente&&n.contato&&norm(a.cliente)!==norm(n.contato))return false;
+    if(a.produto&&n.desc&&!norm(n.desc).includes(norm(a.produto))&&!norm(a.produto).includes(norm(n.desc)))return false;
+    return Math.abs(n.value-a.gross)<=0.02 || Math.abs(n.value-a.net)<=0.02;
+  });
+  c.sort((x,y)=>dateScore(a.purchase||a.data,x.date)-dateScore(a.purchase||a.data,y.date));return c[0]||null;
 }
 function dateScore(a,b){const da=parseBRDate(a),db=parseBRDate(b);if(!da||!db)return 9999;return Math.abs(Math.round((da-db)/86400000));}
-function findNiboSaleForGroup(group,niboSales,used){
-  const first=group[0]||{};
-  const exact=niboSales.filter(n=>!used.has(n.uid)&&n.id&&first.id&&n.id===first.id);
-  if(exact.length)return exact[0];
-  const candidates=niboSales.filter(n=>{
-    if(used.has(n.uid))return false;
-    if(n.contato&&first.cliente&&norm(n.contato)!==norm(first.cliente))return false;
-    if(n.desc&&first.produto&&norm(n.desc)!==norm(first.produto))return false;
-    if(Math.abs((n.value||0)-(first.gross||0))>0.02)return false;
-    return true;
-  });
-  candidates.sort((a,b)=>dateScore(first.purchase||first.data,a.date)-dateScore(first.purchase||first.data,b.date));
-  return candidates[0]||null;
+function restoreCmpRelations(){
+  const old=loadCmpState()||{};const rel=old.relations||{};
+  cmpAssinyEntries.forEach(a=>{a.niboIds=Array.isArray(rel[a.uid])?rel[a.uid].slice():[];a.confirmed=Array.isArray(old.confirmed)&&old.confirmed.includes(a.uid);});
+  const assigned=new Set();
+  cmpAssinyEntries.forEach(a=>(a.niboIds||[]).forEach(id=>assigned.add(id)));
+  cmpNiboEntries.forEach(n=>{n.assinyUid=null;});
+  cmpAssinyEntries.forEach(a=>(a.niboIds||[]).forEach(id=>{const n=cmpNiboEntries.find(x=>x.uid===id);if(n)n.assinyUid=a.uid;}));
+  // Auto-relaciona somente o recebimento quando houver uma correspondência clara; a taxa continua manual.
+  cmpAssinyEntries.forEach(a=>{if(!a.niboIds.length){const n=findNiboAuto(a);if(n){a.niboIds=[n.uid];n.assinyUid=a.uid;}}});
 }
-function buildCmpMatches(){
-  const ass=parseCmpAssiny(cmpAssinyRows);
-  const nb=parseCmpNibo(cmpNiboRows);
-  const groups=new Map();
-  ass.filter(a=>a.id).forEach(a=>{if(!groups.has(a.id))groups.set(a.id,[]);groups.get(a.id).push(a);});
-  const sales=nb.filter(n=>n.isSale), fees=nb.filter(n=>n.isFee);
-  const usedSales=new Set(), usedFees=new Set();
-  cmpMatches=[];
-  groups.forEach((movs,id)=>{
-    movs.sort((a,b)=>dateScore(a.data,b.data));
-    const sale=findNiboSaleForGroup(movs,sales,usedSales);
-    if(sale)usedSales.add(sale.uid);
-    let fee=null;
-    const exactFees=fees.filter(f=>!usedFees.has(f.uid)&&f.id===id);
-    if(exactFees.length){fee=exactFees[0];usedFees.add(fee.uid);}
-    else{
-      const f2=fees.find(f=>!usedFees.has(f.uid)&&norm(f.desc).includes(norm(movs[0]?.produto||'')));
-      if(f2){fee=f2;usedFees.add(f2.uid);}
-    }
-    cmpMatches.push({key:id,id,movs,niboSale:sale,niboFee:fee,confirmed:false});
-  });
-  // Nibo sales without an Assiny ID / unmatched sales também entram na conciliação.
-  sales.filter(n=>!usedSales.has(n.uid)).forEach(n=>cmpMatches.push({key:'nibo-'+n.uid,id:n.id||'',movs:[],niboSale:n,niboFee:null,confirmed:false}));
-  fees.filter(f=>!usedFees.has(f.uid)).forEach(f=>cmpMatches.push({key:'nibofee-'+f.uid,id:f.id||'',movs:[],niboSale:null,niboFee:f,confirmed:false}));
-
-  const old=loadCmpState();
-  if(old?.confirmed)old.confirmed.forEach(k=>{const m=cmpMatches.find(x=>x.key===k);if(m)m.confirmed=true;});
-  renderCmp();
-}
-function matchStatus(m){
-  const ass=m.movs.reduce((s,x)=>s+x.credited,0);
-  const sale=m.niboSale?.value||0;
-  const fee=m.niboFee?.value||0;
-  const niboNet=Math.max(0,sale-fee);
-  if(!m.movs.length)return ['Somente no Nibo','cmp-err'];
-  if(!m.niboSale && !m.niboFee)return ['Somente na Assiny','cmp-err'];
-  if(Math.abs(ass-niboNet)<=0.02)return ['Valor conciliado','cmp-ok'];
-  return ['Diferença / retenção','cmp-warn'];
+function getAssinyRelation(a){return (a.niboIds||[]).map(id=>cmpNiboEntries.find(n=>n.uid===id)).filter(Boolean);}
+function calcAssinyRelation(a){
+  const ns=getAssinyRelation(a);const receipt=ns.filter(n=>n.isSale).reduce((s,n)=>s+n.value,0);const fees=ns.filter(n=>n.isFee).reduce((s,n)=>s+n.value,0);const niboNet=receipt-fees;const difference=niboNet-a.net;
+  a.niboNet=niboNet;a.difference=difference;a.receipt=receipt;a.fees=fees;return {ns,receipt,fees,niboNet,difference,valid:receipt>0&&fees>0&&Math.abs(difference)<=CMP_TOL};
 }
 function buildCmpDays(){
-  const map=new Map();
-  const ensure=d=>{if(!d)return null;if(!map.has(d))map.set(d,{date:d,assiny:[],nibo:[],transferred:false});return map.get(d);};
-  cmpMatches.forEach(m=>{
-    m.movs.forEach(a=>{const d=ensure(a.data);if(d)d.assiny.push({match:m,entry:a});});
-    if(m.niboSale?.date){const d=ensure(m.niboSale.date);if(d)d.nibo.push({match:m,entry:m.niboSale,type:'sale'});}
-    if(m.niboFee?.date){const d=ensure(m.niboFee.date);if(d)d.nibo.push({match:m,entry:m.niboFee,type:'fee'});}
-  });
-  const old=loadCmpState();
-  const saved=old?.transferredDays||{};
-  map.forEach(d=>d.transferred=!!saved[d.date]);
+  const map=new Map();const ensure=d=>{if(!d)return null;if(!map.has(d))map.set(d,{date:d,assiny:[],nibo:[],transferred:false});return map.get(d);};
+  cmpAssinyEntries.forEach(a=>{const d=ensure(a.data);if(d)d.assiny.push(a);});
+  cmpNiboEntries.forEach(n=>{const d=ensure(n.date);if(d)d.nibo.push(n);});
+  const old=loadCmpState()||{};const saved=old.transferredDays||{};map.forEach(d=>d.transferred=!!saved[d.date]);
   return [...map.values()].sort((a,b)=>parseBRDate(a.date)-parseBRDate(b.date));
 }
+function buildCmpMatches(){
+  cmpAssinyEntries=parseCmpAssiny(cmpAssinyRows);cmpNiboEntries=parseCmpNibo(cmpNiboRows);restoreCmpRelations();cmpAssinyEntries.forEach(calcAssinyRelation);renderCmp();
+}
+function relationStatus(a){const r=calcAssinyRelation(a);if(a.confirmed)return ['Validado','cmp-ok'];if(!r.receipt)return ['Aguardando recebimento do Nibo','cmp-warn'];if(!r.fees)return ['Aguardando taxa do Nibo','cmp-warn'];if(Math.abs(r.difference)<=CMP_TOL)return ['Pronto para validar','cmp-ok'];return ['Diferença acima de R$ 0,01','cmp-err'];}
 function renderCmp(){
-  const days=buildCmpDays();
-  const totalAssiny=cmpMatches.reduce((s,m)=>s+m.movs.reduce((a,x)=>a+x.credited,0),0);
-  const confirmedAssiny=cmpMatches.filter(m=>m.confirmed).reduce((s,m)=>s+m.movs.reduce((a,x)=>a+x.credited,0),0);
-  const pending=totalAssiny-confirmedAssiny;
-  const ok=cmpMatches.filter(m=>matchStatus(m)[1]==='cmp-ok'&&m.confirmed).length;
-  const diverg=cmpMatches.filter(m=>matchStatus(m)[1]!=='cmp-ok').length;
-  const transferred=days.filter(d=>d.transferred).reduce((s,d)=>s+d.assiny.filter(x=>x.match.confirmed).reduce((a,x)=>a+x.entry.credited,0),0);
-  const inAccount=confirmedAssiny-transferred;
-  document.getElementById('cmpSummary').innerHTML=[
-    {n:days.length,l:'Dias'},
-    {n:cmpMatches.length,l:'Vendas / relações'},
-    {n:ok,l:'Confirmadas'},
-    {n:diverg,l:'Com diferença / pendência'},
-    {n:'R$ '+brMoney(inAccount),l:'Confirmado na conta'}
-  ].map(x=>`<div class="stat-card"><div class="stat-num">${x.n}</div><div class="stat-lbl">${x.l}</div></div>`).join('');
-  const saldo=moneyVal(document.getElementById('cmpBalanceValue').value);
-  const data=document.getElementById('cmpBalanceDate').value;
-  document.getElementById('cmpBalanceResult').innerHTML=`<b>Saldo-base:</b> ${data?new Date(data+'T12:00:00').toLocaleDateString('pt-BR'):'—'} · R$ ${brMoney(saldo)} &nbsp;|&nbsp; <b>confirmado e ainda na Assiny:</b> R$ ${brMoney(inAccount)} &nbsp;|&nbsp; <b>pendente de confirmação:</b> R$ ${brMoney(pending)}.`;
-
+  const days=buildCmpDays();cmpAssinyEntries.forEach(calcAssinyRelation);
+  const valid=cmpAssinyEntries.filter(a=>a.confirmed).length;const pending=cmpAssinyEntries.filter(a=>!a.confirmed).length;
+  const diffs=cmpAssinyEntries.filter(a=>a.confirmed&&Math.abs(a.difference)>0).length;
+  const transferred=days.filter(d=>d.transferred).reduce((s,d)=>s+d.assiny.filter(a=>a.confirmed).reduce((x,a)=>x+a.credited,0),0);
+  const confirmed=cmpAssinyEntries.filter(a=>a.confirmed).reduce((s,a)=>s+a.credited,0);const inAccount=confirmed-transferred;
+  document.getElementById('cmpSummary').innerHTML=[{n:days.length,l:'Dias'},{n:cmpAssinyEntries.length,l:'Entradas Assiny'},{n:valid,l:'Validadas'},{n:pending,l:'Pendentes'},{n:'R$ '+brMoney(inAccount),l:'Na conta Assiny'}].map(x=>`<div class="stat-card"><div class="stat-num">${x.n}</div><div class="stat-lbl">${x.l}</div></div>`).join('');
+  const saldo=moneyVal(document.getElementById('cmpBalanceValue').value);const data=document.getElementById('cmpBalanceDate').value;
+  document.getElementById('cmpBalanceResult').innerHTML=`<b>Saldo-base:</b> ${data?new Date(data+'T12:00:00').toLocaleDateString('pt-BR'):'—'} · R$ ${brMoney(saldo)} &nbsp;|&nbsp; <b>validado e ainda na Assiny:</b> R$ ${brMoney(inAccount)} &nbsp;|&nbsp; <b>pendente:</b> R$ ${brMoney(cmpAssinyEntries.filter(a=>!a.confirmed).reduce((s,a)=>s+a.credited,0))} &nbsp;|&nbsp; <b>diferenças de 1 centavo registradas:</b> ${diffs}.`;
   const db=document.getElementById('cmpDailyBody');db.innerHTML='';
-  days.forEach((d,di)=>{
-    const assTotal=d.assiny.reduce((s,x)=>s+x.entry.credited,0);
-    const assConfirmed=d.assiny.filter(x=>x.match.confirmed).reduce((s,x)=>s+x.entry.credited,0);
-    const assPending=assTotal-assConfirmed;
-    const niboTotal=d.nibo.reduce((s,x)=>s+(x.entry.value||0),0);
-    const niboSales=d.nibo.filter(x=>x.type==='sale').reduce((s,x)=>s+x.entry.value,0);
-    const niboFees=d.nibo.filter(x=>x.type==='fee').reduce((s,x)=>s+x.entry.value,0);
-    const card=document.createElement('div');card.className='cmp-day';
-    card.innerHTML=`<button class="cmp-day-head" type="button">`+
-      `<span class="cmp-day-date">${d.date}</span>`+
-      `<span class="cmp-day-metric"><b>R$ ${brMoney(assTotal)}</b>Assiny creditado</span>`+
-      `<span class="cmp-day-metric"><b>R$ ${brMoney(assConfirmed)}</b>Confirmado</span>`+
-      `<span class="cmp-day-metric"><b>R$ ${brMoney(niboSales)} / -R$ ${brMoney(niboFees)}</b>Nibo · recebimentos / taxas</span>`+
-      `<span class="cmp-day-arrow">▼</span></button>`+
-      `<div class="cmp-day-body"><div class="cmp-day-columns">`+
-      `<div class="cmp-source"><div class="cmp-source-title assiny">Assiny · ${d.assiny.length} movimentação(ões)</div>${d.assiny.length?d.assiny.map(x=>renderCmpAssinyEntry(x)).join(''):'<div class="cmp-unmatched">Nenhuma movimentação da Assiny neste dia.</div>'}</div>`+
-      `<div class="cmp-source"><div class="cmp-source-title nibo">Nibo · ${d.nibo.length} lançamento(s)</div>${d.nibo.length?d.nibo.map(x=>renderCmpNiboEntry(x)).join(''):'<div class="cmp-unmatched">Nenhum lançamento do Nibo neste dia.</div>'}</div>`+
-      `</div><div class="cmp-relation"><b>Conciliação:</b> uma venda é relacionada por ID quando disponível; na ausência do ID no Nibo, o sistema tenta cliente + produto + valor, usando a proximidade da data como desempate. Retenções ficam agrupadas no mesmo ID e cada liberação permanece na data em que realmente entrou na Assiny.</div>`+
-      `<div class="cmp-day-footer"><div class="cmp-day-total"><b>Total do dia na Assiny:</b> R$ ${brMoney(assTotal)} · <b>confirmado:</b> R$ ${brMoney(assConfirmed)} · <b>pendente:</b> R$ ${brMoney(assPending)}</div>`+
-      `<button class="cmp-transfer ${d.transferred?'done':''}" data-date="${escAttr(d.date)}" ${assPending>0.005&&!d.transferred?'disabled title="Confirme os lançamentos pendentes antes de transferir o dia"':''}>${d.transferred?'✓ Dia transferido':'Marcar dia como transferido'}</button></div></div>`;
+  days.forEach(d=>{
+    const assTotal=d.assiny.reduce((s,a)=>s+a.credited,0);const assConfirmed=d.assiny.filter(a=>a.confirmed).reduce((s,a)=>s+a.credited,0);const niboRec=d.nibo.filter(n=>n.isSale).reduce((s,n)=>s+n.value,0);const niboFee=d.nibo.filter(n=>n.isFee).reduce((s,n)=>s+n.value,0);
+    const card=document.createElement('div');card.className='cmp-day'+(cmpOpenDays.has(d.date)?' open':'');
+    card.innerHTML=`<button class="cmp-day-head" type="button"><span class="cmp-day-date">${d.date}</span><span class="cmp-day-metric"><b>R$ ${brMoney(assTotal)}</b>Assiny · entradas</span><span class="cmp-day-metric"><b>R$ ${brMoney(niboRec)}</b>Nibo · recebimentos</span><span class="cmp-day-metric"><b>-R$ ${brMoney(niboFee)}</b>Nibo · taxas</span><span class="cmp-day-arrow">▼</span></button>`+
+      `<div class="cmp-day-body"><div class="cmp-day-columns"><div class="cmp-source"><div class="cmp-source-title assiny">Assiny · entradas</div>${d.assiny.length?d.assiny.map(renderCmpAssinyEntry).join(''):'<div class="cmp-unmatched">Nenhuma entrada.</div>'}</div><div class="cmp-source"><div class="cmp-source-title nibo">Nibo · recebimentos e taxas</div>${d.nibo.length?d.nibo.map(renderCmpNiboEntry).join(''):'<div class="cmp-unmatched">Nenhum lançamento.</div>'}</div></div>`+
+      `<div class="cmp-relation"><b>Como validar:</b> arraste um <b>recebimento</b> e uma <b>taxa</b> do Nibo para a entrada correspondente da Assiny. O cálculo será <b>recebimento − taxa</b> comparado ao <b>Valor líquido da Assiny</b>. Diferença de até R$ 0,01 é aceita e fica registrada, informando se a diferença veio do Nibo ou da Assiny. A validação é única para o conjunto.</div>`+
+      `<div class="cmp-day-footer"><div class="cmp-day-total"><b>Entradas Assiny:</b> R$ ${brMoney(assTotal)} · <b>validado:</b> R$ ${brMoney(assConfirmed)} · <b>pendente:</b> R$ ${brMoney(assTotal-assConfirmed)}</div><button class="cmp-transfer ${d.transferred?'done':''}" data-date="${escAttr(d.date)}" ${assConfirmed<=0||(!d.transferred&&Math.abs(assTotal-assConfirmed)>CMP_TOL)?'disabled title="Valide todas as entradas do dia antes de transferir"':''}>${d.transferred?'✓ Dia transferido':'Transferir dia para fora da Assiny'}</button></div></div>`;
     db.appendChild(card);
-    card.querySelector('.cmp-day-head').onclick=()=>card.classList.toggle('open');
+    const head=card.querySelector('.cmp-day-head');head.onclick=()=>{if(cmpOpenDays.has(d.date))cmpOpenDays.delete(d.date);else cmpOpenDays.add(d.date);renderCmp();};
     card.querySelector('.cmp-transfer').onclick=e=>{e.stopPropagation();toggleCmpDayTransfer(d.date);};
-    card.querySelectorAll('.cmp-confirm').forEach(btn=>btn.onclick=()=>confirmCmpMatch(btn.dataset.key));
+    card.querySelectorAll('.cmp-assiny-drop').forEach(el=>{el.addEventListener('dragover',e=>{e.preventDefault();el.classList.add('drag-over');});el.addEventListener('dragleave',()=>el.classList.remove('drag-over'));el.addEventListener('drop',e=>{e.preventDefault();el.classList.remove('drag-over');const uid=e.dataTransfer.getData('text/plain');attachNiboToAssiny(el.dataset.uid,uid);});});
+    card.querySelectorAll('.cmp-remove-nibo').forEach(btn=>btn.onclick=e=>{e.stopPropagation();detachNibo(btn.dataset.a,btn.dataset.n);});
+    card.querySelectorAll('.cmp-confirm').forEach(btn=>btn.onclick=e=>{e.stopPropagation();confirmCmpMatch(btn.dataset.key);});
   });
-  document.getElementById('cmpResultSection').classList.remove('hidden');
+  renderCmpDifferenceLog();document.getElementById('cmpResultSection').classList.remove('hidden');
 }
-function renderCmpAssinyEntry(x){
-  const a=x.entry,m=x.match,[st,cls]=matchStatus(m);
-  const related=m.niboSale?`Nibo: R$ ${brMoney(m.niboSale.value)}${m.niboFee?' · taxa R$ '+brMoney(m.niboFee.value):''}`:'Sem baixa correspondente no Nibo';
-  return `<div class="cmp-entry"><div class="cmp-entry-head"><span class="cmp-entry-name">${a.cliente||'Sem cliente'}<br><span class="cmp-muted">${a.produto||'Sem produto'}</span></span><span class="cmp-entry-value val-pos">+R$ ${brMoney(a.credited)}</span></div>`+
-    `<div class="cmp-entry-meta">ID: ${a.id||'—'} · Mov.: ${a.motivo||a.mov||'—'}<br>Bruto R$ ${brMoney(a.gross)} · Líquido R$ ${brMoney(a.net)} · Taxa/desconto R$ ${brMoney(Math.max(0,a.gross-a.net))}${a.notAnt?` · Não antecipado R$ ${brMoney(a.notAnt)}`:''}<br>${related}</div>`+
-    `<div class="cmp-entry-actions"><span class="cmp-match-tag ${cls==='cmp-ok'?'ok':''}">${st}</span><button class="cmp-confirm ${m.confirmed?'done':''}" data-key="${escAttr(m.key)}">${m.confirmed?'✓ Venda confirmada':'Confirmar venda'}</button></div></div>`;
+function renderCmpAssinyEntry(a){
+  const r=calcAssinyRelation(a),[st,cls]=relationStatus(a);const ns=r.ns;const diff=Math.abs(r.difference);
+  const assigned=ns.map(n=>`<span class="cmp-linked">${n.isFee?'taxa':'recebimento'} · R$ ${brMoney(n.value)} <button type="button" class="cmp-remove-nibo" data-a="${escAttr(a.uid)}" data-n="${escAttr(n.uid)}">×</button></span>`).join('');
+  return `<div class="cmp-entry cmp-assiny-entry ${a.confirmed?'validated':''}" draggable="false"><div class="cmp-entry-head"><span class="cmp-entry-name">${a.cliente||'Sem cliente'}<br><span class="cmp-muted">${a.produto||'Sem produto'}</span></span><span class="cmp-entry-value val-pos">+R$ ${brMoney(a.credited)}</span></div><div class="cmp-entry-meta">ID: ${a.id||'—'} · Data: ${a.data||'—'}<br><b>Recebimento Assiny:</b> R$ ${brMoney(a.net)} · <b>Taxa calculada:</b> R$ ${brMoney(a.fee)}<br>Valor creditado na conta: R$ ${brMoney(a.credited)}${a.notAnt?` · Não antecipado R$ ${brMoney(a.notAnt)}`:''}</div><div class="cmp-assiny-drop ${a.confirmed?'locked':''}" data-uid="${escAttr(a.uid)}">${assigned||'Arraste aqui o recebimento e a taxa do Nibo'}</div><div class="cmp-entry-meta cmp-relation-calc"><b>Nibo:</b> R$ ${brMoney(r.receipt)} − R$ ${brMoney(r.fees)} = R$ ${brMoney(r.niboNet)} · <b>Assiny:</b> R$ ${brMoney(a.net)}${ns.length?` · <b>diferença:</b> R$ ${brMoney(diff)} (${r.difference>0?'Nibo acima':'Assiny acima'})`:''}</div><div class="cmp-entry-actions"><span class="cmp-match-tag ${cls==='cmp-ok'?'ok':''}">${st}</span>${r.valid&&!a.confirmed?`<button class="cmp-confirm" data-key="${escAttr(a.uid)}">Confirmar conjunto</button>`:''}${a.confirmed?`<span class="cmp-validated">✓ conjunto validado</span>`:''}</div></div>`;
 }
-function renderCmpNiboEntry(x){
-  const n=x.entry,m=x.match,linked=m.movs.length>0;
-  const kind=x.type==='fee'?'Taxa':'Recebimento';
-  const linkedText=linked?`Assiny relacionado: R$ ${brMoney(m.movs.reduce((s,a)=>s+a.credited,0))}`:'Sem correspondente na Assiny';
-  return `<div class="cmp-entry"><div class="cmp-entry-head"><span class="cmp-entry-name">${n.contato||ASSINY_FORNECEDOR}<br><span class="cmp-muted">${kind} · ${n.desc||'—'}</span></span><span class="cmp-entry-value ${x.type==='fee'?'val-neg':'val-pos'}">${x.type==='fee'?'-':'+'}R$ ${brMoney(n.value)}</span></div>`+
-    `<div class="cmp-entry-meta">Data: ${n.date||'—'} · ID: ${n.id||extractId(n.desc)||'—'}<br>${linkedText}</div>`+
-    `<div class="cmp-entry-actions"><span class="cmp-match-tag ${linked?'ok':''}">${linked?'Relacionado':'Sem correspondente'}</span>${linked?`<button class="cmp-confirm ${m.confirmed?'done':''}" data-key="${escAttr(m.key)}">${m.confirmed?'✓ Venda confirmada':'Confirmar venda'}</button>`:''}</div></div>`;
+function renderCmpNiboEntry(n){
+  const linked=!!n.assinyUid;const kind=n.isFee?'Taxa':'Recebimento';
+  return `<div class="cmp-entry cmp-nibo-entry ${linked?'linked':''}" draggable="true" data-uid="${escAttr(n.uid)}"><div class="cmp-entry-head"><span class="cmp-entry-name">${n.contato||ASSINY_FORNECEDOR}<br><span class="cmp-muted">${kind} · ${n.desc||'—'}</span></span><span class="cmp-entry-value ${n.isFee?'val-neg':'val-pos'}">${n.isFee?'-':'+'}R$ ${brMoney(n.value)}</span></div><div class="cmp-entry-meta">Data: ${n.date||'—'} · ID: ${n.id||extractId(n.desc)||'—'}<br>${linked?`Emendado à entrada Assiny ${n.assinyUid}`:'Arraste este lançamento para a entrada da Assiny'}</div><div class="cmp-entry-actions"><span class="cmp-match-tag ${linked?'ok':''}">${linked?'Emendado':'Disponível'}</span></div></div>`;
 }
-function confirmCmpMatch(key){const m=cmpMatches.find(x=>x.key===key);if(!m)return;m.confirmed=!m.confirmed;saveCmpState();renderCmp();}
-function toggleCmpDayTransfer(date){
-  const days=buildCmpDays(),d=days.find(x=>x.date===date);if(!d)return;
-  const old=loadCmpState()||{};const td=old.transferredDays||{};td[date]=!d.transferred;
-  try{localStorage.setItem(CMP_KEY,JSON.stringify({balanceDate:document.getElementById('cmpBalanceDate').value,balanceValue:document.getElementById('cmpBalanceValue').value,confirmed:cmpMatches.filter(x=>x.confirmed).map(x=>x.key),transferredDays:td}));}catch(e){}
-  renderCmp();
+function attachNiboToAssiny(aid,nid){
+  const a=cmpAssinyEntries.find(x=>x.uid===aid),n=cmpNiboEntries.find(x=>x.uid===nid);if(!a||!n||a.confirmed)return;
+  // Um lançamento do Nibo só pode pertencer a um conjunto.
+  if(n.assinyUid&&n.assinyUid!==aid){const old=cmpAssinyEntries.find(x=>x.uid===n.assinyUid);if(old)old.niboIds=(old.niboIds||[]).filter(id=>id!==nid);}
+  a.niboIds=a.niboIds||[];if(!a.niboIds.includes(nid))a.niboIds.push(nid);n.assinyUid=aid;cmpOpenDays.add(a.data);saveCmpState();renderCmp();
 }
-function setupCmpFileInput(inputId,chipsId,setter){
-  const input=document.getElementById(inputId),chips=document.getElementById(chipsId);
-  input.addEventListener('change',()=>{const f=input.files?.[0];if(!f)return;setter(f);chips.innerHTML=`<span class="chip">📄 ${f.name}</span>`;updateCmpRun();});
+function detachNibo(aid,nid){const a=cmpAssinyEntries.find(x=>x.uid===aid),n=cmpNiboEntries.find(x=>x.uid===nid);if(!a||a.confirmed)return;a.niboIds=(a.niboIds||[]).filter(id=>id!==nid);if(n)n.assinyUid=null;saveCmpState();cmpOpenDays.add(a.data);renderCmp();}
+function confirmCmpMatch(uid){const a=cmpAssinyEntries.find(x=>x.uid===uid);if(!a)return;const r=calcAssinyRelation(a);if(!r.valid)return alert('O conjunto ainda não fecha: adicione o recebimento e a taxa do Nibo e deixe a diferença em até R$ 0,01.');a.confirmed=true;cmpOpenDays.add(a.data);saveCmpState();renderCmp();}
+function toggleCmpDayTransfer(date){const d=buildCmpDays().find(x=>x.date===date);if(!d)return;const pending=d.assiny.filter(a=>!a.confirmed);if(pending.length)return alert('Valide todas as entradas do dia antes de transferir.');const old=loadCmpState()||{};old.transferredDays=old.transferredDays||{};old.transferredDays[date]=!d.transferred;localStorage.setItem(CMP_KEY,JSON.stringify({...old,confirmed:cmpAssinyEntries.filter(a=>a.confirmed).map(a=>a.uid),relations:Object.fromEntries(cmpAssinyEntries.map(a=>[a.uid,a.niboIds||[]]))}));renderCmp();}
+function renderCmpDifferenceLog(){
+  const box=document.getElementById('cmpDifferenceLog');if(!box)return;const old=loadCmpState()||{};const rows=old.differences||[];
+  box.innerHTML=rows.length?`<div class="section-label" style="margin-top:16px;">Registro de diferenças aceitas</div><div class="cmp-diff-log">${rows.map(x=>`<div class="cmp-diff-row"><span>${x.date||'—'}</span><span>Assiny R$ ${brMoney(x.assiny)}</span><span>Nibo líquido R$ ${brMoney(x.niboNet)}</span><span>Diferença R$ ${brMoney(Math.abs(x.difference))}</span><span>${x.source} +R$ ${brMoney(Math.abs(x.difference))}</span></div>`).join('')}</div>`:'';
 }
+function setupCmpFileInput(inputId,chipsId,setter){const input=document.getElementById(inputId),chips=document.getElementById(chipsId);input.addEventListener('change',()=>{const f=input.files?.[0];if(!f)return;setter(f);chips.innerHTML=`<span class="chip">📄 ${f.name}</span>`;updateCmpRun();});}
 async function readCmpFile(f){return await readFile(f);}
 function updateCmpRun(){document.getElementById('btnRunComparison').disabled=!(cmpAssinyFile&&cmpNiboFile);}
-document.getElementById('btnRunComparison').addEventListener('click',async()=>{
-  const btn=document.getElementById('btnRunComparison');btn.disabled=true;btn.textContent='Comparando...';
-  try{
-    cmpAssinyRows=await readCmpFile(cmpAssinyFile);cmpNiboRows=await readCmpFile(cmpNiboFile);
-    const ass=parseCmpAssiny(cmpAssinyRows),nb=parseCmpNibo(cmpNiboRows);
-    if(!ass.length)throw new Error('Não encontrei movimentações válidas da Assiny.');
-    if(!nb.length)throw new Error('Não encontrei lançamentos válidos no Nibo. Use o relatório unificado por lançamento.');
-    buildCmpMatches();
-  }catch(e){alert(e.message);}finally{btn.disabled=false;btn.textContent='Comparar Assiny × Nibo';updateCmpRun();}
-});
-document.getElementById('btnSaveCmpConfig').addEventListener('click',()=>{saveCmpState();const s=loadCmpState();document.getElementById('cmpBalanceBox').innerHTML=`<b>Configuração salva:</b> saldo de R$ ${brMoney(moneyVal(s?.balanceValue))} em ${s?.balanceDate?new Date(s.balanceDate+'T12:00:00').toLocaleDateString('pt-BR'):'—'}.`;if(cmpMatches.length)renderCmp();});
-setupCmpFileInput('fiCmpAssiny','chipsCmpAssiny',f=>cmpAssinyFile=f);
-setupCmpFileInput('fiCmpNibo','chipsCmpNibo',f=>cmpNiboFile=f);
+document.getElementById('btnRunComparison').addEventListener('click',async()=>{const btn=document.getElementById('btnRunComparison');btn.disabled=true;btn.textContent='Comparando...';try{cmpAssinyRows=await readCmpFile(cmpAssinyFile);cmpNiboRows=await readCmpFile(cmpNiboFile);if(!parseCmpAssiny(cmpAssinyRows).length)throw new Error('Não encontrei entradas válidas da Assiny.');if(!parseCmpNibo(cmpNiboRows).length)throw new Error('Não encontrei recebimentos/taxas válidos no Nibo. Use o relatório unificado por lançamento.');buildCmpMatches();}catch(e){alert(e.message);}finally{btn.disabled=false;btn.textContent='Comparar Assiny × Nibo';updateCmpRun();}});
+document.getElementById('btnSaveCmpConfig').addEventListener('click',()=>{saveCmpState();const s=loadCmpState();document.getElementById('cmpBalanceBox').innerHTML=`<b>Configuração salva:</b> saldo de R$ ${brMoney(moneyVal(s?.balanceValue))} em ${s?.balanceDate?new Date(s.balanceDate+'T12:00:00').toLocaleDateString('pt-BR'):'—'}.`;if(cmpAssinyEntries.length)renderCmp();});
+setupCmpFileInput('fiCmpAssiny','chipsCmpAssiny',f=>cmpAssinyFile=f);setupCmpFileInput('fiCmpNibo','chipsCmpNibo',f=>cmpNiboFile=f);
 (function(){const s=loadCmpState();if(s){if(s.balanceDate)document.getElementById('cmpBalanceDate').value=s.balanceDate;if(s.balanceValue!==undefined)document.getElementById('cmpBalanceValue').value=s.balanceValue;}})();
 
 /* ===================== TOP NAV / MODES ===================== */
