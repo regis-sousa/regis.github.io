@@ -27,6 +27,36 @@
   .logo-link{display:flex;align-items:center;text-decoration:none;}
   .back-btn{margin-left:auto;padding:6px 14px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);border-radius:8px;color:#fff;font-size:0.76rem;font-weight:600;text-decoration:none;white-space:nowrap;transition:background .2s;}
   .back-btn:hover{background:rgba(255,255,255,0.22);}
+  .top-nav{display:flex;gap:7px;margin-left:18px;align-items:center;flex-wrap:wrap;}
+  .top-nav button{padding:8px 13px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.22);border-radius:8px;color:#fff;font:600 .70rem 'Sora',sans-serif;cursor:pointer;transition:.15s;}
+  .top-nav button:hover{background:rgba(255,255,255,.18);}
+  .top-nav button.active{background:#fff;color:var(--blue);border-color:#fff;}
+  .mode-pane{display:none;}
+  .mode-pane.active{display:block;}
+  .compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .compare-card{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:14px;}
+  .compare-card h3{font-size:.80rem;margin-bottom:5px;color:#fff;}
+  .compare-card p{font-size:.68rem;color:var(--muted);line-height:1.6;margin-bottom:10px;}
+  .compare-card .dropzone{padding:24px 14px;}
+  .compare-alert{margin-top:10px;padding:10px 12px;border-radius:8px;background:rgba(212,194,0,.08);border:1px solid rgba(212,194,0,.3);font-size:.68rem;line-height:1.6;color:var(--yellow);}
+  .compare-config{display:grid;grid-template-columns:180px 220px 1fr;gap:10px;align-items:end;}
+  .field label{display:block;font-size:.62rem;color:var(--muted);font-weight:700;text-transform:uppercase;margin-bottom:5px;}
+  .field input{width:100%;padding:9px 10px;background:#12151F;border:1px solid var(--border);border-radius:7px;color:var(--text);font:500 .74rem 'Sora',sans-serif;outline:none;}
+  .field input:focus{border-color:var(--blue);}
+  .compare-summary{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;margin:14px 0;}
+  .compare-table-wrap{width:100%;overflow:auto;border:1px solid var(--border);border-radius:9px;max-height:560px;}
+  .compare-table{width:100%;min-width:1050px;border-collapse:collapse;font-size:.66rem;}
+  .compare-table th{position:sticky;top:0;background:var(--card2);padding:9px 7px;text-align:left;color:var(--muted);font-size:.55rem;text-transform:uppercase;z-index:2;}
+  .compare-table td{padding:8px 7px;border-bottom:1px solid rgba(42,47,69,.6);vertical-align:top;line-height:1.4;}
+  .cmp-ok{color:var(--green);font-weight:700;}
+  .cmp-warn{color:var(--yellow);font-weight:700;}
+  .cmp-err{color:var(--red);font-weight:700;}
+  .cmp-muted{color:var(--muted);}
+  .transfer-btn{padding:5px 8px;background:rgba(0,201,167,.10);border:1px solid rgba(0,201,167,.4);border-radius:6px;color:var(--teal);font:700 .60rem 'Sora',sans-serif;cursor:pointer;}
+  .transfer-btn.done{background:rgba(52,211,153,.12);border-color:var(--green);color:var(--green);}
+  .balance-box{padding:12px 14px;background:#12151F;border:1px solid var(--border);border-radius:8px;font-size:.72rem;line-height:1.7;margin-bottom:12px;}
+  .balance-box b{color:#fff;}
+  @media(max-width:900px){.top-nav{margin-left:0}.compare-grid,.compare-config{grid-template-columns:1fr}.compare-summary{grid-template-columns:repeat(2,1fr)}}
 
   .wrap{width:100%;max-width:none;margin:0;padding:28px 24px 60px;}
   .section{margin-bottom:22px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px 22px;}
@@ -233,11 +263,16 @@
       <h1>Conversor Assiny → Nibo</h1>
       <p>Vendas → modelo de lançamentos · Financeiro → conciliação</p>
     </div>
+    <nav class="top-nav" id="topNav">
+      <button data-mode="vendas">Lançar vendas</button>
+      <button data-mode="financeiro">Financeiro</button>
+      <button data-mode="comparacao">Assiny × Nibo</button>
+    </nav>
     <a href="index.html" class="back-btn">← Hub</a>
   </div>
 
 <div class="wrap">
-
+<div class="mode-pane active" id="mode-vendas">
   <!-- 01 — ARQUIVOS -->
   <div class="section">
     <div class="section-label">01 — Arquivo(s)</div>
@@ -400,8 +435,93 @@
     <div class="actions" style="margin-top:18px;">
       <button class="btn-reset" id="btnReset">↺ Reiniciar</button>
     </div>
+  </div><!-- /resultSection -->
+</div><!-- /mode-vendas -->
+
+<div class="mode-pane" id="mode-financeiro">
+  <div class="section">
+    <div class="section-label">Financeiro</div>
+    <div class="hint">Anexe somente o relatório <b>Financeiro</b> da Assiny. O tipo será reconhecido automaticamente e o fluxo atual de Vendas → Detalhe/Taxas → Conciliação será mantido.</div>
+    <div class="dropzone" id="dzFin">
+      <input type="file" id="fiFin" multiple accept=".xlsx,.xls,.csv">
+      <span class="dz-icon">📂</span>
+      <div class="dz-title">Clique ou arraste o relatório financeiro</div>
+      <div class="dz-sub">Aceita .xlsx e .csv</div>
+    </div>
+    <div class="chips" id="chipsFin"></div>
+    <button class="btn-convert" id="btnConvertFin" disabled style="margin-top:14px;">Processar financeiro</button>
+  </div>
+</div>
+
+<div class="mode-pane" id="mode-comparacao">
+  <div class="section">
+    <div class="section-label">Assiny × Nibo — Conciliação</div>
+    <div class="hint">
+      Compare o que a <b>Assiny efetivamente creditou</b> com o que foi <b>baixado no Nibo</b>.
+      Quando uma venda tiver retenção, todas as entradas da Assiny ficam agrupadas pelo mesmo ID:
+      a primeira entrada e as liberações posteriores aparecem separadamente, sem serem tratadas como uma nova venda.
+    </div>
+    <div class="compare-grid" style="margin-top:14px;">
+      <div class="compare-card">
+        <h3>1. Relatório da Assiny</h3>
+        <p>Relatório financeiro completo, com as movimentações e os valores creditados.</p>
+        <div class="dropzone" id="dzCmpAssiny">
+          <input type="file" id="fiCmpAssiny" accept=".xlsx,.xls,.csv">
+          <span class="dz-icon">📂</span>
+          <div class="dz-title">Anexar Assiny</div>
+          <div class="dz-sub">CSV ou Excel</div>
+        </div>
+        <div class="chips" id="chipsCmpAssiny"></div>
+      </div>
+      <div class="compare-card">
+        <h3>2. Relatório do Nibo</h3>
+        <p>Use o relatório <b>unificado por lançamento</b>, pois a conciliação precisa identificar cada lançamento de recebimento e taxa.</p>
+        <div class="compare-alert">⚠ Atenção: o relatório do Nibo deve ser o <b>relatório unificado por lançamento</b>. Relatórios resumidos ou agrupados podem impedir a identificação correta das baixas.</div>
+        <div class="dropzone" id="dzCmpNibo" style="margin-top:10px;">
+          <input type="file" id="fiCmpNibo" accept=".xlsx,.xls,.csv">
+          <span class="dz-icon">📂</span>
+          <div class="dz-title">Anexar Nibo</div>
+          <div class="dz-sub">CSV ou Excel</div>
+        </div>
+        <div class="chips" id="chipsCmpNibo"></div>
+      </div>
+    </div>
   </div>
 
+  <div class="section">
+    <div class="section-label">Configuração da conta Assiny</div>
+    <div class="compare-config">
+      <div class="field"><label>Data do saldo</label><input type="date" id="cmpBalanceDate"></div>
+      <div class="field"><label>Saldo atual da conta</label><input type="number" step="0.01" id="cmpBalanceValue" placeholder="0,00"></div>
+      <button class="btn-outline" id="btnSaveCmpConfig">Salvar configuração</button>
+    </div>
+    <div class="balance-box" id="cmpBalanceBox" style="margin-top:12px;">Informe a data e o saldo atual para controlar o saldo da conta Assiny.</div>
+    <button class="btn-convert" id="btnRunComparison" disabled>Comparar Assiny × Nibo</button>
+  </div>
+
+  <div class="section hidden" id="cmpResultSection">
+    <div class="section-label">Resultado da conciliação</div>
+    <div class="compare-summary" id="cmpSummary"></div>
+    <div class="balance-box" id="cmpBalanceResult"></div>
+    <div class="section-label" style="margin-top:12px;">Entradas líquidas por dia / transferências</div>
+    <div class="compare-table-wrap" style="max-height:360px;margin-bottom:16px;">
+      <table class="compare-table">
+        <thead><tr><th>Data</th><th>Entradas líquidas Assiny</th><th>Conciliadas</th><th>Divergências</th><th>Transferência</th></tr></thead>
+        <tbody id="cmpDailyBody"></tbody>
+      </table>
+    </div>
+    <div class="section-label">Detalhamento das divergências</div>
+    <div class="compare-table-wrap">
+      <table class="compare-table">
+        <thead><tr>
+          <th>Data Assiny</th><th>Cliente / Produto</th><th>ID</th><th>Assiny creditado</th>
+          <th>Nibo baixa</th><th>Diferença</th><th>Status</th><th>Movimentações / retenção</th><th>Transferência</th>
+        </tr></thead>
+        <tbody id="cmpBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
 </div>
 
 <script>
@@ -1118,6 +1238,9 @@ function renderConcDetalhe(){
       updateConcGating();
       renderConcStats();
       renderConcSimple();
+      if(concDetail.length && concDetail.every(x=>x.taxaConfirmed) && vendasConfirmadas){
+        switchConcSubtab('simples');
+      }
     };
   });
 
@@ -1323,6 +1446,297 @@ document.getElementById('btnTogglePreview').addEventListener('click',e=>{
   e.target.textContent = w.classList.contains('hidden') ? '👁 Visualização' : '🙈 Ocultar';
 });
 
+
+/* ===================== ASSINY × NIBO ===================== */
+let cmpAssinyFile=null, cmpNiboFile=null;
+let cmpAssinyRows=[], cmpNiboRows=[], cmpMatches=[];
+const CMP_KEY='assinyNiboConciliacao_v1';
+
+function saveCmpState(){
+  try{ localStorage.setItem(CMP_KEY, JSON.stringify({
+    balanceDate:document.getElementById('cmpBalanceDate').value,
+    balanceValue:document.getElementById('cmpBalanceValue').value,
+    transfers:cmpMatches.map(x=>({key:x.key,transferred:!!x.transferred}))
+  })); }catch(e){}
+}
+function loadCmpState(){
+  try{
+    const s=JSON.parse(localStorage.getItem(CMP_KEY)||'null');
+    if(!s) return;
+    if(s.balanceDate) document.getElementById('cmpBalanceDate').value=s.balanceDate;
+    if(s.balanceValue!==undefined) document.getElementById('cmpBalanceValue').value=s.balanceValue;
+    return s;
+  }catch(e){ return null; }
+}
+function brToISO(s){
+  const m=String(s||'').match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  return m?`${m[3]}-${m[2]}-${m[1]}`:String(s||'');
+}
+function isoDateOnly(v){
+  const s=String(v||'').trim();
+  let m=s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if(m) return `${m[3]}/${m[2]}/${m[1]}`;
+  return parseDateFin(s);
+}
+function moneyVal(v){
+  if(v===undefined||v===null||v==='') return 0;
+  let s=String(v).trim().replace(/\s/g,'');
+  if(s.includes(',') && s.includes('.')) s=s.replace(/\./g,'').replace(',','.');
+  else if(s.includes(',')) s=s.replace(',','.');
+  return parseFloat(s.replace(/[^\d.-]/g,''))||0;
+}
+function getCol(row, candidates){
+  const keys=Object.keys(row||{});
+  for(const c of candidates){
+    const k=keys.find(x=>norm(x)===norm(c));
+    if(k!==undefined) return row[k];
+  }
+  for(const c of candidates){
+    const k=keys.find(x=>norm(x).includes(norm(c)));
+    if(k!==undefined) return row[k];
+  }
+  return '';
+}
+function parseCmpAssiny(rows){
+  return rows.map(r=>{
+    const mov=norm(getCol(r,['Movimentação','Movimentacao']));
+    const id=String(getCol(r,['ID da transação','ID da transacao'])).trim();
+    const data=isoDateOnly(getCol(r,['Data da movimentação','Data da movimentacao']));
+    const purchase=isoDateOnly(getCol(r,['Data da compra']));
+    const credited=Math.abs(moneyVal(getCol(r,['Valor creditado (centavos)','Valor creditado'])))/100;
+    const gross=Math.abs(moneyVal(getCol(r,['Valor da transação (centavos)','Valor da transacao'])))/100;
+    const net=Math.abs(moneyVal(getCol(r,['Valor líquido (centavos)','Valor liquido'])))/100;
+    const cliente=String(getCol(r,['Nome completo','Nome'])).trim();
+    const produto=String(getCol(r,['Produto'])).trim();
+    const motivo=String(getCol(r,['Motivo'])).trim();
+    return {id,data,purchase,mov,credited,gross,net,cliente,produto,motivo};
+  }).filter(x=>x.id);
+}
+function parseCmpNibo(rows){
+  const feeById=new Map(), sales=[];
+  rows.forEach(r=>{
+    const desc=String(getCol(r,['Descrição','Descricao'])).trim();
+    const cat=norm(getCol(r,['Categoria']));
+    const contato=String(getCol(r,['Contato'])).trim();
+    const data=isoDateOnly(getCol(r,['Vencimento','Pagamento ou recebimento','Previsto Para']));
+    const valorReceb=moneyVal(getCol(r,['Valor recebido']));
+    const valorPago=moneyVal(getCol(r,['Valor pago']));
+    const m=desc.match(/([0-9a-f]{8}-[0-9a-f-]{27,})/i);
+    if(cat.includes('taxa plataforma') || contato===ASSINY_FORNECEDOR){
+      if(m) feeById.set(m[1], {id:m[1],fee:Math.abs(valorPago||moneyVal(getCol(r,['Valor da Categoria','Valor a pagar']))),date:data,desc});
+    }else if(cat.includes('receita com produtos')){
+      sales.push({date:data,cliente:contato,produto:desc,gross:Math.abs(valorReceb||moneyVal(getCol(r,['Valor da Categoria','Valor a receber']))),row:r});
+    }
+  });
+  return {sales,feeById};
+}
+function dateScore(a,b){
+  const da=parseBRDate(a), db=parseBRDate(b); if(!da||!db) return 9999;
+  return Math.abs(Math.round((da-db)/86400000));
+}
+function findNiboSale(a, nibo){
+  const candidates=nibo.sales.filter(s=>{
+    if(s.produto && a.produto && norm(s.produto)!==norm(a.produto)) return false;
+    if(a.cliente && s.cliente && norm(s.cliente)!==norm(a.cliente)) return false;
+    // O valor bruto da venda é uma chave importante para não casar duas compras
+    // do mesmo cliente/produto.
+    if(Math.abs((s.gross||0)-(a.gross||0))>0.02) return false;
+    return true;
+  });
+  if(!candidates.length) return null;
+  const base=a.purchase||a.data;
+  candidates.sort((x,y)=>dateScore(base,x.date)-dateScore(base,y.date));
+  return candidates[0];
+}
+function buildCmpMatches(){
+  const nibo=parseCmpNibo(cmpNiboRows);
+  const byId=new Map();
+  cmpAssinyRows.filter(a=>a.mov==='entrada').forEach(a=>{
+    if(!byId.has(a.id)) byId.set(a.id,[]);
+    byId.get(a.id).push(a);
+  });
+  const ids=new Set([...byId.keys(),...nibo.feeById.keys()]);
+  cmpMatches=[];
+  ids.forEach(id=>{
+    const ms=(byId.get(id)||[]).sort((a,b)=>parseBRDate(a.data)-parseBRDate(b.data));
+    const first=ms[0]||{};
+    const fee=nibo.feeById.get(id)||null;
+    const sale=findNiboSale(first,nibo);
+    const assinyCred=ms.reduce((s,x)=>s+x.credited,0);
+    const niboGross=sale?.gross||0;
+    const niboFee=fee?.fee||0;
+    const niboNet=niboGross-niboFee;
+    const diff=assinyCred-niboNet;
+    let status='ok';
+    if(!sale && !fee) status='sem_nibo';
+    else if(!sale) status='sem_baixa';
+    else if(Math.abs(diff)>0.02) status='divergencia';
+    cmpMatches.push({
+      key:id,id,data:first.data||fee?.date||'',cliente:first.cliente||sale?.cliente||'',
+      produto:first.produto||sale?.produto||'',movs:ms,assinyCred,niboGross,niboFee,niboNet,diff,status,
+      transferred:false
+    });
+  });
+  const old=loadCmpState();
+  if(old?.transfers) old.transfers.forEach(t=>{const m=cmpMatches.find(x=>x.key===t.key); if(m)m.transferred=!!t.transferred;});
+  renderCmp();
+  saveCmpState();
+}
+function cmpStatus(m){
+  if(m.status==='sem_nibo') return ['Sem correspondência no Nibo','cmp-err'];
+  if(m.status==='sem_baixa') return ['Taxa/baixa não localizada','cmp-err'];
+  if(m.status==='divergencia') return ['Divergência','cmp-warn'];
+  return ['OK — valor conciliado','cmp-ok'];
+}
+function renderCmp(){
+  const total=cmpMatches.length;
+  const ok=cmpMatches.filter(x=>x.status==='ok').length;
+  const div=cmpMatches.filter(x=>x.status==='divergencia').length;
+  const miss=cmpMatches.filter(x=>x.status!=='ok'&&x.status!=='divergencia').length;
+  const transferred=cmpMatches.filter(x=>x.transferred).reduce((s,x)=>s+x.assinyCred,0);
+  const inAccount=cmpMatches.filter(x=>!x.transferred&&x.status==='ok').reduce((s,x)=>s+x.assinyCred,0);
+  document.getElementById('cmpSummary').innerHTML=[
+    {n:total,l:'Transações'},{n:ok,l:'Conciliadas'},{n:div,l:'Divergências'},{n:miss,l:'Pendências'},
+    {n:'R$ '+brMoney(inAccount),l:'Na conta Assiny'}
+  ].map((x,i)=>`<div class="stat-card"><div class="stat-num">${x.n}</div><div class="stat-lbl">${x.l}</div></div>`).join('');
+  const saldo=document.getElementById('cmpBalanceValue').value;
+  const data=document.getElementById('cmpBalanceDate').value;
+  const saldoBase=moneyVal(saldo);
+  document.getElementById('cmpBalanceResult').innerHTML=
+    `<b>Controle da conta:</b> saldo informado em ${data?new Date(data+'T12:00:00').toLocaleDateString('pt-BR'):'—'}: R$ ${brMoney(saldoBase)} · `+
+    `<b>entradas conciliadas ainda na conta:</b> R$ ${brMoney(inAccount)} · `+
+    `<b>transferido:</b> R$ ${brMoney(transferred)}.`;
+  // Agrupa o valor efetivamente creditado na Assiny por dia.
+  // O valor usado é "Valor creditado", não "Valor líquido", porque este último
+  // se repete em movimentações de retenção e não representa uma nova entrada.
+  const daily=new Map();
+  cmpMatches.forEach(m=>{
+    m.movs.forEach(x=>{
+      if(!x.data) return;
+      const d=daily.get(x.data)||{date:x.data,total:0,ok:0,div:0,transferred:false};
+      d.total+=x.credited;
+      if(m.status==='ok') d.ok+=x.credited;
+      else if(m.status==='divergencia') d.div+=x.credited;
+      daily.set(x.data,d);
+    });
+  });
+  const savedTransfers={};
+  cmpMatches.forEach(m=>m.movs.forEach(x=>{ if(x.data && m.transferred) savedTransfers[x.data]=true; }));
+  const db=document.getElementById('cmpDailyBody'); db.innerHTML='';
+  [...daily.values()].sort((a,b)=>parseBRDate(a.date)-parseBRDate(b.date)).forEach(d=>{
+    d.transferred=!!savedTransfers[d.date];
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${d.date}</td><td class="val-pos">R$ ${brMoney(d.total)}</td>`+
+      `<td class="cmp-ok">R$ ${brMoney(d.ok)}</td><td class="${d.div?'cmp-warn':'cmp-muted'}">R$ ${brMoney(d.div)}</td>`+
+      `<td><button class="transfer-btn ${d.transferred?'done':''}" data-date="${escAttr(d.date)}">${d.transferred?'✓ Transferido':'Marcar transferido'}</button></td>`;
+    db.appendChild(tr);
+  });
+  db.querySelectorAll('.transfer-btn').forEach(btn=>{
+    btn.onclick=()=>{
+      const date=btn.dataset.date;
+      cmpMatches.filter(m=>m.movs.some(x=>x.data===date)).forEach(m=>m.transferred=!m.transferred);
+      saveCmpState(); renderCmp();
+    };
+  });
+
+  const tb=document.getElementById('cmpBody'); tb.innerHTML='';
+  cmpMatches.sort((a,b)=>parseBRDate(a.data)-parseBRDate(b.data));
+  cmpMatches.forEach(m=>{
+    const [st,cls]=cmpStatus(m);
+    const movement=m.movs.map(x=>`${x.data}: R$ ${brMoney(x.credited)}${x.motivo?' · '+x.motivo:''}`).join('<br>');
+    const tr=document.createElement('tr');
+    tr.innerHTML=
+      `<td>${m.data||'—'}</td><td>${m.cliente||'—'}<br><span class="cmp-muted">${m.produto||''}</span></td>`+
+      `<td style="font-family:monospace;font-size:.60rem;">${m.id}</td>`+
+      `<td>R$ ${brMoney(m.assinyCred)}</td><td>R$ ${brMoney(m.niboNet)}<br><span class="cmp-muted">bruto ${brMoney(m.niboGross)} · taxa ${brMoney(m.niboFee)}</span></td>`+
+      `<td class="${Math.abs(m.diff)>0.02?'cmp-warn':'cmp-ok'}">R$ ${brMoney(Math.abs(m.diff))}</td>`+
+      `<td class="${cls}">${st}</td><td>${movement}</td>`+
+      `<td><button class="transfer-btn ${m.transferred?'done':''}" data-key="${escAttr(m.key)}">${m.transferred?'✓ Transferido':'Marcar transferido'}</button></td>`;
+    tb.appendChild(tr);
+  });
+  tb.querySelectorAll('.transfer-btn').forEach(btn=>{
+    btn.onclick=()=>{
+      const m=cmpMatches.find(x=>x.key===btn.dataset.key);
+      if(!m) return;
+      m.transferred=!m.transferred;
+      saveCmpState();
+      renderCmp();
+    };
+  });
+  document.getElementById('cmpResultSection').classList.remove('hidden');
+}
+function setupCmpFileInput(inputId, chipsId, setter){
+  const input=document.getElementById(inputId), chips=document.getElementById(chipsId);
+  input.addEventListener('change',async()=>{
+    const f=input.files?.[0]; if(!f)return;
+    setter(f);
+    chips.innerHTML=`<span class="chip">📄 ${f.name}</span>`;
+    updateCmpRun();
+  });
+}
+async function readCmpFile(f){ return await readFile(f); }
+function updateCmpRun(){
+  document.getElementById('btnRunComparison').disabled=!(cmpAssinyFile&&cmpNiboFile);
+}
+document.getElementById('btnRunComparison').addEventListener('click',async()=>{
+  const btn=document.getElementById('btnRunComparison');
+  btn.disabled=true; btn.textContent='Comparando...';
+  try{
+    cmpAssinyRows=await readCmpFile(cmpAssinyFile);
+    cmpNiboRows=await readCmpFile(cmpNiboFile);
+    const ass=parseCmpAssiny(cmpAssinyRows);
+    const nb=parseCmpNibo(cmpNiboRows);
+    if(!ass.length) throw new Error('Não encontrei movimentações válidas da Assiny.');
+    if(!nb.sales.length&&!nb.feeById.size) throw new Error('Não encontrei lançamentos válidos no Nibo. Use o relatório unificado por lançamento.');
+    cmpAssinyRows=cmpAssinyRows; cmpNiboRows=cmpNiboRows;
+    buildCmpMatches();
+  }catch(e){ alert(e.message); }
+  finally{ btn.disabled=false; btn.textContent='Comparar Assiny × Nibo'; updateCmpRun(); }
+});
+document.getElementById('btnSaveCmpConfig').addEventListener('click',()=>{
+  saveCmpState();
+  const s=loadCmpState();
+  document.getElementById('cmpBalanceBox').innerHTML=`<b>Configuração salva:</b> saldo de R$ ${brMoney(moneyVal(s?.balanceValue))} em ${s?.balanceDate?new Date(s.balanceDate+'T12:00:00').toLocaleDateString('pt-BR'):'—'}.`;
+  if(cmpMatches.length) renderCmp();
+});
+setupCmpFileInput('fiCmpAssiny','chipsCmpAssiny',f=>cmpAssinyFile=f);
+setupCmpFileInput('fiCmpNibo','chipsCmpNibo',f=>cmpNiboFile=f);
+loadCmpState();
+
+
+/* ===================== TOP NAV / MODES ===================== */
+function setMode(mode){
+  document.querySelectorAll('.top-nav button').forEach(b=>b.classList.toggle('active',b.dataset.mode===mode));
+  document.querySelectorAll('.mode-pane').forEach(p=>p.classList.toggle('active',p.id==='mode-'+mode));
+  if(mode==='vendas') document.querySelector('.top-nav button[data-mode="vendas"]').classList.add('active');
+}
+document.querySelectorAll('.top-nav button').forEach(b=>b.addEventListener('click',()=>setMode(b.dataset.mode)));
+setMode('vendas');
+
+/* O modo Financeiro recebe somente o relatório financeiro e reaproveita o pipeline atual. */
+const finModeFiles=[];
+document.getElementById('fiFin').addEventListener('change',()=>{
+  finModeFiles.length=0;
+  Array.from(document.getElementById('fiFin').files||[]).forEach(f=>finModeFiles.push(f));
+  document.getElementById('chipsFin').innerHTML=finModeFiles.map(f=>`<span class="chip">📄 ${f.name}</span>`).join('');
+  document.getElementById('btnConvertFin').disabled=!finModeFiles.length;
+});
+document.getElementById('btnConvertFin').addEventListener('click',async()=>{
+  files.length=0; finModeFiles.forEach(f=>files.push(f));
+  setMode('vendas');
+  document.getElementById('btnConvert').click();
+  // O processamento original termina de forma assíncrona; mantém o resultado
+  // visível no fluxo Financeiro assim que o resultado for criado.
+  const waitResult=()=>{
+    if(!document.getElementById('resultSection').classList.contains('hidden')){
+      setMode('financeiro');
+      return;
+    }
+    setTimeout(waitResult,100);
+  };
+  waitResult();
+});
+
 /* ===================== RESET ===================== */
 document.getElementById('btnReset').addEventListener('click',()=>{
   files.length=0; renderChips();
@@ -1335,6 +1749,8 @@ document.getElementById('btnReset').addEventListener('click',()=>{
   optTid.checked=false; renderOptPreview();
   niboWb=null; niboRows=[]; concWb=null; concRows=[]; concDetail=[]; concHasTaxaCol=false; concConfirmed=false; vendasConfirmadas=false; clientes=[]; niboDateTag='';
   switchConcSubtab('vendas');
+  cmpAssinyFile=null; cmpNiboFile=null; cmpAssinyRows=[]; cmpNiboRows=[]; cmpMatches=[];
+  document.getElementById('cmpResultSection')?.classList.add('hidden');
 });
 </script>
 </body>
