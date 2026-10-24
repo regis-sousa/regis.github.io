@@ -27,11 +27,11 @@ main{max-width:1120px;margin:0 auto;padding:60px 24px 80px}
 .eyebrow{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;color:var(--lavender);border:1px solid var(--line);background:rgba(117,101,217,.10);border-radius:999px;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.11em}
 h1{font-size:clamp(2.2rem,5vw,4rem);line-height:1.08;letter-spacing:-.055em;margin:22px 0 18px}
 h1 span{color:var(--purple)}
-.hero-title .hero-fixed{color:var(--text)}
-.hero-title .rotating-phrase{display:inline-block;color:var(--purple);white-space:nowrap}
+.hero-title .hero-fixed{display:block;color:var(--text)}
+.hero-title .rotating-phrase{display:block;color:var(--purple);white-space:nowrap}
 #rotating-phrase-text{display:inline-block;border-right:2px solid var(--purple);padding-right:3px;animation:caret-blink .8s steps(1,end) infinite}
 @keyframes caret-blink{50%{border-color:transparent}}
-@media(max-width:480px){.hero-title .rotating-phrase{white-space:normal}}
+@media(max-width:480px){.hero-title .rotating-phrase{white-space:nowrap}}
 .hero p{color:var(--muted);font-size:17px;max-width:690px;margin:auto}
 .updated{margin-top:18px;color:var(--muted);font-size:13px}
 .content{border:1px solid var(--line);background:var(--panel);backdrop-filter:blur(14px);border-radius:22px;box-shadow:0 20px 60px rgba(0,0,0,.13);padding:clamp(22px,4vw,42px)}
