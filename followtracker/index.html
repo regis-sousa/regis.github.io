@@ -40,7 +40,7 @@ p{margin:10px 0;color:#d5d0e2}ul{padding-left:22px;color:#d5d0e2}li{margin:7px 0
 .callout{margin:22px 0;padding:17px 18px;border:1px solid rgba(155,135,255,.2);background:rgba(117,101,217,.08);border-radius:15px;color:#ded7ff}
 .contact{border:1px solid rgba(155,135,255,.25);border-radius:16px;padding:20px;background:linear-gradient(135deg,rgba(117,101,217,.13),rgba(155,135,255,.04))}
 .button-link{display:inline-flex;align-items:center;justify-content:center;gap:8px;margin:8px 8px 0 0;padding:12px 17px;border-radius:13px;background:linear-gradient(135deg,#8c78ef,#6652c9);color:white;text-decoration:none;font-weight:750;box-shadow:0 10px 28px rgba(117,101,217,.22)}
-.button-link.secondary{background:rgba(117,101,217,.12);border:1px solid var(--line);box-shadow:none;color:#eee9ff}.hero-actions{display:flex;justify-content:center;flex-wrap:wrap;gap:8px;margin-top:14px}.hero-actions .button-link{margin:0}.hero-notice{text-align:left;max-width:760px;margin:24px auto 0}.download-panel{margin-top:32px;padding:24px;border:1px solid rgba(155,135,255,.28);border-radius:18px;background:rgba(117,101,217,.07)}.small-note{font-size:13px;color:var(--muted)}
+.button-link.disabled-download{opacity:.42;filter:saturate(.45);cursor:not-allowed;box-shadow:none;pointer-events:auto}.button-link.secondary{background:rgba(117,101,217,.12);border:1px solid var(--line);box-shadow:none;color:#eee9ff}.hero-actions{display:flex;justify-content:center;flex-wrap:wrap;gap:8px;margin-top:14px}.hero-actions .button-link{margin:0}.hero-notice{text-align:left;max-width:760px;margin:24px auto 0}.download-panel{margin-top:32px;padding:24px;border:1px solid rgba(155,135,255,.28);border-radius:18px;background:rgba(117,101,217,.07)}.small-note{font-size:13px;color:var(--muted)}
 footer{max-width:1120px;margin:auto;padding:0 24px 34px;color:var(--muted);font-size:12px}
 .footer-inner{border-top:1px solid var(--line);padding-top:22px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}.heart{color:var(--purple)}
 @media(max-width:760px){.topbar-inner{align-items:flex-start;flex-direction:column}.nav{justify-content:flex-start;width:100%}.nav a{padding:8px 10px}main{padding-top:38px}.grid{grid-template-columns:1fr}.hero p{font-size:15px}}
@@ -68,12 +68,11 @@ footer{max-width:1120px;margin:auto;padding:0 24px 34px;color:var(--muted);font-
   <h1>Suas conexões. <span>Mais organizadas.</span></h1>
   <p>O Instagram Follow Tracker ajuda você a coletar e comparar listas de seguidores e de pessoas que segue no Instagram, visualizar diferenças e manter um histórico das coletas realizadas.</p>
   <div class="hero-actions">
-   <a class="button-link" href="#download">↓ Baixar extensão <span aria-hidden="true">↗</span></a>
-   <a class="button-link secondary" href="mailto:contato@regiss.me?subject=Solicita%C3%A7%C3%A3o%20de%20demo%20-%20Instagram%20Follow%20Tracker">Solicitar demo / participar do teste</a>
-   <!-- ALTERE FORM_URL no script no final deste arquivo para inserir o link real do formulário. -->
-   <a class="button-link secondary" id="form-link-hero" href="#formulario">Enviar feedback / formulário</a>
+   <a class="button-link disabled-download" id="top-download" href="#aviso-download" aria-disabled="true" title="Download ainda indisponível">↓ Baixar extensão <span aria-hidden="true">↗</span></a>
+   <a class="button-link secondary" id="demo-request" href="#aviso-demo">Solicitar demo / participar do teste</a>
   </div>
-  <div class="callout hero-notice"><strong>Em fase de testes.</strong> A extensão ainda não foi publicada para download na Chrome Web Store. Você pode solicitar acesso à demonstração por e-mail. Quando a página da loja estiver disponível, o botão “Baixar extensão” passará a direcionar para ela.</div>
+  <div class="callout hero-notice" id="aviso-download" hidden><strong>Em fase de testes.</strong> A extensão ainda não foi publicada para download na Chrome Web Store. Quando a página da loja estiver disponível, o botão “Baixar extensão” passará a direcionar para ela.</div>
+  <div class="callout hero-notice" id="aviso-demo" hidden>Para solicitar uma demonstração e participar dos testes, envie um e-mail para <a href="mailto:contato@regiss.me?subject=Solicita%C3%A7%C3%A3o%20de%20demo%20-%20Instagram%20Follow%20Tracker">contato@regiss.me</a>. A solicitação depende de confirmação. Não envie sua senha nem dados de acesso.</div>
  </div>
  <div class="content">
   <h2>O que é o Instagram Follow Tracker?</h2>
@@ -95,20 +94,7 @@ footer{max-width:1120px;margin:auto;padding:0 24px 34px;color:var(--muted);font-
   <p><strong>Você não precisa digitar nem entregar sua senha ao Instagram Follow Tracker.</strong> Abra o site oficial do Instagram, entre na sua própria conta normalmente e use a extensão nessa sessão já autenticada. A extensão lê e captura as informações exibidas/disponibilizadas pelo site oficial no navegador para realizar as comparações.</p>
   <p>O Instagram Follow Tracker não tem um campo para receber sua senha e não foi desenvolvido para armazenar senhas. Ele usa a sessão que você já abriu no navegador; nunca envie sua senha por e-mail nem pelo formulário de teste.</p>
   <a class="button-link" href="#privacidade">Ler a Política de Privacidade <span aria-hidden="true">→</span></a>
-  <section id="download" class="download-panel">
-   <h2>Baixar ou testar a extensão</h2>
-   <p><strong>Status atual: em testes.</strong> O download público ainda não está disponível na Chrome Web Store. Estamos preparando a publicação.</p>
-   <div class="hero-actions">
-    <a class="button-link" id="store-link" href="#download">Baixar extensão (em breve)</a>
-    <a class="button-link secondary" href="mailto:contato@regiss.me?subject=Solicita%C3%A7%C3%A3o%20de%20demo%20-%20Instagram%20Follow%20Tracker&body=Ol%C3%A1!%20Gostaria%20de%20solicitar%20acesso%20%C3%A0%20demo%20do%20Instagram%20Follow%20Tracker.%0A%0AComo%20posso%20participar%20do%20teste%3F">Solicitar demo por e-mail</a>
-   </div>
-   <p class="small-note">A solicitação de demo é voluntária e depende de confirmação do desenvolvedor. Não inclua senha ou outros dados de acesso no e-mail.</p>
-  </section>
-  <section id="formulario">
-   <h2>Participar e enviar feedback</h2>
-   <p>Use o formulário para solicitar participação no teste, compartilhar sugestões ou relatar problemas. O link definitivo do formulário será configurado antes da publicação deste site.</p>
-   <a class="button-link secondary" id="form-link-main" href="mailto:contato@regiss.me?subject=Formul%C3%A1rio%20de%20teste%20-%20Instagram%20Follow%20Tracker">Abrir formulário / solicitar acesso</a>
-  </section>
+  <!-- Os avisos de download e solicitação de demo aparecem somente quando os botões do topo são clicados. -->
  </div>
 </section>
 
@@ -164,35 +150,34 @@ footer{max-width:1120px;margin:auto;padding:0 24px 34px;color:var(--muted);font-
 (function(){
  /* ================================================================
     CONFIGURAÇÃO RÁPIDA DO SITE — EDITE ESTES VALORES ANTES DE PUBLICAR
-    1) FORM_URL: cole aqui o endereço real do Google Forms.
-    2) STORE_URL: depois que a extensão for publicada, cole aqui o link
-       da página dela na Chrome Web Store.
-    3) CONTACT_EMAIL: e-mail que receberá solicitações de demonstração.
-    Os botões usam o e-mail como alternativa enquanto os links não forem
-    configurados. Não é necessário alterar o restante do código.
+    1) STORE_URL: cole o link da Chrome Web Store quando a extensão for publicada.
+    2) CONTACT_EMAIL: e-mail que receberá as solicitações de demonstração.
+    Os avisos de teste aparecem somente quando os botões do topo são clicados.
     ================================================================ */
- const FORM_URL = "COLE_AQUI_O_LINK_DO_GOOGLE_FORMS";
  const STORE_URL = "COLE_AQUI_O_LINK_DA_CHROME_WEB_STORE";
  const CONTACT_EMAIL = "contato@regiss.me";
- const formIsConfigured = FORM_URL.startsWith("https://") && !FORM_URL.includes("COLE_AQUI");
  const storeIsConfigured = STORE_URL.startsWith("https://") && !STORE_URL.includes("COLE_AQUI");
- const formFallback = "mailto:" + CONTACT_EMAIL + "?subject=Formul%C3%A1rio%20de%20teste%20-%20Instagram%20Follow%20Tracker";
- ["form-link-hero", "form-link-main"].forEach(id => {
-   const link = document.getElementById(id);
-   if (!link) return;
-   link.href = formIsConfigured ? FORM_URL : formFallback;
-   if (!formIsConfigured) link.title = "Configure FORM_URL no código para abrir o formulário real";
- });
- const storeLink = document.getElementById("store-link");
- if (storeLink && storeIsConfigured) {
-   storeLink.href = STORE_URL;
-   storeLink.target = "_blank";
-   storeLink.rel = "noopener noreferrer";
-   storeLink.textContent = "Baixar extensão na Chrome Web Store ↗";
- } else if (storeLink) {
-   storeLink.href = "mailto:" + CONTACT_EMAIL + "?subject=Aviso%20de%20lan%C3%A7amento%20-%20Instagram%20Follow%20Tracker";
-   storeLink.textContent = "Download público em breve — avise-me";
+ const demoLink = document.querySelector("#aviso-demo a");
+ if (demoLink) demoLink.href = "mailto:" + CONTACT_EMAIL + "?subject=Solicita%C3%A7%C3%A3o%20de%20demo%20-%20Instagram%20Follow%20Tracker";
+ const topDownload = document.getElementById("top-download");
+ if (topDownload && storeIsConfigured) {
+   topDownload.href = STORE_URL;
+   topDownload.classList.remove("disabled-download");
+   topDownload.removeAttribute("aria-disabled");
+   topDownload.title = "Baixar na Chrome Web Store";
+   topDownload.target = "_blank";
+   topDownload.rel = "noopener noreferrer";
+ } else if (topDownload) {
+   topDownload.addEventListener("click", function(event) {
+     event.preventDefault();
+     document.getElementById("aviso-download").hidden = false;
+   });
  }
+ const demoRequest = document.getElementById("demo-request");
+ if (demoRequest) demoRequest.addEventListener("click", function(event) {
+   event.preventDefault();
+   document.getElementById("aviso-demo").hidden = false;
+ });
  const pages=["inicio","tutorial","privacidade"];
  function showPage(){
   let page=location.hash.replace("#","").split("?")[0];
