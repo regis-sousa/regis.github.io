@@ -169,33 +169,43 @@ footer{max-width:1120px;margin:auto;padding:0 24px 34px;color:var(--muted);font-
  const downloadNotice = document.getElementById("aviso-download");
  const demoRequest = document.getElementById("demo-request");
  const demoNotice = document.getElementById("aviso-demo");
+ // Exibe/oculta os avisos sem alterar o visual ou os elementos dos botões.
+ function hideNotice(el) {
+  if (!el) return;
+  el.hidden = true;
+  el.setAttribute("aria-hidden", "true");
+  el.style.removeProperty("display");
+ }
+ function showNotice(el) {
+  if (!el) return;
+  el.hidden = false;
+  el.setAttribute("aria-hidden", "false");
+  el.style.removeProperty("display");
+ }
  function toggleNotice(which) {
-   const notices = { download: downloadNotice, demo: demoNotice };
-   const target = notices[which];
-   const wasVisible = target && !target.hidden;
-   if (downloadNotice) downloadNotice.hidden = true;
-   if (demoNotice) demoNotice.hidden = true;
-   if (target) target.hidden = !wasVisible;
+  const target = which === "download" ? downloadNotice : demoNotice;
+  const wasVisible = target && !target.hidden;
+  hideNotice(downloadNotice);
+  hideNotice(demoNotice);
+  if (!wasVisible) showNotice(target);
  }
- if (topDownload && storeIsConfigured) {
-   topDownload.href = STORE_URL;
-   topDownload.title = "Baixar na Chrome Web Store";
-   topDownload.target = "_blank";
-   topDownload.rel = "noopener noreferrer";
- } else if (topDownload) {
-   topDownload.addEventListener("click", function(event) {
-     event.preventDefault();
-     toggleNotice("download");
-   });
- }
- if (demoRequest) demoRequest.addEventListener("click", function(event) {
+ hideNotice(downloadNotice);
+ hideNotice(demoNotice);
+ if (topDownload) topDownload.addEventListener("click", function(event) {
+  if (!storeIsConfigured) {
    event.preventDefault();
-   toggleNotice("demo");
+   toggleNotice("download");
+  }
  });
+ if (demoRequest) demoRequest.addEventListener("click", function(event) {
+  event.preventDefault();
+  toggleNotice("demo");
+ });
+
  // Animação de lema: mantém "Suas conexões." fixo e alterna as frases.
  const phraseNode = document.getElementById("rotating-phrase-text");
  if (phraseNode) {
-  const phrases = ["Mais organizadas.", "No seu controle.", "Sem mistério.", "Veja o que mudou... 👀"];
+  const phrases = ["Mais organizadas.", "No seu controle.", "Sem mistério.", "Veja o que mudou 👀"];
   let phraseIndex = 0;
   let charIndex = phrases[0].length;
   let deleting = true;
