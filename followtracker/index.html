@@ -68,8 +68,8 @@ footer{max-width:1120px;margin:auto;padding:0 24px 34px;color:var(--muted);font-
   <h1>Suas conexões. <span>Mais organizadas.</span></h1>
   <p>O Instagram Follow Tracker ajuda você a coletar e comparar listas de seguidores e de pessoas que segue no Instagram, visualizar diferenças e manter um histórico das coletas realizadas.</p>
   <div class="hero-actions">
-   <a class="button-link disabled-download" id="top-download" href="#aviso-download" aria-disabled="true" title="Download ainda indisponível">↓ Baixar extensão <span aria-hidden="true">↗</span></a>
-   <a class="button-link secondary" id="demo-request" href="#aviso-demo">Solicitar demo / participar do teste</a>
+   <a class="button-link" id="top-download" href="#aviso-download" title="Ver disponibilidade de download">↓ Baixar extensão <span aria-hidden="true">↗</span></a>
+   <a class="button-link secondary" id="demo-request" href="#aviso-demo">Solicitar demo</a>
   </div>
   <div class="callout hero-notice" id="aviso-download" hidden><strong>Em fase de testes.</strong> A extensão ainda não foi publicada para download na Chrome Web Store. Quando a página da loja estiver disponível, o botão “Baixar extensão” passará a direcionar para ela.</div>
   <div class="callout hero-notice" id="aviso-demo" hidden>Para solicitar uma demonstração e participar dos testes, envie um e-mail para <a href="mailto:contato@regiss.me?subject=Solicita%C3%A7%C3%A3o%20de%20demo%20-%20Instagram%20Follow%20Tracker">contato@regiss.me</a>. A solicitação depende de confirmação. Não envie sua senha nem dados de acesso.</div>
@@ -160,23 +160,31 @@ footer{max-width:1120px;margin:auto;padding:0 24px 34px;color:var(--muted);font-
  const demoLink = document.querySelector("#aviso-demo a");
  if (demoLink) demoLink.href = "mailto:" + CONTACT_EMAIL + "?subject=Solicita%C3%A7%C3%A3o%20de%20demo%20-%20Instagram%20Follow%20Tracker";
  const topDownload = document.getElementById("top-download");
+ const downloadNotice = document.getElementById("aviso-download");
+ const demoRequest = document.getElementById("demo-request");
+ const demoNotice = document.getElementById("aviso-demo");
+ function toggleNotice(which) {
+   const notices = { download: downloadNotice, demo: demoNotice };
+   const target = notices[which];
+   const wasVisible = target && !target.hidden;
+   if (downloadNotice) downloadNotice.hidden = true;
+   if (demoNotice) demoNotice.hidden = true;
+   if (target) target.hidden = !wasVisible;
+ }
  if (topDownload && storeIsConfigured) {
    topDownload.href = STORE_URL;
-   topDownload.classList.remove("disabled-download");
-   topDownload.removeAttribute("aria-disabled");
    topDownload.title = "Baixar na Chrome Web Store";
    topDownload.target = "_blank";
    topDownload.rel = "noopener noreferrer";
  } else if (topDownload) {
    topDownload.addEventListener("click", function(event) {
      event.preventDefault();
-     document.getElementById("aviso-download").hidden = false;
+     toggleNotice("download");
    });
  }
- const demoRequest = document.getElementById("demo-request");
  if (demoRequest) demoRequest.addEventListener("click", function(event) {
    event.preventDefault();
-   document.getElementById("aviso-demo").hidden = false;
+   toggleNotice("demo");
  });
  const pages=["inicio","tutorial","privacidade"];
  function showPage(){
