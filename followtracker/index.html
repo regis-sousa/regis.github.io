@@ -27,6 +27,11 @@ main{max-width:1120px;margin:0 auto;padding:60px 24px 80px}
 .eyebrow{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;color:var(--lavender);border:1px solid var(--line);background:rgba(117,101,217,.10);border-radius:999px;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.11em}
 h1{font-size:clamp(2.2rem,5vw,4rem);line-height:1.08;letter-spacing:-.055em;margin:22px 0 18px}
 h1 span{color:var(--purple)}
+.hero-title .hero-fixed{color:var(--text)}
+.hero-title .rotating-phrase{display:inline-block;color:var(--purple);white-space:nowrap}
+#rotating-phrase-text{display:inline-block;border-right:2px solid var(--purple);padding-right:3px;animation:caret-blink .8s steps(1,end) infinite}
+@keyframes caret-blink{50%{border-color:transparent}}
+@media(max-width:480px){.hero-title .rotating-phrase{white-space:normal}}
 .hero p{color:var(--muted);font-size:17px;max-width:690px;margin:auto}
 .updated{margin-top:18px;color:var(--muted);font-size:13px}
 .content{border:1px solid var(--line);background:var(--panel);backdrop-filter:blur(14px);border-radius:22px;box-shadow:0 20px 60px rgba(0,0,0,.13);padding:clamp(22px,4vw,42px)}
@@ -66,14 +71,14 @@ footer{max-width:1120px;margin:auto;padding:0 24px 34px;color:var(--muted);font-
 <section class="page" id="page-inicio">
  <div class="hero">
   <div class="eyebrow">✦ Conheça a extensão</div>
-  <h1>Suas conexões. <span>Mais organizadas.</span></h1>
+  <h1 class="hero-title"><span class="hero-fixed">Suas conexões.</span> <span class="rotating-phrase" aria-live="polite"><span id="rotating-phrase-text">Mais organizadas.</span></span></h1>
   <p>O Instagram Follow Tracker ajuda você a coletar e comparar listas de seguidores e de pessoas que segue no Instagram, visualizar diferenças e manter um histórico das coletas realizadas.</p>
   <div class="hero-actions">
    <a class="button-link" id="top-download" href="#aviso-download" title="Ver disponibilidade de download">↓ Baixar extensão <span aria-hidden="true">↗</span></a>
    <a class="button-link secondary" id="demo-request" href="#aviso-demo">Solicitar demo</a>
   </div>
-  <div class="callout hero-notice" id="aviso-download" hidden aria-hidden="true"><strong>Em fase de testes.</strong> A extensão ainda não foi publicada para download na Chrome Web Store. Você pode solicitar acesso à demonstração por e-mail.</div>
-  <div class="callout hero-notice" id="aviso-demo" hidden aria-hidden="true">Para solicitar uma demonstração, envie um e-mail para <a href="mailto:contato@regiss.me?subject=Solicita%C3%A7%C3%A3o%20de%20demo%20-%20Instagram%20Follow%20Tracker">contato@regiss.me</a>. A solicitação depende de confirmação. Não envie sua senha nem dados de acesso.</div>
+  <div class="callout hero-notice" id="aviso-download" hidden><strong>Em fase de testes.</strong> A extensão ainda não foi publicada para download na Chrome Web Store. Você pode solicitar acesso à demonstração por e-mail. Quando a página da loja estiver disponível, o botão “Baixar extensão” passará a direcionar para ela.</div>
+  <div class="callout hero-notice" id="aviso-demo" hidden>Para solicitar uma demonstração, envie um e-mail para <a href="mailto:contato@regiss.me?subject=Solicita%C3%A7%C3%A3o%20de%20demo%20-%20Instagram%20Follow%20Tracker">contato@regiss.me</a>. A solicitação depende de confirmação. Não envie sua senha nem dados de acesso.</div>
  </div>
  <div class="content">
   <h2>O que é o Instagram Follow Tracker?</h2>
@@ -148,88 +153,97 @@ footer{max-width:1120px;margin:auto;padding:0 24px 34px;color:var(--muted);font-
  <p>Instagram é uma marca de terceiros. Esta extensão é independente e não é afiliada, patrocinada nem oficialmente endossada pelo Instagram ou pela Meta.</p>
 </footer>
 <script>
-(function () {
-  "use strict";
-
-  /* CONFIGURAÇÃO RÁPIDA */
-  const STORE_URL = "COLE_AQUI_O_LINK_DA_CHROME_WEB_STORE";
-  const CONTACT_EMAIL = "contato@regiss.me";
-
-  const topDownload = document.getElementById("top-download");
-  const demoRequest = document.getElementById("demo-request");
-  const downloadNotice = document.getElementById("aviso-download");
-  const demoNotice = document.getElementById("aviso-demo");
-  const demoLink = document.querySelector("#aviso-demo a");
-  const storeIsConfigured = STORE_URL.startsWith("https://") && !STORE_URL.includes("COLE_AQUI");
-
-  if (demoLink) {
-    demoLink.href = "mailto:" + CONTACT_EMAIL + "?subject=Solicita%C3%A7%C3%A3o%20de%20demo%20-%20Instagram%20Follow%20Tracker";
+(function(){
+ /* ================================================================
+    CONFIGURAÇÃO RÁPIDA DO SITE — EDITE ESTES VALORES ANTES DE PUBLICAR
+    1) STORE_URL: cole o link da Chrome Web Store quando a extensão for publicada.
+    2) CONTACT_EMAIL: e-mail que receberá as solicitações de demonstração.
+    Os avisos de teste aparecem somente quando os botões do topo são clicados.
+    ================================================================ */
+ const STORE_URL = "COLE_AQUI_O_LINK_DA_CHROME_WEB_STORE";
+ const CONTACT_EMAIL = "contato@regiss.me";
+ const storeIsConfigured = STORE_URL.startsWith("https://") && !STORE_URL.includes("COLE_AQUI");
+ const demoLink = document.querySelector("#aviso-demo a");
+ if (demoLink) demoLink.href = "mailto:" + CONTACT_EMAIL + "?subject=Solicita%C3%A7%C3%A3o%20de%20demo%20-%20Instagram%20Follow%20Tracker";
+ const topDownload = document.getElementById("top-download");
+ const downloadNotice = document.getElementById("aviso-download");
+ const demoRequest = document.getElementById("demo-request");
+ const demoNotice = document.getElementById("aviso-demo");
+ function toggleNotice(which) {
+   const notices = { download: downloadNotice, demo: demoNotice };
+   const target = notices[which];
+   const wasVisible = target && !target.hidden;
+   if (downloadNotice) downloadNotice.hidden = true;
+   if (demoNotice) demoNotice.hidden = true;
+   if (target) target.hidden = !wasVisible;
+ }
+ if (topDownload && storeIsConfigured) {
+   topDownload.href = STORE_URL;
+   topDownload.title = "Baixar na Chrome Web Store";
+   topDownload.target = "_blank";
+   topDownload.rel = "noopener noreferrer";
+ } else if (topDownload) {
+   topDownload.addEventListener("click", function(event) {
+     event.preventDefault();
+     toggleNotice("download");
+   });
+ }
+ if (demoRequest) demoRequest.addEventListener("click", function(event) {
+   event.preventDefault();
+   toggleNotice("demo");
+ });
+ // Animação de lema: mantém "Suas conexões." fixo e alterna as frases.
+ const phraseNode = document.getElementById("rotating-phrase-text");
+ if (phraseNode) {
+  const phrases = ["Mais organizadas.", "No seu controle.", "Sem mistério.", "Veja o que mudou... 👀"];
+  let phraseIndex = 0;
+  let charIndex = phrases[0].length;
+  let deleting = true;
+  const typeSpeed = 75, deleteSpeed = 38, pauseAfterTyping = 1450, pauseAfterDeleting = 300;
+  function animatePhrase() {
+   if (deleting) {
+    charIndex--;
+    phraseNode.textContent = phrases[phraseIndex].slice(0, Math.max(0, charIndex));
+    if (charIndex <= 0) {
+     deleting = false;
+     phraseIndex = (phraseIndex + 1) % phrases.length;
+     window.setTimeout(animatePhrase, pauseAfterDeleting);
+     return;
+    }
+    window.setTimeout(animatePhrase, deleteSpeed);
+   } else {
+    charIndex++;
+    phraseNode.textContent = phrases[phraseIndex].slice(0, charIndex);
+    if (charIndex >= phrases[phraseIndex].length) {
+     deleting = true;
+     window.setTimeout(animatePhrase, pauseAfterTyping);
+     return;
+    }
+    window.setTimeout(animatePhrase, typeSpeed);
+   }
   }
+  window.setTimeout(animatePhrase, pauseAfterTyping);
+ }
 
-  function hideNotice(notice) {
-    if (!notice) return;
-    notice.hidden = true;
-    notice.setAttribute("aria-hidden", "true");
-  }
-
-  function showNotice(notice) {
-    if (!notice) return;
-    notice.hidden = false;
-    notice.setAttribute("aria-hidden", "false");
-  }
-
-  function toggleNotice(target) {
-    const wasVisible = target && !target.hidden;
-    hideNotice(downloadNotice);
-    hideNotice(demoNotice);
-    if (!wasVisible) showNotice(target);
-  }
-
-  if (topDownload) {
-    topDownload.addEventListener("click", function (event) {
-      event.preventDefault();
-      event.stopPropagation();
-      if (storeIsConfigured) {
-        window.open(STORE_URL, "_blank", "noopener,noreferrer");
-      } else {
-        toggleNotice(downloadNotice);
-      }
-    });
-  }
-
-  if (demoRequest) {
-    demoRequest.addEventListener("click", function (event) {
-      event.preventDefault();
-      event.stopPropagation();
-      toggleNotice(demoNotice);
-    });
-  }
-
-  const pages = ["inicio", "tutorial", "privacidade"];
-  function showPage() {
-    let page = location.hash.replace("#", "").split("?")[0];
-    if (!pages.includes(page)) page = "inicio";
-    pages.forEach(function (name) {
-      const section = document.getElementById("page-" + name);
-      if (section) section.classList.toggle("active", name === page);
-    });
-    document.querySelectorAll(".nav a[data-page]").forEach(function (link) {
-      const active = link.dataset.page === page;
-      link.classList.toggle("active", active);
-      if (active) link.setAttribute("aria-current", "page");
-      else link.removeAttribute("aria-current");
-    });
-    const titles = {
-      inicio: "Instagram Follow Tracker",
-      tutorial: "Tutorial — Instagram Follow Tracker",
-      privacidade: "Política de Privacidade — Instagram Follow Tracker"
-    };
-    document.title = titles[page];
-    window.scrollTo({ top: 0, behavior: "auto" });
-  }
-
-  window.addEventListener("hashchange", showPage);
-  showPage();
+ const pages=["inicio","tutorial","privacidade"];
+ function showPage(){
+  let page=location.hash.replace("#","").split("?")[0];
+  if(!pages.includes(page)) page="inicio";
+  pages.forEach(name=>{
+   const section=document.getElementById("page-"+name);
+   if(section) section.classList.toggle("active",name===page);
+  });
+  document.querySelectorAll(".nav a[data-page]").forEach(link=>{
+   const active=link.dataset.page===page;
+   link.classList.toggle("active",active);
+   if(active) link.setAttribute("aria-current","page"); else link.removeAttribute("aria-current");
+  });
+  const titles={inicio:"Instagram Follow Tracker",tutorial:"Tutorial — Instagram Follow Tracker",privacidade:"Política de Privacidade — Instagram Follow Tracker"};
+  document.title=titles[page];
+  window.scrollTo({top:0,behavior:"auto"});
+ }
+ window.addEventListener("hashchange",showPage);
+ showPage();
 })();
 </script>
 </body>
