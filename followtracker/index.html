@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#100d1d">
+<meta name="description" content="Instagram Follow Tracker: compare seguidores sem informar sua senha. Usa a sessão já aberta no site oficial do Instagram.">
+<title>Instagram Follow Tracker</title>
+<style>
+:root{color-scheme:dark;--bg:#0d0a16;--panel:rgba(27,22,43,.86);--purple:#9b87ff;--purple2:#7565d9;--lavender:#d9d0ff;--text:#f5f2ff;--muted:#b6afca;--line:rgba(190,174,255,.17)}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:100px}
+body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(ellipse at 12% 0%,rgba(117,101,217,.24),transparent 38rem),radial-gradient(ellipse at 95% 30%,rgba(155,135,255,.10),transparent 34rem),var(--bg);line-height:1.7}
+a{color:var(--lavender);text-underline-offset:4px}a:hover{color:#fff}
+.topbar{position:sticky;top:0;z-index:10;backdrop-filter:blur(18px);background:rgba(13,10,22,.9);border-bottom:1px solid var(--line)}
+.topbar-inner{max-width:1120px;margin:auto;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:18px}
+.brand{display:flex;align-items:center;gap:12px;font-weight:800;letter-spacing:-.025em;white-space:nowrap;color:inherit;text-decoration:none}
+.brand-icon{display:grid;place-items:center;width:42px;height:42px;border-radius:14px;background:linear-gradient(145deg,#a394ff,#6652c9);box-shadow:0 8px 30px rgba(117,101,217,.3);font-size:21px}
+.brand small{display:block;color:var(--muted);font-weight:500;letter-spacing:0;font-size:12px}
+.nav{display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.nav a{color:#d0c9e3;text-decoration:none;font-size:13px;font-weight:700;padding:10px 14px;border:1px solid transparent;border-radius:12px}
+.nav a:hover,.nav a.active{color:#fff;background:rgba(155,135,255,.13);border-color:var(--line)}
+main{max-width:1120px;margin:0 auto;padding:60px 24px 80px}
+.page{display:none}.page.active{display:block;animation:fade .18s ease-out}
+@keyframes fade{from{opacity:.4;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.hero{max-width:820px;margin:0 auto 38px;text-align:center}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;color:var(--lavender);border:1px solid var(--line);background:rgba(117,101,217,.10);border-radius:999px;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.11em}
+h1{font-size:clamp(2.2rem,5vw,4rem);line-height:1.08;letter-spacing:-.055em;margin:22px 0 18px}
+h1 span{color:var(--purple)}
+.hero p{color:var(--muted);font-size:17px;max-width:690px;margin:auto}
+.updated{margin-top:18px;color:var(--muted);font-size:13px}
+.content{border:1px solid var(--line);background:var(--panel);backdrop-filter:blur(14px);border-radius:22px;box-shadow:0 20px 60px rgba(0,0,0,.13);padding:clamp(22px,4vw,42px)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:28px 0}
+.card{border:1px solid var(--line);border-radius:18px;padding:22px;background:rgba(117,101,217,.08)}
+.card .symbol{font-size:24px;margin-bottom:8px}.card strong{display:block;font-size:15px;margin-bottom:6px}.card p{font-size:13px;color:var(--muted);margin:0}
+h2{font-size:23px;letter-spacing:-.025em;margin:28px 0 10px}h2:first-child{margin-top:0}
+p{margin:10px 0;color:#d5d0e2}ul{padding-left:22px;color:#d5d0e2}li{margin:7px 0;padding-left:3px}strong{color:#fff}
+.section-title{display:flex;align-items:center;gap:11px;margin:30px 0 12px}
+.num{display:inline-grid;place-items:center;flex:0 0 34px;height:34px;border-radius:11px;background:rgba(155,135,255,.14);color:var(--purple);font-size:13px;font-weight:800}
+.callout{margin:22px 0;padding:17px 18px;border:1px solid rgba(155,135,255,.2);background:rgba(117,101,217,.08);border-radius:15px;color:#ded7ff}
+.contact{border:1px solid rgba(155,135,255,.25);border-radius:16px;padding:20px;background:linear-gradient(135deg,rgba(117,101,217,.13),rgba(155,135,255,.04))}
+.button-link{display:inline-flex;align-items:center;justify-content:center;gap:8px;margin:8px 8px 0 0;padding:12px 17px;border-radius:13px;background:linear-gradient(135deg,#8c78ef,#6652c9);color:white;text-decoration:none;font-weight:750;box-shadow:0 10px 28px rgba(117,101,217,.22)}
+.button-link.secondary{background:rgba(117,101,217,.12);border:1px solid var(--line);box-shadow:none;color:#eee9ff}.hero-actions{display:flex;justify-content:center;flex-wrap:wrap;gap:8px;margin-top:14px}.hero-actions .button-link{margin:0}.hero-notice{text-align:left;max-width:760px;margin:24px auto 0}.download-panel{margin-top:32px;padding:24px;border:1px solid rgba(155,135,255,.28);border-radius:18px;background:rgba(117,101,217,.07)}.small-note{font-size:13px;color:var(--muted)}
+footer{max-width:1120px;margin:auto;padding:0 24px 34px;color:var(--muted);font-size:12px}
+.footer-inner{border-top:1px solid var(--line);padding-top:22px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}.heart{color:var(--purple)}
+@media(max-width:760px){.topbar-inner{align-items:flex-start;flex-direction:column}.nav{justify-content:flex-start;width:100%}.nav a{padding:8px 10px}main{padding-top:38px}.grid{grid-template-columns:1fr}.hero p{font-size:15px}}
+@media(max-width:480px){.topbar-inner{padding:12px 15px}.brand{font-size:14px}.brand-icon{width:38px;height:38px}main{padding:30px 14px 50px}.content{padding:20px 17px;border-radius:18px}h2{font-size:20px}footer{padding-left:16px;padding-right:16px}}
+</style>
+</head>
+<body>
+<header class="topbar">
+ <div class="topbar-inner">
+  <a class="brand" href="#inicio" aria-label="Instagram Follow Tracker - Início">
+   <span class="brand-icon" aria-hidden="true">↗</span>
+   <span>Instagram Follow Tracker<small>Informações, tutorial e privacidade</small></span>
+  </a>
+  <nav class="nav" aria-label="Navegação principal">
+   <a href="#inicio" data-page="inicio">Início</a>
+   <a href="#tutorial" data-page="tutorial">Tutorial</a>
+   <a href="#privacidade" data-page="privacidade">Política de Privacidade</a>
+  </nav>
+ </div>
+</header>
+<main>
+<section class="page" id="page-inicio">
+ <div class="hero">
+  <div class="eyebrow">✦ Conheça a extensão</div>
+  <h1>Suas conexões. <span>Mais organizadas.</span></h1>
+  <p>O Instagram Follow Tracker ajuda você a coletar e comparar listas de seguidores e de pessoas que segue no Instagram, visualizar diferenças e manter um histórico das coletas realizadas.</p>
+  <div class="hero-actions">
+   <a class="button-link" href="#download">↓ Baixar extensão <span aria-hidden="true">↗</span></a>
+   <a class="button-link secondary" href="mailto:contato@regiss.me?subject=Solicita%C3%A7%C3%A3o%20de%20demo%20-%20Instagram%20Follow%20Tracker">Solicitar demo / participar do teste</a>
+   <!-- ALTERE FORM_URL no script no final deste arquivo para inserir o link real do formulário. -->
+   <a class="button-link secondary" id="form-link-hero" href="#formulario">Enviar feedback / formulário</a>
+  </div>
+  <div class="callout hero-notice"><strong>Em fase de testes.</strong> A extensão ainda não foi publicada para download na Chrome Web Store. Você pode solicitar acesso à demonstração por e-mail. Quando a página da loja estiver disponível, o botão “Baixar extensão” passará a direcionar para ela.</div>
+ </div>
+ <div class="content">
+  <h2>O que é o Instagram Follow Tracker?</h2>
+  <p>O Instagram Follow Tracker é uma extensão para navegadores compatíveis com Chrome, criada para facilitar a consulta e a comparação das listas de seguidores e de pessoas que você segue no Instagram.</p>
+  <div class="grid">
+   <div class="card"><div class="symbol" aria-hidden="true">↔</div><strong>Compare listas</strong><p>Veja diferenças entre seguidores e seguindo, incluindo novos seguidores e perfis que deixaram de aparecer nas comparações.</p></div>
+   <div class="card"><div class="symbol" aria-hidden="true">◷</div><strong>Acompanhe o histórico</strong><p>Salve suas coletas e consulte os resultados anteriores para entender o que mudou entre uma comparação e outra.</p></div>
+   <div class="card"><div class="symbol" aria-hidden="true">▤</div><strong>Seus dados no navegador</strong><p>As coletas e o histórico ficam armazenados localmente na extensão. Você também pode exportar e importar backups.</p></div>
+  </div>
+  <h2>O que você pode fazer?</h2>
+  <ul>
+   <li>Coletar a lista de seguidores e a lista de pessoas que você segue, quando estiverem disponíveis no Instagram.</li>
+   <li>Comparar as listas para identificar diferenças entre as coletas salvas.</li>
+   <li>Consultar categorias como “Não me seguem”, “Não sigo de volta”, “Novos seguidores” e “Deixaram de seguir”.</li>
+   <li>Salvar comparações no histórico e criar backups dos dados locais.</li>
+  </ul>
+  <div class="callout">A extensão é uma ferramenta independente. Os resultados dependem das informações que o Instagram disponibiliza e da conclusão bem-sucedida de cada coleta.</div>
+  <h2>Não precisa informar sua senha</h2>
+  <p><strong>Você não precisa digitar nem entregar sua senha ao Instagram Follow Tracker.</strong> Abra o site oficial do Instagram, entre na sua própria conta normalmente e use a extensão nessa sessão já autenticada. A extensão lê e captura as informações exibidas/disponibilizadas pelo site oficial no navegador para realizar as comparações.</p>
+  <p>O Instagram Follow Tracker não tem um campo para receber sua senha e não foi desenvolvido para armazenar senhas. Ele usa a sessão que você já abriu no navegador; nunca envie sua senha por e-mail nem pelo formulário de teste.</p>
+  <a class="button-link" href="#privacidade">Ler a Política de Privacidade <span aria-hidden="true">→</span></a>
+  <section id="download" class="download-panel">
+   <h2>Baixar ou testar a extensão</h2>
+   <p><strong>Status atual: em testes.</strong> O download público ainda não está disponível na Chrome Web Store. Estamos preparando a publicação.</p>
+   <div class="hero-actions">
+    <a class="button-link" id="store-link" href="#download">Baixar extensão (em breve)</a>
+    <a class="button-link secondary" href="mailto:contato@regiss.me?subject=Solicita%C3%A7%C3%A3o%20de%20demo%20-%20Instagram%20Follow%20Tracker&body=Ol%C3%A1!%20Gostaria%20de%20solicitar%20acesso%20%C3%A0%20demo%20do%20Instagram%20Follow%20Tracker.%0A%0AComo%20posso%20participar%20do%20teste%3F">Solicitar demo por e-mail</a>
+   </div>
+   <p class="small-note">A solicitação de demo é voluntária e depende de confirmação do desenvolvedor. Não inclua senha ou outros dados de acesso no e-mail.</p>
+  </section>
+  <section id="formulario">
+   <h2>Participar e enviar feedback</h2>
+   <p>Use o formulário para solicitar participação no teste, compartilhar sugestões ou relatar problemas. O link definitivo do formulário será configurado antes da publicação deste site.</p>
+   <a class="button-link secondary" id="form-link-main" href="mailto:contato@regiss.me?subject=Formul%C3%A1rio%20de%20teste%20-%20Instagram%20Follow%20Tracker">Abrir formulário / solicitar acesso</a>
+  </section>
+ </div>
+</section>
+
+<section class="page" id="page-tutorial">
+ <div class="hero">
+  <div class="eyebrow">✦ Guia de utilização</div>
+  <h1>Aprenda a usar o <span>Tracker.</span></h1>
+  <p>Estamos preparando um tutorial com o passo a passo para instalar a extensão, realizar coletas e comparar seus resultados.</p>
+ </div>
+ <div class="content">
+  <div class="card" style="text-align:center;padding:clamp(28px,6vw,60px)">
+   <div class="symbol" aria-hidden="true" style="font-size:42px">📘</div>
+   <h2 style="margin-top:8px">Tutorial em breve</h2>
+   <p>Em breve, esta página terá as instruções e exemplos para você aproveitar todos os recursos do Instagram Follow Tracker.</p>
+   <p>Enquanto isso, siga as orientações exibidas dentro da extensão durante a coleta.</p>
+   <a class="button-link" href="#inicio">Voltar ao início</a>
+  </div>
+ </div>
+</section>
+
+<section class="page" id="page-privacidade">
+ <div class="hero">
+  <div class="eyebrow">✦ Política de privacidade</div>
+  <h1>Seus dados. <span>Sua privacidade.</span></h1>
+  <p>Entenda quais informações o Instagram Follow Tracker utiliza, como são armazenadas e quais escolhas você tem ao usar a extensão.</p>
+  <div class="updated">Última atualização: 24 de outubro de 2026</div>
+ </div>
+ <article class="content">
+  <div class="grid">
+   <div class="card"><div class="symbol" aria-hidden="true">⌂</div><strong>Armazenamento local</strong><p>As coletas e o histórico ficam no armazenamento do navegador.</p></div>
+   <div class="card"><div class="symbol" aria-hidden="true">♧</div><strong>Sem senha do Instagram</strong><p>A extensão usa a sessão já aberta no navegador.</p></div>
+   <div class="card"><div class="symbol" aria-hidden="true">◇</div><strong>Sem venda de dados</strong><p>As listas não são vendidas nem usadas para publicidade personalizada.</p></div>
+  </div>
+  <section id="sobre"><h2 class="section-title"><span class="num">01</span> Sobre a extensão</h2><p>O Instagram Follow Tracker é uma extensão independente para navegadores compatíveis com Chrome. Ela permite coletar, organizar e comparar listas de seguidores e de pessoas que o usuário segue no Instagram, além de manter um histórico das coletas realizadas.</p></section>
+  <section id="informacoes"><h2 class="section-title"><span class="num">02</span> Informações utilizadas</h2><p>Para oferecer suas funcionalidades, a extensão pode processar:</p><ul><li><strong>Nomes de usuário e informações das listas:</strong> dados exibidos nas listas de seguidores e de pessoas que o usuário segue, necessários para realizar comparações.</li><li><strong>Histórico de coletas:</strong> registros salvos pelo usuário para consultar e comparar resultados ao longo do tempo.</li><li><strong>Dados de backup:</strong> informações incluídas nos arquivos que o usuário escolhe exportar ou importar.</li><li><strong>Feedback voluntário:</strong> informações que o usuário decide inserir no formulário de feedback para relatar um erro ou enviar uma sugestão.</li></ul><p>A extensão utiliza a sessão do Instagram já aberta no navegador e não solicita a senha do Instagram.</p></section>
+  <section id="uso"><h2 class="section-title"><span class="num">03</span> Como usamos as informações</h2><p>As informações são utilizadas para disponibilizar as funções principais da extensão, incluindo:</p><ul><li>comparar as listas de seguidores e seguindo;</li><li>identificar diferenças entre as listas;</li><li>apresentar resultados das comparações;</li><li>salvar e consultar o histórico de coletas;</li><li>permitir a exportação e a importação de backups.</li></ul><p>As informações não são utilizadas para publicidade personalizada, criação de perfis publicitários ou venda de dados.</p></section>
+  <section id="armazenamento"><h2 class="section-title"><span class="num">04</span> Armazenamento e compartilhamento</h2><p>As listas coletadas e o histórico são armazenados localmente no navegador, por meio do armazenamento da extensão. A extensão não envia essas listas a um servidor próprio.</p><p>As listas coletadas não são vendidas nem compartilhadas com terceiros para fins publicitários.</p><p>Se o usuário optar por preencher o formulário de feedback, as informações inseridas serão enviadas ao serviço responsável pelo formulário e estarão sujeitas às políticas de privacidade desse serviço. O envio é voluntário e não é necessário para utilizar as funções principais da extensão.</p><p>Esta política não substitui as políticas de privacidade do Instagram, do Google Chrome ou do serviço utilizado no formulário de feedback.</p></section>
+  <section id="permissoes"><h2 class="section-title"><span class="num">05</span> Permissões do navegador</h2><p>A extensão solicita permissões técnicas para disponibilizar o painel lateral, executar a coleta solicitada pelo usuário na página do Instagram e armazenar os dados e as preferências da extensão.</p><p>O acesso ao conteúdo do Instagram é utilizado para a finalidade descrita nesta política, e não para monitorar a navegação geral do usuário.</p></section>
+  <section id="seguranca"><h2 class="section-title"><span class="num">06</span> Segurança</h2><p>Como os dados das coletas ficam armazenados localmente, o usuário deve proteger seu dispositivo e sua conta de navegador. A exportação de um backup pode criar um arquivo contendo nomes de usuário e histórico; esse arquivo deve ser guardado em local seguro e compartilhado somente com pessoas de confiança.</p></section>
+  <section id="retencao"><h2 class="section-title"><span class="num">07</span> Retenção e exclusão dos dados</h2><p>Os dados locais permanecem no navegador até que o usuário os exclua, remova os dados da extensão ou desinstale a extensão, observadas as características do armazenamento do navegador.</p><p>O usuário pode exportar os dados para manter uma cópia. Arquivos de backup exportados ficam sob seu controle e devem ser excluídos separadamente quando não forem mais necessários.</p><p>As informações enviadas voluntariamente pelo formulário de feedback são mantidas conforme as práticas e opções de exclusão oferecidas pelo serviço responsável pelo formulário.</p></section>
+  <section id="criancas"><h2 class="section-title"><span class="num">08</span> Privacidade de crianças</h2><p>A extensão não é direcionada especificamente a crianças e não foi desenvolvida para coletar intencionalmente dados pessoais de crianças.</p></section>
+  <section id="alteracoes"><h2 class="section-title"><span class="num">09</span> Alterações nesta política</h2><p>Esta política poderá ser atualizada para refletir mudanças na extensão, nas funcionalidades ou nos requisitos aplicáveis. A versão atualizada será publicada nesta mesma página, com a data da última atualização.</p></section>
+  <section id="contato"><h2 class="section-title"><span class="num">10</span> Contato</h2><div class="contact"><p>Para dúvidas sobre esta política ou sobre a privacidade da extensão, entre em contato com o desenvolvedor.</p><p><strong>Desenvolvedor:</strong> @regiss.me</p><p><strong>E-mail:</strong> contato@regiss.me</p></div></section>
+  <section id="uso-limitado"><h2 class="section-title"><span class="num">11</span> Uso limitado</h2><p>O uso das informações obtidas por meio da extensão está limitado às funcionalidades descritas nesta política e na página da extensão na Chrome Web Store. Os dados não são vendidos nem utilizados para publicidade personalizada. O acesso às informações é restrito ao necessário para oferecer as funcionalidades solicitadas pelo usuário.</p></section>
+ </article>
+</section>
+</main>
+<footer>
+ <div class="footer-inner"><span>Instagram Follow Tracker</span><span>Feito com <span class="heart">♥</span> por <a href="https://www.instagram.com/regiss.me/" target="_blank" rel="noopener noreferrer">@regiss.me</a></span></div>
+ <p>Instagram é uma marca de terceiros. Esta extensão é independente e não é afiliada, patrocinada nem oficialmente endossada pelo Instagram ou pela Meta.</p>
+</footer>
+<script>
+(function(){
+ /* ================================================================
+    CONFIGURAÇÃO RÁPIDA DO SITE — EDITE ESTES VALORES ANTES DE PUBLICAR
+    1) FORM_URL: cole aqui o endereço real do Google Forms.
+    2) STORE_URL: depois que a extensão for publicada, cole aqui o link
+       da página dela na Chrome Web Store.
+    3) CONTACT_EMAIL: e-mail que receberá solicitações de demonstração.
+    Os botões usam o e-mail como alternativa enquanto os links não forem
+    configurados. Não é necessário alterar o restante do código.
+    ================================================================ */
+ const FORM_URL = "COLE_AQUI_O_LINK_DO_GOOGLE_FORMS";
+ const STORE_URL = "COLE_AQUI_O_LINK_DA_CHROME_WEB_STORE";
+ const CONTACT_EMAIL = "contato@regiss.me";
+ const formIsConfigured = FORM_URL.startsWith("https://") && !FORM_URL.includes("COLE_AQUI");
+ const storeIsConfigured = STORE_URL.startsWith("https://") && !STORE_URL.includes("COLE_AQUI");
+ const formFallback = "mailto:" + CONTACT_EMAIL + "?subject=Formul%C3%A1rio%20de%20teste%20-%20Instagram%20Follow%20Tracker";
+ ["form-link-hero", "form-link-main"].forEach(id => {
+   const link = document.getElementById(id);
+   if (!link) return;
+   link.href = formIsConfigured ? FORM_URL : formFallback;
+   if (!formIsConfigured) link.title = "Configure FORM_URL no código para abrir o formulário real";
+ });
+ const storeLink = document.getElementById("store-link");
+ if (storeLink && storeIsConfigured) {
+   storeLink.href = STORE_URL;
+   storeLink.target = "_blank";
+   storeLink.rel = "noopener noreferrer";
+   storeLink.textContent = "Baixar extensão na Chrome Web Store ↗";
+ } else if (storeLink) {
+   storeLink.href = "mailto:" + CONTACT_EMAIL + "?subject=Aviso%20de%20lan%C3%A7amento%20-%20Instagram%20Follow%20Tracker";
+   storeLink.textContent = "Download público em breve — avise-me";
+ }
+ const pages=["inicio","tutorial","privacidade"];
+ function showPage(){
+  let page=location.hash.replace("#","").split("?")[0];
+  if(!pages.includes(page)) page="inicio";
+  pages.forEach(name=>{
+   const section=document.getElementById("page-"+name);
+   if(section) section.classList.toggle("active",name===page);
+  });
+  document.querySelectorAll(".nav a[data-page]").forEach(link=>{
+   const active=link.dataset.page===page;
+   link.classList.toggle("active",active);
+   if(active) link.setAttribute("aria-current","page"); else link.removeAttribute("aria-current");
+  });
+  const titles={inicio:"Instagram Follow Tracker",tutorial:"Tutorial — Instagram Follow Tracker",privacidade:"Política de Privacidade — Instagram Follow Tracker"};
+  document.title=titles[page];
+  window.scrollTo({top:0,behavior:"auto"});
+ }
+ window.addEventListener("hashchange",showPage);
+ showPage();
+})();
+</script>
+</body>
+</html>
