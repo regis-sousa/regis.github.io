@@ -163,32 +163,40 @@ body {
 #fechar-wpp:hover { color: var(--cor-popup-texto); }
 
 /* =============================================
-   PROJETOS
+   MENU DE PROJETOS — mesmo visual do menu social
    ============================================= */
-#projetos-toggle {
+#projetos-flutuante {
     position: fixed;
     bottom: 24px;
     left: 20px;
     z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+}
+
+#projetos-toggle {
     width: 52px;
     height: 52px;
-    background: rgba(255, 255, 255, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.5);
+    background: var(--cor-vidro-bg);
+    border: 2px solid var(--cor-vidro-borda);
     border-radius: 50%;
     color: var(--cor-texto);
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    box-shadow: 0 16px 40px rgba(58, 26, 0, 0.2);
+    backdrop-filter: var(--blur-vidro);
+    -webkit-backdrop-filter: var(--blur-vidro);
     transition: background 0.2s ease, transform 0.2s ease;
+    order: 2;
+    flex-shrink: 0;
 }
 
 #projetos-toggle:hover {
-    background: rgba(255, 255, 255, 0.65);
-    transform: scale(1.08);
+    background: var(--cor-vidro-bg-hover);
+    transform: scale(1.04);
 }
 
 #projetos-toggle svg {
@@ -196,75 +204,34 @@ body {
     height: 24px;
 }
 
-#projetos-overlay {
-    position: fixed;
-    inset: 0;
-    background: var(--cor-overlay);
-    z-index: 99998;
-    backdrop-filter: var(--blur-overlay);
-    transition: opacity 0.3s ease;
-}
-#projetos-overlay.escondido { opacity: 0; pointer-events: none; }
-
-#projetos-popup {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) scale(0.95);
-    background: var(--cor-popup-bg);
-    border-radius: 20px;
-    padding: 28px 26px 24px;
-    z-index: 99999;
+#projetos-painel {
+    order: 1;
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    gap: 14px;
-    box-shadow: var(--sombra-popup);
-    transition: opacity 0.3s ease, transform 0.3s ease;
-    min-width: 280px;
-    max-width: 92vw;
-}
-#projetos-popup.aparecendo { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-#projetos-popup.escondido { opacity: 0; pointer-events: none; }
-
-#projetos-lista {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+    gap: 4px;
+    min-width: 220px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 20px;
+    box-shadow: 0 16px 40px rgba(58, 26, 0, 0.25);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    transform-origin: bottom left;
 }
 
-.projeto-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 14px;
-    border-radius: 12px;
-    color: var(--cor-popup-texto);
-    text-decoration: none;
-    background: #1e1e1e;
-    border: 1px solid var(--cor-popup-borda);
-    transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+#projetos-painel.escondido {
+    display: none;
 }
 
-.projeto-item:hover {
-    background: #292929;
-    border-color: var(--cor-accent);
-    transform: translateY(-2px);
+#projetos-painel .menu-item {
+    animation: none;
 }
 
-.projeto-icone {
-    width: 26px;
-    flex-shrink: 0;
-    color: var(--cor-accent);
-    font-size: 25px;
+#projetos-painel .menu-item-icone {
+    font-size: 22px;
     line-height: 1;
-    text-align: center;
-}
-
-.projeto-nome {
-    font-family: var(--fonte-corpo);
-    font-size: 16px;
-    white-space: nowrap;
 }
 
 /* =============================================
@@ -1154,19 +1121,25 @@ body {
         height: 30px;
     }
 
-    #projetos-toggle {
+    #projetos-flutuante {
         bottom: calc(20px + env(safe-area-inset-bottom, 0px));
         left: 16px;
-        width: 58px;
-        height: 58px;
+        align-items: flex-start;
+    }
+
+    #projetos-toggle {
+        width: 60px;
+        height: 60px;
     }
 
     #projetos-toggle svg {
-        width: 27px;
-        height: 27px;
+        width: 28px;
+        height: 28px;
     }
 
-    .projeto-nome {
-        max-width: 100%;
+    #projetos-painel {
+        min-width: min(260px, 78vw);
+        max-width: 82vw;
+        padding: 14px;
     }
 }
