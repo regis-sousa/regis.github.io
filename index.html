@@ -35,9 +35,9 @@
     </div>
 
     <!-- ============================================= -->
-    <!-- Dicas -->
+    <!-- Projetos -->
     <!-- ============================================= -->
-    <button id="dicas-toggle" type="button" aria-label="dicas de como brincar" aria-haspopup="dialog" aria-expanded="false">
+    <button id="projetos-toggle" type="button" aria-label="abrir meus projetos" aria-haspopup="dialog" aria-expanded="false">
         <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
             <ellipse cx="12" cy="16.5" rx="6.2" ry="5"/>
             <ellipse cx="5.3" cy="9.6" rx="2.6" ry="3.4"/>
@@ -45,18 +45,17 @@
             <ellipse cx="14" cy="6.3" rx="2.6" ry="3.4"/>
             <ellipse cx="18.7" cy="9.6" rx="2.6" ry="3.4"/>
         </svg>
-        <span id="dicas-badge">?</span>
     </button>
-    <div id="dicas-overlay" class="escondido"></div>
-    <div id="dicas-popup" class="escondido" role="dialog" aria-label="dicas de como brincar com o Garfield">
-        <button class="fechar-popup-btn" id="fechar-dicas">✕</button>
-        <p class="popup-label-jogo">como brincar comigo</p>
-        <ul id="dicas-lista">
-            <li>🐾 <strong>aperte</strong> meu nariz — eu solto uma frase.</li>
-            <li>🐶 fique <strong>15 segundos parado</strong> sem fazer nada — o Odie aparece.</li>
-            <li>😾 me clique <strong>bem rápido, várias vezes seguidas</strong>... se tiver coragem.</li>
-            <li>🐾 tem mais coisinha escondida pela tela. procura com calma.</li>
-        </ul>
+    <div id="projetos-overlay" class="escondido"></div>
+    <div id="projetos-popup" class="escondido" role="dialog" aria-label="meus projetos">
+        <button class="fechar-popup-btn" id="fechar-projetos" aria-label="fechar">✕</button>
+        <p class="popup-label-jogo">meus projetos</p>
+        <div id="projetos-lista">
+            <a class="projeto-item" href="https://regiss.me/followtracker/" target="_blank" rel="noopener noreferrer" title="Follow Tracker">
+                <span class="projeto-icone" aria-hidden="true">◎</span>
+                <span class="projeto-nome">Follow Tracker</span>
+            </a>
+        </div>
     </div>
 
     <!-- ============================================= -->
@@ -130,17 +129,7 @@
                 </span>
                 <span class="menu-item-label">Discord</span>
             </a>
-
-            <a href="https://maratona.social/@regiss" target="_blank" class="menu-item" role="menuitem" title="Maratona">
-                <span class="menu-item-icone">
-                    <svg viewBox="0 0 24 24" fill="currentColor" fill-rule="evenodd" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M7,3 L9.3,8.4 Q10.5,7.3 12,7.3 Q13.5,7.3 14.7,8.4 L17,3 Q19.2,6.2 17.6,9.9 Q19,12 19,14.5 Q19,17.5 17,18.6 Q16,19.6 14.7,18 Q13.5,19.8 12,18 Q10.5,19.8 9.3,18 Q8,19.6 7,18.6 Q5,17.5 5,14.5 Q5,12 6.4,9.9 Q4.8,6.2 7,3 Z M9.7,11.1 C9.15,11.1 8.8,11.7 8.8,12.7 C8.8,13.7 9.15,14.3 9.7,14.3 C10.25,14.3 10.6,13.7 10.6,12.7 C10.6,11.7 10.25,11.1 9.7,11.1 Z M14.3,11.1 C13.75,11.1 13.4,11.7 13.4,12.7 C13.4,13.7 13.75,14.3 14.3,14.3 C14.85,14.3 15.2,13.7 15.2,12.7 C15.2,11.7 14.85,11.1 14.3,11.1 Z"/>
-                    </svg>
-                </span>
-                <span class="menu-item-label">Maratona</span>
-            </a>
-
-            <div class="menu-separador"></div>
+<div class="menu-separador"></div>
 
             <button id="menu-btn-velha" class="menu-item" role="menuitem" title="Jogo da Velha">
                 <span class="menu-item-icone">
