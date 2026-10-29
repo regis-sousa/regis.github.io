@@ -633,36 +633,38 @@ function initGarfieldInteracoes(speechBubble, estadoEmocional) {
 
 
 // =============================================
-// POPUP DE DICAS
+// MENU DE PROJETOS
 // =============================================
 function initProjetosPopup() {
+    const container = document.getElementById('projetos-flutuante');
     const toggle = document.getElementById('projetos-toggle');
-    const overlay = document.getElementById('projetos-overlay');
-    const popup = document.getElementById('projetos-popup');
-    const fechar = document.getElementById('fechar-projetos');
+    const painel = document.getElementById('projetos-painel');
 
     function abrir() {
-        overlay.classList.remove('escondido');
-        popup.classList.remove('escondido');
-        popup.classList.add('aparecendo');
+        painel.classList.remove('escondido');
+        container.classList.add('aberto');
         toggle.setAttribute('aria-expanded', 'true');
     }
 
-    function fecharFn() {
-        overlay.classList.add('escondido');
-        popup.classList.remove('aparecendo');
-        popup.classList.add('escondido');
+    function fechar() {
+        painel.classList.add('escondido');
+        container.classList.remove('aberto');
         toggle.setAttribute('aria-expanded', 'false');
     }
 
-    toggle.addEventListener('click', abrir);
-    fechar.addEventListener('click', fecharFn);
-    overlay.addEventListener('click', fecharFn);
-    document.addEventListener('keydown', e => {
-        if (e.key === 'Escape') fecharFn();
+    toggle.addEventListener('click', () => {
+        if (painel.classList.contains('escondido')) abrir();
+        else fechar();
+    });
+
+    document.addEventListener('click', event => {
+        if (!container.contains(event.target)) fechar();
+    });
+
+    document.addEventListener('keydown', event => {
+        if (event.key === 'Escape') fechar();
     });
 }
-
 
 // =============================================
 // ODIE EASTER EGG
