@@ -635,11 +635,11 @@ function initGarfieldInteracoes(speechBubble, estadoEmocional) {
 // =============================================
 // POPUP DE DICAS
 // =============================================
-function initDicasPopup() {
-    const toggle = document.getElementById('dicas-toggle');
-    const overlay = document.getElementById('dicas-overlay');
-    const popup = document.getElementById('dicas-popup');
-    const fechar = document.getElementById('fechar-dicas');
+function initProjetosPopup() {
+    const toggle = document.getElementById('projetos-toggle');
+    const overlay = document.getElementById('projetos-overlay');
+    const popup = document.getElementById('projetos-popup');
+    const fechar = document.getElementById('fechar-projetos');
 
     function abrir() {
         overlay.classList.remove('escondido');
@@ -647,6 +647,7 @@ function initDicasPopup() {
         popup.classList.add('aparecendo');
         toggle.setAttribute('aria-expanded', 'true');
     }
+
     function fecharFn() {
         overlay.classList.add('escondido');
         popup.classList.remove('aparecendo');
@@ -778,6 +779,6 @@ initFloatingMenu({
     abrirVelha: ticTacToe.abrirVelha
 });
 
-initDicasPopup();
+initProjetosPopup();
 initGarfieldInteracoes(speechBubble, estadoEmocional);
 initOdie(speechBubble, estadoEmocional);
