@@ -163,9 +163,9 @@ body {
 #fechar-wpp:hover { color: var(--cor-popup-texto); }
 
 /* =============================================
-   DICAS
+   PROJETOS
    ============================================= */
-#dicas-toggle {
+#projetos-toggle {
     position: fixed;
     bottom: 24px;
     left: 20px;
@@ -186,34 +186,17 @@ body {
     transition: background 0.2s ease, transform 0.2s ease;
 }
 
-#dicas-toggle:hover {
+#projetos-toggle:hover {
     background: rgba(255, 255, 255, 0.65);
     transform: scale(1.08);
 }
 
-#dicas-toggle svg {
+#projetos-toggle svg {
     width: 24px;
     height: 24px;
 }
 
-#dicas-badge {
-    position: absolute;
-    bottom: -2px;
-    right: -2px;
-    width: 20px;
-    height: 20px;
-    background: var(--cor-accent);
-    color: #1a0a00;
-    border-radius: 50%;
-    font-family: var(--fonte-display);
-    font-size: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 2px solid #fff8ec;
-}
-
-#dicas-overlay {
+#projetos-overlay {
     position: fixed;
     inset: 0;
     background: var(--cor-overlay);
@@ -221,9 +204,9 @@ body {
     backdrop-filter: var(--blur-overlay);
     transition: opacity 0.3s ease;
 }
-#dicas-overlay.escondido { opacity: 0; pointer-events: none; }
+#projetos-overlay.escondido { opacity: 0; pointer-events: none; }
 
-#dicas-popup {
+#projetos-popup {
     position: fixed;
     top: 50%;
     left: 50%;
@@ -234,33 +217,54 @@ body {
     z-index: 99999;
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
     gap: 14px;
     box-shadow: var(--sombra-popup);
     transition: opacity 0.3s ease, transform 0.3s ease;
     min-width: 280px;
     max-width: 92vw;
 }
-#dicas-popup.aparecendo { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-#dicas-popup.escondido { opacity: 0; pointer-events: none; }
+#projetos-popup.aparecendo { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+#projetos-popup.escondido { opacity: 0; pointer-events: none; }
 
-#dicas-lista {
-    list-style: none;
+#projetos-lista {
     display: flex;
     flex-direction: column;
+    gap: 8px;
+}
+
+.projeto-item {
+    display: flex;
+    align-items: center;
     gap: 12px;
-}
-
-#dicas-lista li {
-    font-family: var(--fonte-corpo);
-    font-size: 14px;
+    padding: 12px 14px;
+    border-radius: 12px;
     color: var(--cor-popup-texto);
-    line-height: 1.45;
-    max-width: 320px;
+    text-decoration: none;
+    background: #1e1e1e;
+    border: 1px solid var(--cor-popup-borda);
+    transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
 }
 
-#dicas-lista li strong {
+.projeto-item:hover {
+    background: #292929;
+    border-color: var(--cor-accent);
+    transform: translateY(-2px);
+}
+
+.projeto-icone {
+    width: 26px;
+    flex-shrink: 0;
     color: var(--cor-accent);
+    font-size: 25px;
+    line-height: 1;
+    text-align: center;
+}
+
+.projeto-nome {
+    font-family: var(--fonte-corpo);
+    font-size: 16px;
+    white-space: nowrap;
 }
 
 /* =============================================
@@ -1150,19 +1154,19 @@ body {
         height: 30px;
     }
 
-    #dicas-toggle {
+    #projetos-toggle {
         bottom: calc(20px + env(safe-area-inset-bottom, 0px));
         left: 16px;
         width: 58px;
         height: 58px;
     }
 
-    #dicas-toggle svg {
+    #projetos-toggle svg {
         width: 27px;
         height: 27px;
     }
 
-    #dicas-lista li {
+    .projeto-nome {
         max-width: 100%;
     }
 }
