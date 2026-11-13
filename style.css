@@ -28,7 +28,7 @@
     --cor-spotify: #1DB954;
     --cor-whatsapp: #25D366;
 
-    --fonte-display: 'Permanent Marker', cursive;
+    --fonte-display: 'Patrick Hand', cursive;
     --fonte-corpo: 'Patrick Hand', cursive;
 
     --sombra-popup: 0 20px 60px rgba(0, 0, 0, 0.5);
@@ -51,6 +51,11 @@ body {
     height: 100vh;
 }
 
+/* Mantém a mesma tipografia em todos os elementos e controles do site. */
+button, input, textarea, select {
+    font: inherit;
+}
+
 /* =============================================
    CURSOR
    ============================================= */
@@ -70,16 +75,19 @@ body {
     top: 16px;
     left: 50%;
     transform: translateX(-50%);
-    background: var(--cor-vidro-bg);
-    border: 2px solid var(--cor-vidro-borda);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0.22));
+    border: 1px solid rgba(255, 255, 255, 0.55);
     border-radius: 30px;
-    padding: 7px 18px;
-    font-family: var(--fonte-display);
-    font-size: clamp(10px, 2.5vw, 15px);
+    padding: 8px 20px;
+    font-family: var(--fonte-corpo);
+    font-size: clamp(12px, 2.5vw, 16px);
+    font-weight: 700;
     color: var(--cor-texto);
     white-space: nowrap;
     z-index: 9999;
-    backdrop-filter: var(--blur-vidro);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    box-shadow: 0 10px 30px rgba(58, 26, 0, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.35);
     max-width: 90vw;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -163,75 +171,104 @@ body {
 #fechar-wpp:hover { color: var(--cor-popup-texto); }
 
 /* =============================================
-   MENU DE PROJETOS — mesmo visual do menu social
+   DICAS
    ============================================= */
-#projetos-flutuante {
+#dicas-toggle {
     position: fixed;
     bottom: 24px;
     left: 20px;
     z-index: 9999;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 14px;
-}
-
-#projetos-toggle {
     width: 52px;
     height: 52px;
-    background: var(--cor-vidro-bg);
-    border: 2px solid var(--cor-vidro-borda);
+    background: rgba(255, 255, 255, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.5);
     border-radius: 50%;
     color: var(--cor-texto);
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    backdrop-filter: var(--blur-vidro);
-    -webkit-backdrop-filter: var(--blur-vidro);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 16px 40px rgba(58, 26, 0, 0.2);
     transition: background 0.2s ease, transform 0.2s ease;
-    order: 2;
-    flex-shrink: 0;
 }
 
-#projetos-toggle:hover {
-    background: var(--cor-vidro-bg-hover);
-    transform: scale(1.04);
+#dicas-toggle:hover {
+    background: rgba(255, 255, 255, 0.65);
+    transform: scale(1.08);
 }
 
-#projetos-toggle svg {
+#dicas-toggle svg {
     width: 24px;
     height: 24px;
 }
 
-#projetos-painel {
-    order: 1;
+#dicas-badge {
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    width: 20px;
+    height: 20px;
+    background: var(--cor-accent);
+    color: #1a0a00;
+    border-radius: 50%;
+    font-family: var(--fonte-display);
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #fff8ec;
+}
+
+#dicas-overlay {
+    position: fixed;
+    inset: 0;
+    background: var(--cor-overlay);
+    z-index: 99998;
+    backdrop-filter: var(--blur-overlay);
+    transition: opacity 0.3s ease;
+}
+#dicas-overlay.escondido { opacity: 0; pointer-events: none; }
+
+#dicas-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.95);
+    background: var(--cor-popup-bg);
+    border-radius: 20px;
+    padding: 28px 26px 24px;
+    z-index: 99999;
     display: flex;
     flex-direction: column;
-    align-items: stretch;
-    gap: 4px;
-    min-width: 220px;
-    padding: 12px;
-    background: rgba(255, 255, 255, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    border-radius: 20px;
-    box-shadow: 0 16px 40px rgba(58, 26, 0, 0.25);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    transform-origin: bottom left;
+    align-items: flex-start;
+    gap: 14px;
+    box-shadow: var(--sombra-popup);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    min-width: 280px;
+    max-width: 92vw;
+}
+#dicas-popup.aparecendo { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+#dicas-popup.escondido { opacity: 0; pointer-events: none; }
+
+#dicas-lista {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
-#projetos-painel.escondido {
-    display: none;
+#dicas-lista li {
+    font-family: var(--fonte-corpo);
+    font-size: 14px;
+    color: var(--cor-popup-texto);
+    line-height: 1.45;
+    max-width: 320px;
 }
 
-#projetos-painel .menu-item {
-    animation: none;
-}
-
-#projetos-painel .menu-item-icone {
-    font-size: 22px;
-    line-height: 1;
+#dicas-lista li strong {
+    color: var(--cor-accent);
 }
 
 /* =============================================
@@ -511,21 +548,23 @@ body {
 
 #dica-nariz {
     position: fixed;
-    bottom: 96px;
+    top: 64px;
+    bottom: auto;
     left: 50%;
     transform: translateX(-50%);
-    background: rgba(255, 255, 255, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.5);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0.22));
+    border: 1px solid rgba(255, 255, 255, 0.55);
     border-radius: 20px;
     padding: 10px 20px;
-    font-family: var(--fonte-display);
-    font-size: clamp(11px, 2.5vw, 14px);
+    font-family: var(--fonte-corpo);
+    font-size: clamp(12px, 2.5vw, 15px);
+    font-weight: 700;
     color: var(--cor-texto);
     white-space: nowrap;
     z-index: 9999;
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    box-shadow: 0 16px 40px rgba(58, 26, 0, 0.25);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    box-shadow: 0 10px 30px rgba(58, 26, 0, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.35);
     animation: flutuarDica 3s ease-in-out infinite;
     pointer-events: none;
     opacity: 1;
@@ -1121,25 +1160,19 @@ body {
         height: 30px;
     }
 
-    #projetos-flutuante {
+    #dicas-toggle {
         bottom: calc(20px + env(safe-area-inset-bottom, 0px));
         left: 16px;
-        align-items: flex-start;
+        width: 58px;
+        height: 58px;
     }
 
-    #projetos-toggle {
-        width: 60px;
-        height: 60px;
+    #dicas-toggle svg {
+        width: 27px;
+        height: 27px;
     }
 
-    #projetos-toggle svg {
-        width: 28px;
-        height: 28px;
-    }
-
-    #projetos-painel {
-        min-width: min(260px, 78vw);
-        max-width: 82vw;
-        padding: 14px;
+    #dicas-lista li {
+        max-width: 100%;
     }
 }
