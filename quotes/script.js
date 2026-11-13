@@ -31,7 +31,8 @@ function dividirEmPalavras(elemento) {
 let webgl = {};
 let tail = {};
 
-(function initThree() {\n    try {
+(function initThree() {
+    try {
     webgl.container = document.getElementById("canvas_container");
     webgl.quoteText = document.querySelector(".quoteText");
     webgl.text = document.querySelector(".text");
