@@ -145,8 +145,7 @@ canvas {
 }
 
 
-/* Mantém separação visual entre palavras durante a animação GSAP. */
+/* Mantém as palavras animáveis sem remover os espaços originais do texto. */
 .quoteText .palavra-animada {
   display: inline-block;
-  margin-right: 0.18em;
 }

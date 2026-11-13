@@ -15,10 +15,14 @@ function dividirEmPalavras(elemento) {
     if (!texto || !texto.trim()) return;
 
     const frag = document.createDocumentFragment();
-    const partes = texto.match(/\\S+|\\s+/g) || [];
 
-    partes.forEach(parte => {
-      if (!/^\\s+$/.test(parte)) {
+    // Mantém os espaços originais como nós de texto; só as palavras recebem spans.
+    texto.split(/(\\s+)/).forEach(parte => {
+      if (!parte) return;
+
+      if (/^\\s+$/.test(parte)) {
+        frag.appendChild(document.createTextNode(parte));
+      } else {
         const span = document.createElement("span");
         span.className = "palavra-animada";
         span.textContent = parte;
