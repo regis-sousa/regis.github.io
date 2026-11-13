@@ -12,9 +12,9 @@ function dividirEmPalavras(elemento) {
     const texto = no.nodeValue;
     if (!texto || !texto.trim()) return;
     const frag = document.createDocumentFragment();
-    texto.split(/(\\s+)/).forEach(parte => {
+    texto.split(/(\s+)/).forEach(parte => {
       if (!parte) return;
-      if (/^\\s+$/.test(parte)) frag.appendChild(document.createTextNode(parte));
+      if (/^\s+$/.test(parte)) frag.appendChild(document.createTextNode(parte));
       else {
         const span = document.createElement("span");
         span.className = "palavra-animada";
@@ -93,32 +93,22 @@ let tail = {};
         loadAsync("https://i.imgur.com/Cw3BCnG.mp4"),  
     ]).then(result => {
         webgl.texturesArray = result;
-        const wrapper = document.getElementById("wrapper");
-        wrapper.addEventListener("click", changeTexture, false);
-        wrapper.addEventListener("touchend", event => {
-            if (event.target.closest && event.target.closest("#fullscr")) return;
-            if (event.cancelable) event.preventDefault();
-            changeTexture(event);
-        }, { passive: false });
+        document.getElementById("wrapper").addEventListener("click", changeTexture, false);
     });
 
     async function loadAsync(url) {
         let video = document.createElement("video");
         video.muted = true;
-        video.defaultMuted = true;
         video.loop = true;
         video.autoplay = false;
         video.controls = false;
         video.playsInline = true;
-        video.preload = "auto";
         video.setAttribute("playsinline", "");
         video.setAttribute("webkit-playsinline", "");
         video.setAttribute("muted", "");
         video.setAttribute("disablepictureinpicture", "");
-        video.setAttribute("controlslist", "nodownload noplaybackrate noremoteplayback");
         video.crossOrigin = "anonymous";
         video.src = url;
-        video.load();
         return new THREE.VideoTexture(video);
     }
        
@@ -193,15 +183,28 @@ function setup() {
 
 
 function pixelExtraction() {
-    webgl.width = webgl.texture.image.width;
-    webgl.height = webgl.texture.image.height;
+    const img = webgl.texture.image;
+    const mobile = window.matchMedia("(max-width: 815px)").matches;
+
+    // No celular, reduzimos a malha de amostragem sem trocar a textura original.
+    // Isso mantém o efeito de partículas e evita milhões de pontos / índices excedidos.
+    if (mobile) {
+        const maxWidth = 250;
+        const maxHeight = 145;
+        const scale = Math.min(maxWidth / img.width, maxHeight / img.height, 1);
+        webgl.width = Math.max(1, Math.round(img.width * scale));
+        webgl.height = Math.max(1, Math.round(img.height * scale));
+    } else {
+        webgl.width = img.width;
+        webgl.height = img.height;
+    }
+
     webgl.totalPoints = webgl.width * webgl.height;
     webgl.visiblePoints = 0;
     webgl.threshold = webgl.texturesOptions[webgl.textureIndex].threshold;
 
-    const img = webgl.texture.image;
     const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
     canvas.width = webgl.width;
     canvas.height = webgl.height;
     ctx.scale(1, -1);
@@ -209,7 +212,7 @@ function pixelExtraction() {
     const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     webgl.arrayOfColors = Float32Array.from(imgData.data);
     for (let i = 0; i < webgl.totalPoints; i++) {
-        if (webgl.arrayOfColors[i * 4 + 0] > webgl.threshold) webgl.visiblePoints++;
+        if (webgl.arrayOfColors[i * 4] > webgl.threshold) webgl.visiblePoints++;
     }
 }
 
@@ -362,15 +365,8 @@ function changeTexture(e) {
         webgl.particlesMesh.material.uniforms.uTexture.value = t;
         webgl.totalPoints = webgl.width * webgl.height;
         //webgl.texture.needsUpdate = true; 
-        webgl.video.muted = true;
-        webgl.video.playsInline = true;
-        webgl.video.setAttribute("playsinline", "");
         const playPromise = webgl.video.play();
-        if (playPromise && typeof playPromise.catch === "function") {
-            playPromise.catch(error => {
-                console.warn("O navegador bloqueou a reprodução inline do vídeo:", error);
-            });
-        }
+        if (playPromise && typeof playPromise.catch === "function") playPromise.catch(() => {});
     } else {
         webgl.texture = t;
         webgl.particlesMesh.material.uniforms.uTexture.value = t;
