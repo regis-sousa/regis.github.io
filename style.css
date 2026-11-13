@@ -959,137 +959,89 @@ button, input, textarea, select {
 }
 #velha-trocar-modo:hover { color: var(--cor-popup-texto); border-color: var(--cor-popup-borda-hover); }
 
+
+
+
 /* =============================================
-   ODIE
+   MENU DE PROJETOS — PATA ESQUERDA
    ============================================= */
-#odie {
+#projetos-flutuante {
     position: fixed;
-    bottom: 92px;
-    z-index: 9998;
-    width: 230px;
-    height: 170px;
-    pointer-events: none;
-    will-change: left, right, transform;
-}
-#odie.escondido { display: none; }
-
-#odie.correndo-direita {
-    animation: odie-vai-direita 4.8s linear forwards;
-}
-#odie.correndo-esquerda {
-    animation: odie-vai-esquerda 4.8s linear forwards;
-}
-#odie.correndo-esquerda .odie-svg {
-    transform: scaleX(-1);
+    left: 20px;
+    bottom: 24px;
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
 }
 
-@keyframes odie-vai-direita {
-    from { left: -250px; }
-    to   { left: calc(100vw + 20px); }
-}
-@keyframes odie-vai-esquerda {
-    from { right: -250px; }
-    to   { right: calc(100vw + 20px); }
+#projetos-toggle {
+    width: 52px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    color: var(--cor-texto);
+    cursor: pointer;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 16px 40px rgba(58, 26, 0, 0.2);
+    transition: background 0.2s ease, transform 0.2s ease;
+    flex-shrink: 0;
 }
 
-.odie-svg {
-    display: block;
-    width: 100%;
-    height: 100%;
-    overflow: visible;
-    animation: odie-salto 0.34s ease-in-out infinite;
+#projetos-toggle:hover {
+    background: rgba(255, 255, 255, 0.65);
+    transform: scale(1.08);
 }
-.odie-corpo-svg, .odie-cabeca-svg, .odie-pescoco, .odie-focinho {
-    fill: #fff0a0;
-    stroke: #211508;
-    stroke-width: 3.5;
-    stroke-linejoin: round;
-}
-.odie-corpo-svg { fill: #fff0a0; }
-.odie-barriga { fill: #f9dc83; opacity: .8; }
-.odie-cabeca-svg { fill: #fff0a0; }
-.odie-pescoco { fill: #fff0a0; }
-.odie-focinho { fill: #fff3ad; }
-.odie-orelha-svg {
-    fill: #a95422;
-    stroke: #211508;
-    stroke-width: 3.5;
-    stroke-linejoin: round;
-    transform-box: fill-box;
-    transform-origin: bottom center;
-}
-.odie-orelha-1 { animation: odie-orelha 0.34s ease-in-out infinite alternate; }
-.odie-orelha-2 { animation: odie-orelha 0.34s ease-in-out infinite alternate-reverse; }
-.odie-olho-svg { fill: #fff; stroke: #211508; stroke-width: 2.8; }
-.odie-pupila-svg { fill: #17110c; }
-.odie-nariz-svg { fill: #e75b63; stroke: #211508; stroke-width: 2.5; }
-.odie-lingua-svg {
-    fill: #ed5264;
-    stroke: #211508;
-    stroke-width: 2.5;
-    stroke-linejoin: round;
-    transform-box: fill-box;
-    transform-origin: top center;
-    animation: odie-lingua 0.22s ease-in-out infinite alternate;
-}
-.odie-lingua-detalhe {
-    fill: none;
-    stroke: #a82e48;
-    stroke-width: 1.8;
-    stroke-linecap: round;
-}
-.odie-rabo-svg {
-    fill: none;
-    stroke: #fff0a0;
-    stroke-width: 11;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    transform-box: fill-box;
-    transform-origin: right center;
-    animation: odie-rabo 0.28s ease-in-out infinite alternate;
-}
-.odie-perna {
-    fill: #fff0a0;
-    stroke: #211508;
-    stroke-width: 3;
-    stroke-linejoin: round;
-    transform-box: fill-box;
-    transform-origin: 50% 10%;
-}
-.odie-dedos {
-    fill: none;
-    stroke: #211508;
-    stroke-width: 2;
-    stroke-linecap: round;
-}
-.odie-perna-tras1 { animation: perna-corrida-a 0.34s ease-in-out infinite alternate; }
-.odie-perna-frente2 { animation: perna-corrida-a 0.34s ease-in-out infinite alternate; }
-.odie-perna-tras2 { animation: perna-corrida-b 0.34s ease-in-out infinite alternate; }
-.odie-perna-frente1 { animation: perna-corrida-b 0.34s ease-in-out infinite alternate; }
 
-@keyframes odie-salto {
-    0%, 100% { transform: translateY(0) rotate(0deg); }
-    50% { transform: translateY(-7px) rotate(-1deg); }
+#projetos-toggle svg {
+    width: 24px;
+    height: 24px;
 }
-@keyframes perna-corrida-a {
-    from { transform: rotate(32deg) translateY(-2px); }
-    to { transform: rotate(-38deg) translateY(5px); }
+
+#projetos-painel {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+    min-width: 220px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 20px;
+    box-shadow: 0 16px 40px rgba(58, 26, 0, 0.25);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    transform-origin: bottom left;
 }
-@keyframes perna-corrida-b {
-    from { transform: rotate(-38deg) translateY(5px); }
-    to { transform: rotate(32deg) translateY(-2px); }
+
+#projetos-painel.escondido {
+    display: none;
 }
-@keyframes odie-orelha {
-    from { transform: rotate(-13deg); }
-    to { transform: rotate(16deg); }
-}
-@keyframes odie-lingua {
-    from { transform: rotate(-9deg) translateY(0); }
-    to { transform: rotate(12deg) translateY(3px); }
-}
-@keyframes odie-rabo {
-    from { transform: rotate(-18deg); }
-    to { transform: rotate(22deg); }
+
+@media (max-width: 600px) {
+    #projetos-flutuante {
+        left: 16px;
+        bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+    }
+
+    #projetos-toggle {
+        width: 58px;
+        height: 58px;
+    }
+
+    #projetos-painel {
+        min-width: min(260px, 78vw);
+        max-width: 82vw;
+        max-height: 70vh;
+        overflow-y: auto;
+        padding: 14px;
+    }
 }
 
 /* =============================================
