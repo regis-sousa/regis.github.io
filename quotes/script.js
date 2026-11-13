@@ -93,22 +93,32 @@ let tail = {};
         loadAsync("https://i.imgur.com/Cw3BCnG.mp4"),  
     ]).then(result => {
         webgl.texturesArray = result;
-        document.getElementById("wrapper").addEventListener("click", changeTexture, false);
+        const wrapper = document.getElementById("wrapper");
+        wrapper.addEventListener("click", changeTexture, false);
+        wrapper.addEventListener("touchend", event => {
+            if (event.target.closest && event.target.closest("#fullscr")) return;
+            if (event.cancelable) event.preventDefault();
+            changeTexture(event);
+        }, { passive: false });
     });
 
     async function loadAsync(url) {
         let video = document.createElement("video");
         video.muted = true;
+        video.defaultMuted = true;
         video.loop = true;
         video.autoplay = false;
         video.controls = false;
         video.playsInline = true;
+        video.preload = "auto";
         video.setAttribute("playsinline", "");
         video.setAttribute("webkit-playsinline", "");
         video.setAttribute("muted", "");
         video.setAttribute("disablepictureinpicture", "");
+        video.setAttribute("controlslist", "nodownload noplaybackrate noremoteplayback");
         video.crossOrigin = "anonymous";
         video.src = url;
+        video.load();
         return new THREE.VideoTexture(video);
     }
        
@@ -352,8 +362,15 @@ function changeTexture(e) {
         webgl.particlesMesh.material.uniforms.uTexture.value = t;
         webgl.totalPoints = webgl.width * webgl.height;
         //webgl.texture.needsUpdate = true; 
+        webgl.video.muted = true;
+        webgl.video.playsInline = true;
+        webgl.video.setAttribute("playsinline", "");
         const playPromise = webgl.video.play();
-        if (playPromise && typeof playPromise.catch === "function") playPromise.catch(() => {});
+        if (playPromise && typeof playPromise.catch === "function") {
+            playPromise.catch(error => {
+                console.warn("O navegador bloqueou a reprodução inline do vídeo:", error);
+            });
+        }
     } else {
         webgl.texture = t;
         webgl.particlesMesh.material.uniforms.uTexture.value = t;
