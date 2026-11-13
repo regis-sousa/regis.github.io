@@ -2,39 +2,30 @@
 
 //Author: isladjan - https://isladjan.com/
 
-// Divide o texto em palavras sem perder os espaços entre nós HTML/coloridos.
+// Substitui o plugin SplitText por uma divisão local de palavras.
 function dividirEmPalavras(elemento) {
   const palavras = [];
   const walker = document.createTreeWalker(elemento, NodeFilter.SHOW_TEXT);
   const nos = [];
+
   while (walker.nextNode()) nos.push(walker.currentNode);
 
   nos.forEach(no => {
-    const texto = no.nodeValue || "";
-
-    // Nó só com espaço (entre dois elementos): mantém um único espaço.
-    if (!texto.trim()) {
-      no.nodeValue = " ";
-      return;
-    }
+    const texto = no.nodeValue;
+    if (!texto || !texto.trim()) return;
 
     const frag = document.createDocumentFragment();
-    const partes = texto.trim().split(/\s+/);
+    const partes = texto.match(/\\S+|\\s+/g) || [];
 
-    // Preserva o espaço que existia antes/depois do trecho; assim
-    // "palavra</span> outra" não vira "palavraoutra".
-    if (/^\s/.test(texto)) frag.appendChild(document.createTextNode(" "));
-
-    partes.forEach((parte, indice) => {
-      const span = document.createElement("span");
-      span.className = "palavra-animada";
-      span.textContent = parte;
-      frag.appendChild(span);
-      palavras.push(span);
-      if (indice < partes.length - 1) frag.appendChild(document.createTextNode(" "));
+    partes.forEach(parte => {
+      if (!/^\\s+$/.test(parte)) {
+        const span = document.createElement("span");
+        span.className = "palavra-animada";
+        span.textContent = parte;
+        frag.appendChild(span);
+        palavras.push(span);
+      }
     });
-
-    if (/\s$/.test(texto)) frag.appendChild(document.createTextNode(" "));
 
     no.parentNode.replaceChild(frag, no);
   });
@@ -56,7 +47,7 @@ let tail = {};
     webgl.camera.position.z = 180;
     webgl.renderer = new THREE.WebGLRenderer({ alpha: true });  //, antialias: true
     webgl.renderer.setSize(webgl.container.clientWidth, webgl.container.clientHeight);
-    webgl.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    webgl.renderer.setPixelRatio(window.devicePixelRatio);
     webgl.container.appendChild(webgl.renderer.domElement);
 
     webgl.loader = new THREE.TextureLoader();
@@ -197,28 +188,15 @@ function setup() {
 
 
 function pixelExtraction() {
-    const img = webgl.texture.image;
-    const mobile = window.matchMedia("(max-width: 815px)").matches;
-
-    // No celular, reduzimos a malha de amostragem sem trocar a textura original.
-    // Isso mantém o efeito de partículas e evita milhões de pontos / índices excedidos.
-    if (mobile) {
-        const maxWidth = 250;
-        const maxHeight = 145;
-        const scale = Math.min(maxWidth / img.width, maxHeight / img.height, 1);
-        webgl.width = Math.max(1, Math.round(img.width * scale));
-        webgl.height = Math.max(1, Math.round(img.height * scale));
-    } else {
-        webgl.width = img.width;
-        webgl.height = img.height;
-    }
-
+    webgl.width = webgl.texture.image.width;
+    webgl.height = webgl.texture.image.height;
     webgl.totalPoints = webgl.width * webgl.height;
     webgl.visiblePoints = 0;
     webgl.threshold = webgl.texturesOptions[webgl.textureIndex].threshold;
 
+    const img = webgl.texture.image;
     const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    const ctx = canvas.getContext('2d');
     canvas.width = webgl.width;
     canvas.height = webgl.height;
     ctx.scale(1, -1);
@@ -226,7 +204,7 @@ function pixelExtraction() {
     const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     webgl.arrayOfColors = Float32Array.from(imgData.data);
     for (let i = 0; i < webgl.totalPoints; i++) {
-        if (webgl.arrayOfColors[i * 4] > webgl.threshold) webgl.visiblePoints++;
+        if (webgl.arrayOfColors[i * 4 + 0] > webgl.threshold) webgl.visiblePoints++;
     }
 }
 
@@ -343,41 +321,6 @@ function buildTail(uv) {
 
 
 
-
-// Converte a imagem em uma textura de canvas com o MESMO tamanho usado para
-// sortear as partículas. Evita problemas de GPU de celular com imagens/mipmaps
-// e garante que a cor amostrada seja a mesma que passou no limiar.
-function texturaDeCanvas(t, w, h) {
-    if (t._canvasTex && t._canvasTex.image.width === w && t._canvasTex.image.height === h) return t._canvasTex;
-    const c = document.createElement('canvas');
-    c.width = w;
-    c.height = h;
-    c.getContext('2d').drawImage(t.image, 0, 0, w, h);
-    const ct = new THREE.CanvasTexture(c);
-    ct.minFilter = THREE.LinearFilter;
-    ct.magFilter = THREE.LinearFilter;
-    ct.generateMipmaps = false;
-    t._canvasTex = ct;
-    return ct;
-}
-
-
-// Diagnóstico: abra o site com ?debug no final do endereço.
-const DEBUG = /[?&]debug/.test(location.search);
-function dbg(msg) {
-    if (!DEBUG) return;
-    let el = document.getElementById('dbg');
-    if (!el) {
-        el = document.createElement('pre');
-        el.id = 'dbg';
-        el.style.cssText = 'position:fixed;left:0;top:0;z-index:99;max-width:100%;margin:0;padding:6px;font:11px/1.3 monospace;color:#0f0;background:rgba(0,0,0,.75);pointer-events:none;white-space:pre-wrap';
-        document.body.appendChild(el);
-    }
-    el.textContent = msg;
-}
-if (DEBUG) window.addEventListener('error', e => dbg('ERRO: ' + e.message));
-
-
 function changeTexture(e) {
 
     if (Date.now() - webgl.lastClick < 800) return;
@@ -394,9 +337,6 @@ function changeTexture(e) {
     let opt = webgl.texturesOptions[webgl.textureIndex];
     let t = webgl.texturesArray[webgl.textureIndex];
 
-    // Imagem ainda não carregou (rede lenta no celular): espera e tenta no próximo toque.
-    if (opt.texture != "video" && !(t.image && t.image.width)) { webgl.lastClick = 0; dbg('imagem ' + webgl.textureIndex + ' ainda não carregou'); return; }
-
     if (webgl.textureIndex == 1) {
         webgl.firstAnimation1.kill(null, "z");
         webgl.firstAnimation2.kill();
@@ -406,9 +346,6 @@ function changeTexture(e) {
     }
 
     tail.on = true;
-
-    // Pausa o vídeo anterior: no celular vários vídeos tocando ao mesmo tempo travam a GPU/decodificador.
-    if (webgl.video) { try { webgl.video.pause(); } catch (e) {} }
 
     webgl.width = 250;   
     webgl.height = 145;   
@@ -424,24 +361,17 @@ function changeTexture(e) {
         if (playPromise && typeof playPromise.catch === "function") playPromise.catch(() => {});
     } else {
         webgl.texture = t;
+        webgl.particlesMesh.material.uniforms.uTexture.value = t;
     }
 
+    webgl.particlesMesh.material.uniforms.uTextureSize.value.x = webgl.width;
+    webgl.particlesMesh.material.uniforms.uTextureSize.value.y = webgl.height;
     webgl.particlesMesh.material.uniforms.uRandom.value = opt.random;
     webgl.particlesMesh.material.uniforms.uDepth.value = opt.depth;         
     webgl.particlesMesh.material.uniforms.uSize.value = opt.size;
     webgl.particlesMesh.material.uniforms.uCircleORsquare.value = opt.square;
 
     if (opt.texture != "video") pixelExtraction();
-
-    // Tamanho real só é conhecido depois da extração (no celular a malha pode ser reduzida).
-    webgl.particlesMesh.material.uniforms.uTextureSize.value.x = webgl.width;
-    webgl.particlesMesh.material.uniforms.uTextureSize.value.y = webgl.height;
-    if (opt.texture != "video") {
-        const tc = texturaDeCanvas(t, webgl.width, webgl.height);
-        webgl.texture = tc;
-        webgl.particlesMesh.material.uniforms.uTexture.value = tc;
-    }
-    updateScale();
 
     const offsets = new Float32Array(webgl.totalPoints * 3);
     const indices = new Uint16Array(webgl.totalPoints);
@@ -461,11 +391,6 @@ function changeTexture(e) {
     webgl.geometryParticles.setAttribute('angle', new THREE.InstancedBufferAttribute(angles, 1, false));
     webgl.geometryParticles.setAttribute('pindex', new THREE.InstancedBufferAttribute(indices, 1, false));
 
-    dbg('idx ' + webgl.textureIndex + ' ' + opt.texture + '\nimg ' + (t.image && (t.image.width || t.image.videoWidth)) + 'x' + (t.image && (t.image.height || t.image.videoHeight)) +
-        '\ngrade ' + webgl.width + 'x' + webgl.height + ' pontos ' + webgl.visiblePoints + '/' + webgl.totalPoints +
-        '\nscale ' + webgl.particlesMesh.scale.x.toFixed(3) + ' tela ' + innerWidth + 'x' + innerHeight +
-        '\nwebgl2 ' + webgl.renderer.capabilities.isWebGL2 + ' maxTex ' + webgl.renderer.capabilities.maxTextureSize);
-
     webgl.textureIndex++;
 
     if (webgl.textureIndex === webgl.texturesOptions.length) webgl.textureIndex = 0;
@@ -475,9 +400,7 @@ function changeTexture(e) {
     tl.fromTo(webgl.quoteText, 0.5, { opacity: 1 }, { opacity: 0 }, 0);
     tl.fromTo(webgl.text, 1, { rotation: 0 }, { rotation: 180, transformOrigin: "center", ease: "power2.out" }, 0);
     tl.call(() => {
-        const celular = window.matchMedia("(max-width: 815px)").matches;
-        // No celular a quebra manual vira espaço, para as palavras não grudarem.
-        webgl.quoteText.innerHTML = celular ? opt.quote.replace(/<br\s*\/?>/gi, " ") : opt.quote;
+        webgl.quoteText.innerHTML = opt.quote;
         gsap.set(webgl.quoteText, { rotation: 180, opacity: 1, transformOrigin: "center" });
         let split = dividirEmPalavras(webgl.quoteText);
         if (!opt.stagger) opt.stagger = 0.18;
@@ -530,7 +453,7 @@ function animate() {
 
     if (tail.on) drawTail();
     tail.texture.needsUpdate = true;
-    if (webgl.texture && webgl.texture.isVideoTexture) webgl.texture.needsUpdate = true;
+    webgl.texture.needsUpdate = true;
     webgl.renderer.render(webgl.scene, webgl.camera);
     webgl.raf = requestAnimationFrame(animate);
 }
@@ -575,20 +498,13 @@ const easeOutSine = (t, b, c, d) => {
 
 
 function resize() {
+    let f = 0.1;
     webgl.camera.aspect = webgl.container.clientWidth / webgl.container.clientHeight;
     webgl.camera.updateProjectionMatrix();
     webgl.renderer.setSize(webgl.container.clientWidth, webgl.container.clientHeight);
-    updateScale();
-}
-
-
-// Mesmo cálculo do código original: a altura da imagem preenche a tela (tela cheia).
-function updateScale() {
-    if (!webgl.particlesMesh) return;
-    let f = 0.1;
     if (window.innerWidth / window.innerHeight < 2.8) f = -0.2;
     const fovHeight = 2 * Math.tan((webgl.camera.fov * Math.PI) / 180 / 2) * webgl.camera.position.z;
-    const scale = fovHeight / webgl.height + f;
+    const scale = fovHeight / webgl.height + f;        
     webgl.particlesMesh.scale.set(scale, scale, 1);
     if (webgl.hoverPlate) webgl.hoverPlate.scale.set(scale, scale, 1);
 }
