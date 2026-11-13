@@ -36,7 +36,7 @@ let tail = {};
     webgl.scene = new THREE.Scene();
     webgl.camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 10000);
     webgl.camera.position.z = 180;
-    webgl.renderer = new THREE.WebGLRenderer({ alpha: true });
+    webgl.renderer = new THREE.WebGLRenderer({ alpha: true });  //, antialias: true
     webgl.renderer.setSize(webgl.container.clientWidth, webgl.container.clientHeight);
     webgl.renderer.setPixelRatio(window.devicePixelRatio);
     webgl.container.appendChild(webgl.renderer.domElement);
@@ -53,7 +53,7 @@ let tail = {};
     webgl.texture = webgl.loader.load(document.getElementById("first").src, setup);
 
     Promise.all([
-        webgl.texture,
+        webgl.texture,                               
         webgl.loader.load('https://i.ibb.co/WnbfKGk/2.jpg'),
         webgl.loader.load('https://i.ibb.co/4RWFQtT/3.jpg'),
         loadAsync("https://i.imgur.com/FyHLAY8.mp4"),
@@ -71,7 +71,7 @@ let tail = {};
         webgl.loader.load('https://i.ibb.co/YhD5x95/14.jpg'),
         loadAsync("https://i.imgur.com/CltKjqc.mp4"),
         webgl.loader.load('https://i.ibb.co/99kssL1/15.jpg'),
-        loadAsync("https://i.imgur.com/xFaOgpw.mp4"),
+        loadAsync("https://i.imgur.com/xFaOgpw.mp4"), 
         loadAsync("https://i.imgur.com/FOnGfth.mp4"),
         loadAsync("https://i.imgur.com/RxoPTCO.mp4"),
         webgl.loader.load('https://i.ibb.co/FX4bL6Z/16.jpg'),
@@ -86,7 +86,7 @@ let tail = {};
         webgl.loader.load('https://i.ibb.co/Z8jb7zk/21.jpg'),
         loadAsync("https://i.imgur.com/uxaxWKi.mp4"),
         loadAsync("https://i.imgur.com/ijKZXbr.mp4"),
-        loadAsync("https://i.imgur.com/Cw3BCnG.mp4"),
+        loadAsync("https://i.imgur.com/Cw3BCnG.mp4"),  
     ]).then(result => {
         webgl.texturesArray = result;
         document.getElementById("wrapper").addEventListener("click", changeTexture, false);
@@ -101,7 +101,7 @@ let tail = {};
         video.src = url;
         return new THREE.VideoTexture(video);
     }
-
+       
     webgl.texturesOptions = [
         { index: 0, texture: "image", quote: "“As coisas nem sempre são <span style=\"color:#666666\">#000000</span> e <em>#FFFFFF</em>.”", threshold: 20, random: 4.0, depth: 30.0, size: 1.7, square: 0 },
         { index: 1, texture: "image", quote: "“Talvez você precise conhecer a <span style=\"color:#f4852a\">escuridão</span><br>antes de conseguir apreciar a luz.”", threshold: 60, random: 2.0, depth: 4.0, size: 1.5, square: 0 },
@@ -113,7 +113,7 @@ let tail = {};
         { index: 7, texture: "image", quote: "Alguns <span style=\"color:#e7aa27\">pixels</span> são bons<br>e outros são ruins!", threshold: 60, random: 0.8, depth: 4.0, size: 0.6, square: 1 },
         { index: 8, texture: "image", quote: "“É difícil abrir mão do açúcar em um mundo cheio de <span style=\"color:#f4852a\">pirulitos.</span>”", threshold: 20, random: 2.0, depth: 4.0, size: 1.5, square: 0 },
         { index: 9, texture: "image", quote: "Às vezes finjo ser <span style=\"color:#C32B59\">normal</span>. Mas isso fica entediante.", threshold: 20, random: 2.0, depth: 8.0, size: 1.5, square: 0, a2: true },
-        { index: 10, texture: "image", quote: "<span style=\"color:#eeb9b9\">Anjos,</span> duendes, <span style=\"color:#e89191\">pó de fada</span><br><span style=\"color:#e76e6e\">espalhando amor</span> e <span style=\"color:#e33131\">vivendo o desejo</span>.", threshold: 30, random: 2.0, depth: 30.0, maxDepth: 100, size: 1.5, square: 0, a3: true, a4: true, stagger: 0.3 },
+        { index: 10, texture: "image", quote: "<span style=\"color:#eeb9b9\">Anjos,</span> duendes, <span style=\"color:#e89191\">pó de fada</span><br><span style=\"color:#e76e6e\">espalhando amor</span> e <span style=\"color:#e33131\">vivendo o desejo</span>.", threshold: 30, random: 2.0, depth: 30.0, maxDepth: 100, size: 1.5, square: 0, a3: true, a4: true, stagger: 0.3 },  //72
         { index: 11, texture: "image", quote: "Você está vendo algum Teletubbie?<br><span style=\"font-style: italic; color:#f91a1a\">— Eu vi.</span>", threshold: 60, random: 2.0, depth: 2.0, maxDepth: 80, size: 1.5, square: 0, color: "transparent", stagger: 1 },
         { index: 12, texture: "image", quote: "“Meu amigo imaginário diz que eu preciso de um <span style=\"color:#f3ee62\">terapeuta.</span>”", threshold: 60, random: 2.0, depth: 4.0, maxDepth: 60, size: 1.5, square: 0 },
         { index: 13, texture: "video", quote: "“Algumas pessoas de quem eu <span style=\"color:#f91a1a\">gosto</span> e outras de quem não gosto.” <span style=\"font-style: italic; font-size: 1.5vw; color:#f77e7e\"> Covid-19</span>", threshold: 60, random: 2.0, depth: 15.0, maxDepth: 120, size: 2.0, square: 0, stagger: 1 },
@@ -144,6 +144,8 @@ let tail = {};
       if (aviso) aviso.hidden = false;
     }
 })();
+
+
 function setup() {
     pixelExtraction();
     initParticles();
@@ -211,7 +213,7 @@ function initParticles() {
 
     webgl.geometryParticles.setIndex(new THREE.BufferAttribute(new Uint16Array([0, 2, 1, 2, 3, 1]), 1));
 
-    const offsets = new Float32Array(webgl.totalPoints * 3);
+    const offsets = new Float32Array(webgl.totalPoints * 3); 
     const indices = new Uint16Array(webgl.totalPoints);
     const angles = new Float32Array(webgl.totalPoints);
     for (let i = 0, j = 0; i < webgl.totalPoints; i++) {
@@ -231,13 +233,13 @@ function initParticles() {
         uTime: { value: 0 },
         uRandom: { value: 3.0 },
         uDepth: { value: 30.0 },
-        uSize: { value: 1.5 },
+        uSize: { value: 1.5 },    
         uTextureSize: { value: new THREE.Vector2(webgl.width, webgl.height) },
         uTexture: { value: webgl.texture },
-        uTouch: { value: null },
-        uAlphaCircle: { value: 0.0 },
+        uTouch: { value: null },            
+        uAlphaCircle: { value: 0.0 },        
         uAlphaSquare: { value: 1.0 },
-        uCircleORsquare: { value: 0.0 },
+        uCircleORsquare: { value: 0.0 }, 
     };
 
     const materialParticles = new THREE.RawShaderMaterial({
@@ -303,7 +305,9 @@ function buildTail(uv) {
 }
 
 
+
 function changeTexture(e) {
+
     if (Date.now() - webgl.lastClick < 800) return;
     webgl.lastClick = Date.now();
 
@@ -328,8 +332,8 @@ function changeTexture(e) {
 
     tail.on = true;
 
-    webgl.width = 250;
-    webgl.height = 145;
+    webgl.width = 250;   
+    webgl.height = 145;   
 
     if (opt.texture == "video") {
         webgl.video = t.image;
@@ -337,7 +341,8 @@ function changeTexture(e) {
         webgl.texture = t;
         webgl.particlesMesh.material.uniforms.uTexture.value = t;
         webgl.totalPoints = webgl.width * webgl.height;
-        webgl.video.play();
+        //webgl.texture.needsUpdate = true; 
+        webgl.video.play(); 
     } else {
         webgl.texture = t;
         webgl.particlesMesh.material.uniforms.uTexture.value = t;
@@ -346,7 +351,7 @@ function changeTexture(e) {
     webgl.particlesMesh.material.uniforms.uTextureSize.value.x = webgl.width;
     webgl.particlesMesh.material.uniforms.uTextureSize.value.y = webgl.height;
     webgl.particlesMesh.material.uniforms.uRandom.value = opt.random;
-    webgl.particlesMesh.material.uniforms.uDepth.value = opt.depth;
+    webgl.particlesMesh.material.uniforms.uDepth.value = opt.depth;         
     webgl.particlesMesh.material.uniforms.uSize.value = opt.size;
     webgl.particlesMesh.material.uniforms.uCircleORsquare.value = opt.square;
 
@@ -358,19 +363,20 @@ function changeTexture(e) {
 
     for (let i = 0, j = 0; i < webgl.totalPoints; i++) {
         if (opt.texture != "video") if (webgl.arrayOfColors[i * 4 + 0] <= webgl.threshold) continue;
-        if (webgl.textureIndex === 18) if (webgl.arrayOfColors[i * 4 + 0] <= webgl.threshold) continue;
+        if (webgl.textureIndex === 18) if (webgl.arrayOfColors[i * 4 + 0] <= webgl.threshold) continue; 
         offsets[j * 3 + 0] = i % webgl.width;
         offsets[j * 3 + 1] = Math.floor(i / webgl.width);
         indices[j] = i;
         angles[j] = Math.random() * Math.PI;
+
         j++;
     }
-
     webgl.geometryParticles.setAttribute('offset', new THREE.InstancedBufferAttribute(offsets, 3, false));
     webgl.geometryParticles.setAttribute('angle', new THREE.InstancedBufferAttribute(angles, 1, false));
     webgl.geometryParticles.setAttribute('pindex', new THREE.InstancedBufferAttribute(indices, 1, false));
 
     webgl.textureIndex++;
+
     if (webgl.textureIndex === webgl.texturesOptions.length) webgl.textureIndex = 0;
     if (!opt.maxDepth) opt.maxDepth = 30;
 
@@ -389,6 +395,7 @@ function changeTexture(e) {
             gsap.from(split.words, { duration: 0.5, opacity: 0, rotationX: -60, force3D: true, transformOrigin: "0 center -150", stagger: opt.stagger });
         }
     }, null, 0.5);
+
     if (opt.a1) {
         webgl.texturaAnimation1 = gsap.fromTo(webgl.particlesMesh.material.uniforms.uDepth, 1, { value: -20 }, { value: 20, ease: "power2.out", repeat: -1, yoyo: true });
     } else if (opt.a2) {
@@ -406,21 +413,20 @@ function changeTexture(e) {
         webgl.texturaAnimation1 = gsap.fromTo(webgl.particlesMesh.material.uniforms.uDepth, 4, { value: opt.depth }, { value: 10, ease: "bounce.out", delay: 2, yoyo: true, repeat: 1 });
         webgl.texturaAnimation2 = gsap.fromTo(webgl.particlesMesh.position, 2, { z: 0.0 }, { z: 60.0, ease: "elastic.in(1, 0.3)" });
     } else if (opt.a8) {
-        webgl.video.loop = false;
-    } else if (opt.a11) {
-        webgl.texturaAnimation1 = gsap.fromTo(webgl.particlesMesh.material.uniforms.uDepth, 1, { value: 4 }, { value: 40, ease: "power2.out", repeat: -1, yoyo: true, repeatDelay: 0.5 });
+            webgl.video.loop = false;
+    } else if (opt.a11) { 
+            webgl.texturaAnimation1 = gsap.fromTo(webgl.particlesMesh.material.uniforms.uDepth, 1, { value: 4 }, { value: 40, ease: "power2.out", repeat: -1, yoyo: true, repeatDelay:0.5 });
     } else {
         webgl.texturaAnimation0 = tl.fromTo(webgl.text, 1, { scale: 1 }, { scale: 1.3, transformOrigin: "center", ease: "elastic.in(1, 0.3)", yoyo: true, repeat: 1 }, 2.8);
         webgl.texturaAnimation1 = gsap.fromTo(webgl.particlesMesh.position, 4, { z: 0.0 }, { z: 15.0, ease: "elastic.in(1, 0.3)", yoyo: true, repeat: 1, repeatDelay: 5 });
 
         if (opt.texture === "video") {
             webgl.texturaAnimation2 = gsap.fromTo(webgl.particlesMesh.material.uniforms.uDepth, 4, { value: opt.depth }, { value: opt.maxDepth / 2, ease: "elastic.in(1, 0.3)", repeatDelay: 5, repeat: 1, yoyo: true });
-        } else {
+        } else
             webgl.texturaAnimation2 = gsap.fromTo(webgl.particlesMesh.material.uniforms.uDepth, 4, { value: opt.depth }, { value: opt.maxDepth, ease: "elastic.in(1, 0.3)", repeatDelay: 5, repeat: 1, yoyo: true });
-        }
 
         if (opt.a10) {
-            webgl.texturaAnimation1 = gsap.set(webgl.particlesMesh.material.uniforms.uTexture, { value: webgl.loader.load("https://i.ibb.co/0qhkwkd/20cc.jpg"), delay: 4 });
+            webgl.texturaAnimation1 = gsap.set(webgl.particlesMesh.material.uniforms.uTexture, { value: webgl.loader.load("https://i.ibb.co/0qhkwkd/20cc.jpg"), delay: 4 })
         }
     }
 }
@@ -482,25 +488,28 @@ function resize() {
     webgl.renderer.setSize(webgl.container.clientWidth, webgl.container.clientHeight);
     if (window.innerWidth / window.innerHeight < 2.8) f = -0.2;
     const fovHeight = 2 * Math.tan((webgl.camera.fov * Math.PI) / 180 / 2) * webgl.camera.position.z;
-    const scale = fovHeight / webgl.height + f;
+    const scale = fovHeight / webgl.height + f;        
     webgl.particlesMesh.scale.set(scale, scale, 1);
     if (webgl.hoverPlate) webgl.hoverPlate.scale.set(scale, scale, 1);
 }
 
 
-let fsEnter = document.getElementById('fullscr');
-fsEnter.addEventListener('click', function (e) {
-    e.preventDefault();
-    if (!webgl.fullscreen) {
-        webgl.fullscreen = true;
-        document.documentElement.requestFullscreen();
-        fsEnter.innerHTML = "Sair da tela cheia";
-    } else {
-        webgl.fullscreen = false;
-        document.exitFullscreen();
-        fsEnter.innerHTML = "Ver em tela cheia";
-    }
-});
+const fsEnter = document.getElementById('fullscr');
+
+if (fsEnter) {
+    fsEnter.addEventListener('click', async (e) => {
+        e.preventDefault();
+        try {
+            if (!document.fullscreenElement) {
+                await document.documentElement.requestFullscreen();
+            } else {
+                await document.exitFullscreen();
+            }
+        } catch (erro) {
+            console.warn('Não foi possível alterar o modo de tela cheia:', erro);
+        }
+    });
+}
 
 
 function vertexShader() {
@@ -522,49 +531,49 @@ function vertexShader() {
         uniform sampler2D uTouch;
         varying vec2 vPUv;
         varying vec2 vUv;
-
+        
         vec3 mod289(vec3 x) {
             return x - floor(x * (1.0 / 289.0)) * 289.0;
         }
-
+        
         vec2 mod289(vec2 x) {
             return x - floor(x * (1.0 / 289.0)) * 289.0;
         }
-
+        
         vec3 permute(vec3 x) {
             return mod289(((x*34.0)+1.0)*x);
         }
-
+        
         float snoise(vec2 v)
             {
-            const vec4 C = vec4(0.211324865405187,
-                                0.366025403784439,
-                            -0.577350269189626,
-                                0.024390243902439);
+            const vec4 C = vec4(0.211324865405187, 
+                                0.366025403784439, 
+                            -0.577350269189626,  
+                                0.024390243902439); 
             vec2 i  = floor(v + dot(v, C.yy) );
             vec2 x0 = v -   i + dot(i, C.xx);
-
+        
             vec2 i1;
             i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
             vec4 x12 = x0.xyxy + C.xxzz;
             x12.xy -= i1;
-
-            i = mod289(i);
+        
+            i = mod289(i); // Avoid truncation effects in permutation
             vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 ))
             + i.x + vec3(0.0, i1.x, 1.0 ));
-
+        
             vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
-            m = m*m;
-            m = m*m;
-
+            m = m*m ;
+            m = m*m ;
+        
             vec3 x = 2.0 * fract(p * C.www) - 1.0;
             vec3 h = abs(x) - 0.5;
             vec3 ox = floor(x + 0.5);
             vec3 a0 = x - ox;
-            m *= 1.79284291400159 - 0.85373472095314 * (a0*a0 + h*h);
-
+            m *= 1.79284291400159 - 0.85373472095314 * ( a0*a0 + h*h );
+        
             vec3 g;
-            g.x = a0.x * x0.x + h.x * x0.y;
+            g.x  = a0.x  * x0.x  + h.x  * x0.y;
             g.yz = a0.yz * x12.xz + h.yz * x12.yw;
             return 130.0 * dot(m, g);
         }
@@ -572,44 +581,44 @@ function vertexShader() {
         float random(float n) {
             return fract(sin(n) * 43758.5453123);
         }
-
+        
         void main() {
             vUv = uv;
-
+            
             vec2 puv = offset.xy / uTextureSize;
             vPUv = puv;
-
+        
             vec4 colA = texture2D(uTexture, puv);
             float grey = colA.r * 0.21 + colA.g * 0.71 + colA.b * 0.07;
-
-            vec3 displaced = offset;
+        
+            vec3 displaced = offset;     
             displaced.xy += vec2(random(pindex) - 0.5, random(offset.x + pindex) - 0.5) * uRandom;
-            float rndz = (random(pindex) + snoise(vec2(pindex * 0.1, uTime * 0.1)));
-            displaced.z += rndz * (random(pindex) * 2.0 * uDepth);
+            float rndz = (random(pindex) + snoise(vec2(pindex * 0.1, uTime * 0.1)));  
+            displaced.z += rndz * (random(pindex) * 2.0 * uDepth);               
             displaced.xy -= uTextureSize * 0.5;
-
+        
             float t = texture2D(uTouch, puv).r;
             displaced.z += t * -40.0 * rndz;
             displaced.x += cos(angle) * t * 40.0 * rndz;
-            displaced.y += sin(angle) * t * 40.0 * rndz;
-
+            displaced.y += sin(angle) * t * 40.0 * rndz;     //20
+        
             float psize = (snoise(vec2(uTime, pindex) * 0.5) + 2.0);
             psize *= max(grey, 0.2);
             psize *= uSize;
-
+        
             vec4 mvPosition = modelViewMatrix * vec4(displaced, 1.0);
             mvPosition.xyz += position * psize;
             gl_Position = projectionMatrix * mvPosition;
         }
-    `;
+    `
 }
 
 function fragmentShader() {
     return `
         precision highp float;
         uniform sampler2D uTexture;
-        uniform float uAlphaCircle;
-        uniform float uAlphaSquare;
+        uniform float uAlphaCircle;        
+        uniform float uAlphaSquare;          
         uniform float uCircleORsquare;
         varying vec2 vPUv;
         varying vec2 vUv;
@@ -620,16 +629,15 @@ function fragmentShader() {
             vec4 colA = texture2D(uTexture, puv);
             float border = 0.3;
             float radius = 0.5;
-            float dist = radius - distance(uv, vec2(0.5));
+            float dist = radius - distance(uv, vec2(0.5));   
             float t = smoothstep(uCircleORsquare, border, dist);
             color = colA;
             color.a = t;
+            //gl_FragColor = vec4(color.r, color.g, color.b, uAlphaSquare);
             gl_FragColor = vec4(color.r, color.g, color.b, t - uAlphaCircle);
         }
-    `;
+    `
 }
-
 document.addEventListener("fullscreenchange", () => {
-    fsEnter.textContent = document.fullscreenElement ? "Sair da tela cheia" : "Ver em tela cheia";
-    webgl.fullscreen = !!document.fullscreenElement;
+  webgl.fullscreen = !!document.fullscreenElement;
 });
