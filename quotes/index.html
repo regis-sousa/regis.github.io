@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#080808">
+<meta name="description" content="Uma experiência interativa de frases e partículas.">
+<title>Frases em partículas — Régis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="wrapper">
+  <div id="canvas_container" aria-hidden="true"></div>
+  <div class="text"><p class="quoteText">“Nunca memorize algo que você pode consultar.”<br><span style="font-style:italic;font-size:1.1rem;color:#ED760D"># Stack Overflow</span></p></div>
+  <p class="clickInfo">clique em qualquer lugar para começar a jornada</p>
+  <img id="first" src="https://i.imgur.com/hDB2Egy.jpg" alt="" hidden>
+  <button class="btn" id="fullscr" type="button">Ver em tela cheia</button>
+  <p class="erro-webgl" id="erro-webgl" hidden>Seu navegador não conseguiu iniciar a experiência 3D. Tente atualizar o navegador ou ativar a aceleração de hardware.</p>
+</div>
+<!-- GSAP 3 é usado sem o plugin SplitText; a divisão de palavras é feita localmente. -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="script.js"></script>
+</body></html>
