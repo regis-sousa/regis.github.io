@@ -643,5 +643,23 @@ document.addEventListener("fullscreenchange", () => {
     fsEnter.title = isFullscreen ? 'Tela cheia ativa' : 'Expandir';
   }
 });
+// Ajusta apenas a apresentação da frase ao espaço disponível, sem alterar seu conteúdo.
+function ajustarFraseParaTela() {
+    const frase = document.querySelector('.quoteText');
+    const caixa = document.querySelector('.text');
+    if (!frase || !caixa) return;
+
+    const mobile = window.innerWidth <= 815;
+    const comprimento = (frase.textContent || '').trim().length;
+    const tamanhoBase = mobile
+        ? Math.min(21, Math.max(15, window.innerWidth * 0.045))
+        : Math.min(25.6, Math.max(18, window.innerWidth * 0.026));
+    const fator = Math.max(0.68, Math.min(1, 105 / Math.max(comprimento, 1)));
+
+    frase.style.fontSize = `${tamanhoBase * fator}px`;
+    frase.style.lineHeight = mobile ? '1.4' : '1.5';
+    caixa.style.maxHeight = mobile ? '58vh' : '68vh';
+}
+
 window.addEventListener('resize', ajustarFraseParaTela);
 ajustarFraseParaTela();
