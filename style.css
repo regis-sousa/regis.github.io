@@ -979,6 +979,7 @@ button, input, textarea, select {
 #projetos-toggle {
     width: 52px;
     height: 52px;
+    order: 2;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1005,6 +1006,7 @@ button, input, textarea, select {
 }
 
 #projetos-painel {
+    order: 1;
     display: flex;
     flex-direction: column;
     align-items: stretch;
