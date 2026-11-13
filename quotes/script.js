@@ -271,7 +271,6 @@ function initParticles() {
         uRandom: { value: 3.0 },
         uDepth: { value: 30.0 },
         uSize: { value: 1.5 },    
-        uPointScale: { value: 1.0 },
         uTextureSize: { value: new THREE.Vector2(webgl.width, webgl.height) },
         uTexture: { value: webgl.texture },
         uTouch: { value: null },            
@@ -344,6 +343,41 @@ function buildTail(uv) {
 
 
 
+
+// Converte a imagem em uma textura de canvas com o MESMO tamanho usado para
+// sortear as partículas. Evita problemas de GPU de celular com imagens/mipmaps
+// e garante que a cor amostrada seja a mesma que passou no limiar.
+function texturaDeCanvas(t, w, h) {
+    if (t._canvasTex && t._canvasTex.image.width === w && t._canvasTex.image.height === h) return t._canvasTex;
+    const c = document.createElement('canvas');
+    c.width = w;
+    c.height = h;
+    c.getContext('2d').drawImage(t.image, 0, 0, w, h);
+    const ct = new THREE.CanvasTexture(c);
+    ct.minFilter = THREE.LinearFilter;
+    ct.magFilter = THREE.LinearFilter;
+    ct.generateMipmaps = false;
+    t._canvasTex = ct;
+    return ct;
+}
+
+
+// Diagnóstico: abra o site com ?debug no final do endereço.
+const DEBUG = /[?&]debug/.test(location.search);
+function dbg(msg) {
+    if (!DEBUG) return;
+    let el = document.getElementById('dbg');
+    if (!el) {
+        el = document.createElement('pre');
+        el.id = 'dbg';
+        el.style.cssText = 'position:fixed;left:0;top:0;z-index:99;max-width:100%;margin:0;padding:6px;font:11px/1.3 monospace;color:#0f0;background:rgba(0,0,0,.75);pointer-events:none;white-space:pre-wrap';
+        document.body.appendChild(el);
+    }
+    el.textContent = msg;
+}
+if (DEBUG) window.addEventListener('error', e => dbg('ERRO: ' + e.message));
+
+
 function changeTexture(e) {
 
     if (Date.now() - webgl.lastClick < 800) return;
@@ -359,6 +393,9 @@ function changeTexture(e) {
 
     let opt = webgl.texturesOptions[webgl.textureIndex];
     let t = webgl.texturesArray[webgl.textureIndex];
+
+    // Imagem ainda não carregou (rede lenta no celular): espera e tenta no próximo toque.
+    if (opt.texture != "video" && !(t.image && t.image.width)) { webgl.lastClick = 0; dbg('imagem ' + webgl.textureIndex + ' ainda não carregou'); return; }
 
     if (webgl.textureIndex == 1) {
         webgl.firstAnimation1.kill(null, "z");
@@ -387,7 +424,6 @@ function changeTexture(e) {
         if (playPromise && typeof playPromise.catch === "function") playPromise.catch(() => {});
     } else {
         webgl.texture = t;
-        webgl.particlesMesh.material.uniforms.uTexture.value = t;
     }
 
     webgl.particlesMesh.material.uniforms.uRandom.value = opt.random;
@@ -400,6 +436,11 @@ function changeTexture(e) {
     // Tamanho real só é conhecido depois da extração (no celular a malha pode ser reduzida).
     webgl.particlesMesh.material.uniforms.uTextureSize.value.x = webgl.width;
     webgl.particlesMesh.material.uniforms.uTextureSize.value.y = webgl.height;
+    if (opt.texture != "video") {
+        const tc = texturaDeCanvas(t, webgl.width, webgl.height);
+        webgl.texture = tc;
+        webgl.particlesMesh.material.uniforms.uTexture.value = tc;
+    }
     updateScale();
 
     const offsets = new Float32Array(webgl.totalPoints * 3);
@@ -419,6 +460,11 @@ function changeTexture(e) {
     webgl.geometryParticles.setAttribute('offset', new THREE.InstancedBufferAttribute(offsets, 3, false));
     webgl.geometryParticles.setAttribute('angle', new THREE.InstancedBufferAttribute(angles, 1, false));
     webgl.geometryParticles.setAttribute('pindex', new THREE.InstancedBufferAttribute(indices, 1, false));
+
+    dbg('idx ' + webgl.textureIndex + ' ' + opt.texture + '\nimg ' + (t.image && (t.image.width || t.image.videoWidth)) + 'x' + (t.image && (t.image.height || t.image.videoHeight)) +
+        '\ngrade ' + webgl.width + 'x' + webgl.height + ' pontos ' + webgl.visiblePoints + '/' + webgl.totalPoints +
+        '\nscale ' + webgl.particlesMesh.scale.x.toFixed(3) + ' tela ' + innerWidth + 'x' + innerHeight +
+        '\nwebgl2 ' + webgl.renderer.capabilities.isWebGL2 + ' maxTex ' + webgl.renderer.capabilities.maxTextureSize);
 
     webgl.textureIndex++;
 
@@ -536,20 +582,14 @@ function resize() {
 }
 
 
-// Ajusta o tamanho da malha de partículas. Em telas estreitas (celular em pé)
-// a imagem inteira precisa caber na largura; antes só a altura era considerada,
-// então só o miolo da imagem aparecia e, se o miolo fosse escuro, a tela ficava preta.
+// Mesmo cálculo do código original: a altura da imagem preenche a tela (tela cheia).
 function updateScale() {
     if (!webgl.particlesMesh) return;
     let f = 0.1;
     if (window.innerWidth / window.innerHeight < 2.8) f = -0.2;
     const fovHeight = 2 * Math.tan((webgl.camera.fov * Math.PI) / 180 / 2) * webgl.camera.position.z;
-    const fovWidth = fovHeight * webgl.camera.aspect;
-    const base = fovHeight / webgl.height + f;
-    const fit = (fovWidth * 0.96) / webgl.width;
-    const scale = Math.min(base, fit);
+    const scale = fovHeight / webgl.height + f;
     webgl.particlesMesh.scale.set(scale, scale, 1);
-    webgl.particlesMesh.material.uniforms.uPointScale.value = Math.min(1, scale / base);
     if (webgl.hoverPlate) webgl.hoverPlate.scale.set(scale, scale, 1);
 }
 
@@ -587,7 +627,6 @@ function vertexShader() {
         uniform float uRandom;
         uniform float uDepth;
         uniform float uSize;
-        uniform float uPointScale;
         uniform vec2 uTextureSize;
         uniform sampler2D uTexture;
         uniform sampler2D uTouch;
@@ -667,7 +706,6 @@ function vertexShader() {
             float psize = (snoise(vec2(uTime, pindex) * 0.5) + 2.0);
             psize *= max(grey, 0.2);
             psize *= uSize;
-            psize *= uPointScale;
         
             vec4 mvPosition = modelViewMatrix * vec4(displaced, 1.0);
             mvPosition.xyz += position * psize;
