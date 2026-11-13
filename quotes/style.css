@@ -136,10 +136,3 @@ canvas {
 @media (max-width: 815px) {
   #fullscr { display: none !important; }
 }
-
-/* No celular, as frases fluem naturalmente sem quebras manuais. */
-@media only screen and (max-width: 815px) {
-  .quoteText br {
-    display: none !important;
-  }
-}

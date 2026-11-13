@@ -2,29 +2,43 @@
 
 //Author: isladjan - https://isladjan.com/
 
-// Substitui o plugin SplitText por uma divisão local de palavras.
+// Divide o texto em palavras sem perder os espaços entre nós HTML/coloridos.
 function dividirEmPalavras(elemento) {
   const palavras = [];
   const walker = document.createTreeWalker(elemento, NodeFilter.SHOW_TEXT);
   const nos = [];
   while (walker.nextNode()) nos.push(walker.currentNode);
+
   nos.forEach(no => {
-    const texto = no.nodeValue;
-    if (!texto || !texto.trim()) return;
+    const texto = no.nodeValue || "";
+
+    // Nó só com espaço (entre dois elementos): mantém um único espaço.
+    if (!texto.trim()) {
+      no.nodeValue = " ";
+      return;
+    }
+
     const frag = document.createDocumentFragment();
-    texto.split(/(\s+)/).forEach(parte => {
-      if (!parte) return;
-      if (/^\s+$/.test(parte)) frag.appendChild(document.createTextNode(parte));
-      else {
-        const span = document.createElement("span");
-        span.className = "palavra-animada";
-        span.textContent = parte;
-        frag.appendChild(span);
-        palavras.push(span);
-      }
+    const partes = texto.trim().split(/\s+/);
+
+    // Preserva o espaço que existia antes/depois do trecho; assim
+    // "palavra</span> outra" não vira "palavraoutra".
+    if (/^\s/.test(texto)) frag.appendChild(document.createTextNode(" "));
+
+    partes.forEach((parte, indice) => {
+      const span = document.createElement("span");
+      span.className = "palavra-animada";
+      span.textContent = parte;
+      frag.appendChild(span);
+      palavras.push(span);
+      if (indice < partes.length - 1) frag.appendChild(document.createTextNode(" "));
     });
+
+    if (/\s$/.test(texto)) frag.appendChild(document.createTextNode(" "));
+
     no.parentNode.replaceChild(frag, no);
   });
+
   return { words: palavras, lines: palavras };
 }
 
@@ -42,7 +56,7 @@ let tail = {};
     webgl.camera.position.z = 180;
     webgl.renderer = new THREE.WebGLRenderer({ alpha: true });  //, antialias: true
     webgl.renderer.setSize(webgl.container.clientWidth, webgl.container.clientHeight);
-    webgl.renderer.setPixelRatio(window.devicePixelRatio);
+    webgl.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     webgl.container.appendChild(webgl.renderer.domElement);
 
     webgl.loader = new THREE.TextureLoader();
@@ -257,6 +271,7 @@ function initParticles() {
         uRandom: { value: 3.0 },
         uDepth: { value: 30.0 },
         uSize: { value: 1.5 },    
+        uPointScale: { value: 1.0 },
         uTextureSize: { value: new THREE.Vector2(webgl.width, webgl.height) },
         uTexture: { value: webgl.texture },
         uTouch: { value: null },            
@@ -355,6 +370,9 @@ function changeTexture(e) {
 
     tail.on = true;
 
+    // Pausa o vídeo anterior: no celular vários vídeos tocando ao mesmo tempo travam a GPU/decodificador.
+    if (webgl.video) { try { webgl.video.pause(); } catch (e) {} }
+
     webgl.width = 250;   
     webgl.height = 145;   
 
@@ -372,14 +390,17 @@ function changeTexture(e) {
         webgl.particlesMesh.material.uniforms.uTexture.value = t;
     }
 
-    webgl.particlesMesh.material.uniforms.uTextureSize.value.x = webgl.width;
-    webgl.particlesMesh.material.uniforms.uTextureSize.value.y = webgl.height;
     webgl.particlesMesh.material.uniforms.uRandom.value = opt.random;
     webgl.particlesMesh.material.uniforms.uDepth.value = opt.depth;         
     webgl.particlesMesh.material.uniforms.uSize.value = opt.size;
     webgl.particlesMesh.material.uniforms.uCircleORsquare.value = opt.square;
 
     if (opt.texture != "video") pixelExtraction();
+
+    // Tamanho real só é conhecido depois da extração (no celular a malha pode ser reduzida).
+    webgl.particlesMesh.material.uniforms.uTextureSize.value.x = webgl.width;
+    webgl.particlesMesh.material.uniforms.uTextureSize.value.y = webgl.height;
+    updateScale();
 
     const offsets = new Float32Array(webgl.totalPoints * 3);
     const indices = new Uint16Array(webgl.totalPoints);
@@ -408,7 +429,9 @@ function changeTexture(e) {
     tl.fromTo(webgl.quoteText, 0.5, { opacity: 1 }, { opacity: 0 }, 0);
     tl.fromTo(webgl.text, 1, { rotation: 0 }, { rotation: 180, transformOrigin: "center", ease: "power2.out" }, 0);
     tl.call(() => {
-        webgl.quoteText.innerHTML = opt.quote;
+        const celular = window.matchMedia("(max-width: 815px)").matches;
+        // No celular a quebra manual vira espaço, para as palavras não grudarem.
+        webgl.quoteText.innerHTML = celular ? opt.quote.replace(/<br\s*\/?>/gi, " ") : opt.quote;
         gsap.set(webgl.quoteText, { rotation: 180, opacity: 1, transformOrigin: "center" });
         let split = dividirEmPalavras(webgl.quoteText);
         if (!opt.stagger) opt.stagger = 0.18;
@@ -461,7 +484,7 @@ function animate() {
 
     if (tail.on) drawTail();
     tail.texture.needsUpdate = true;
-    webgl.texture.needsUpdate = true;
+    if (webgl.texture && webgl.texture.isVideoTexture) webgl.texture.needsUpdate = true;
     webgl.renderer.render(webgl.scene, webgl.camera);
     webgl.raf = requestAnimationFrame(animate);
 }
@@ -506,14 +529,27 @@ const easeOutSine = (t, b, c, d) => {
 
 
 function resize() {
-    let f = 0.1;
     webgl.camera.aspect = webgl.container.clientWidth / webgl.container.clientHeight;
     webgl.camera.updateProjectionMatrix();
     webgl.renderer.setSize(webgl.container.clientWidth, webgl.container.clientHeight);
+    updateScale();
+}
+
+
+// Ajusta o tamanho da malha de partículas. Em telas estreitas (celular em pé)
+// a imagem inteira precisa caber na largura; antes só a altura era considerada,
+// então só o miolo da imagem aparecia e, se o miolo fosse escuro, a tela ficava preta.
+function updateScale() {
+    if (!webgl.particlesMesh) return;
+    let f = 0.1;
     if (window.innerWidth / window.innerHeight < 2.8) f = -0.2;
     const fovHeight = 2 * Math.tan((webgl.camera.fov * Math.PI) / 180 / 2) * webgl.camera.position.z;
-    const scale = fovHeight / webgl.height + f;        
+    const fovWidth = fovHeight * webgl.camera.aspect;
+    const base = fovHeight / webgl.height + f;
+    const fit = (fovWidth * 0.96) / webgl.width;
+    const scale = Math.min(base, fit);
     webgl.particlesMesh.scale.set(scale, scale, 1);
+    webgl.particlesMesh.material.uniforms.uPointScale.value = Math.min(1, scale / base);
     if (webgl.hoverPlate) webgl.hoverPlate.scale.set(scale, scale, 1);
 }
 
@@ -551,6 +587,7 @@ function vertexShader() {
         uniform float uRandom;
         uniform float uDepth;
         uniform float uSize;
+        uniform float uPointScale;
         uniform vec2 uTextureSize;
         uniform sampler2D uTexture;
         uniform sampler2D uTouch;
@@ -630,6 +667,7 @@ function vertexShader() {
             float psize = (snoise(vec2(uTime, pindex) * 0.5) + 2.0);
             psize *= max(grey, 0.2);
             psize *= uSize;
+            psize *= uPointScale;
         
             vec4 mvPosition = modelViewMatrix * vec4(displaced, 1.0);
             mvPosition.xyz += position * psize;
