@@ -102,7 +102,16 @@ let tail = {};
         let video = document.createElement("video");
         video.muted = true;
         video.loop = true;
-        video.playsinline = true;
+        video.autoplay = false;
+        video.controls = false;
+        // "playsinline" em minúsculo não tem efeito nenhum; o nome certo é
+        // "playsInline". Sem ele, o iPhone às vezes abre o vídeo no player
+        // nativo em tela cheia em vez de tocar só como textura.
+        video.playsInline = true;
+        video.setAttribute("playsinline", "");
+        video.setAttribute("webkit-playsinline", "");
+        video.setAttribute("muted", "");
+        video.setAttribute("disablepictureinpicture", "");
         video.crossOrigin = "anonymous";
         video.src = url;
         return new THREE.VideoTexture(video);
@@ -505,15 +514,11 @@ function resize() {
 let fsEnter = document.getElementById('fullscr');
 fsEnter.addEventListener('click', function (e) {
     e.preventDefault();
-    if (!webgl.fullscreen) {
-        webgl.fullscreen = true;
-        document.documentElement.requestFullscreen();
-        fsEnter.innerHTML = "Sair da tela cheia";
-    }
-    else {
-        webgl.fullscreen = false;
-        document.exitFullscreen();
-        fsEnter.innerHTML = "Ver em tela cheia";
+    e.stopPropagation();
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen?.();
+    } else {
+        document.exitFullscreen?.();
     }
 });
 
@@ -645,6 +650,8 @@ function fragmentShader() {
     `
 }
 document.addEventListener("fullscreenchange", () => {
-  fsEnter.textContent = document.fullscreenElement ? "Sair da tela cheia" : "Ver em tela cheia";
-  webgl.fullscreen = !!document.fullscreenElement;
+  const emTelaCheia = !!document.fullscreenElement;
+  webgl.fullscreen = emTelaCheia;
+  fsEnter.setAttribute("aria-label", emTelaCheia ? "Sair da tela cheia" : "Expandir");
+  fsEnter.title = emTelaCheia ? "Sair da tela cheia" : "Expandir";
 });
