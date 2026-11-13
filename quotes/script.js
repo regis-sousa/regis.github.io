@@ -1,39 +1,32 @@
-//This is an outdated version. You can find the improved and optimized version here: https://www.isladjan.com/work/3/quotes/ and here: https://github.com/isladjan/particles-playground
-
-//Author: isladjan - https://isladjan.com/
-
-// Substitui o plugin SplitText por uma divisão local de palavras.
+// Substitui o plugin SplitText por uma divisão local de palavras,
+// preservando o espaço que existia antes/depois de cada trecho colorido
+// (evita "palavra</span>outra" virar "palavraoutra").
 function dividirEmPalavras(elemento) {
   const palavras = [];
   const walker = document.createTreeWalker(elemento, NodeFilter.SHOW_TEXT);
   const nos = [];
-
   while (walker.nextNode()) nos.push(walker.currentNode);
-
   nos.forEach(no => {
     const texto = no.nodeValue;
-    if (!texto || !texto.trim()) return;
-
+    if (!texto) return;
+    if (!texto.trim()) {
+      no.nodeValue = " ";
+      return;
+    }
     const frag = document.createDocumentFragment();
-
-    // Mantém os espaços originais como nós de texto; só as palavras recebem spans.
-    texto.split(/(\\s+)/).forEach(parte => {
-      if (!parte) return;
-
-      if (/^\\s+$/.test(parte)) {
-        frag.appendChild(document.createTextNode(parte));
-      } else {
-        const span = document.createElement("span");
-        span.className = "palavra-animada";
-        span.textContent = parte;
-        frag.appendChild(span);
-        palavras.push(span);
-      }
+    if (/^\s/.test(texto)) frag.appendChild(document.createTextNode(" "));
+    const partes = texto.trim().split(/\s+/);
+    partes.forEach((parte, indice) => {
+      const span = document.createElement("span");
+      span.className = "palavra-animada";
+      span.textContent = parte;
+      frag.appendChild(span);
+      palavras.push(span);
+      if (indice < partes.length - 1) frag.appendChild(document.createTextNode(" "));
     });
-
+    if (/\s$/.test(texto)) frag.appendChild(document.createTextNode(" "));
     no.parentNode.replaceChild(frag, no);
   });
-
   return { words: palavras, lines: palavras };
 }
 
@@ -109,13 +102,7 @@ let tail = {};
         let video = document.createElement("video");
         video.muted = true;
         video.loop = true;
-        video.autoplay = false;
-        video.controls = false;
-        video.playsInline = true;
-        video.setAttribute("playsinline", "");
-        video.setAttribute("webkit-playsinline", "");
-        video.setAttribute("muted", "");
-        video.setAttribute("disablepictureinpicture", "");
+        video.playsinline = true;
         video.crossOrigin = "anonymous";
         video.src = url;
         return new THREE.VideoTexture(video);
@@ -125,7 +112,7 @@ let tail = {};
         { index: 0, texture: "image", quote: "“As coisas nem sempre são <span style=\"color:#666666\">#000000</span> e <em>#FFFFFF</em>.”", threshold: 20, random: 4.0, depth: 30.0, size: 1.7, square: 0 },
         { index: 1, texture: "image", quote: "“Talvez você precise conhecer a <span style=\"color:#f4852a\">escuridão</span><br>antes de conseguir apreciar a luz.”", threshold: 60, random: 2.0, depth: 4.0, size: 1.5, square: 0 },
         { index: 2, texture: "image", quote: "“Algumas pessoas nunca ficam <span style=\"color:#3ac5f8\">loucas.</span><br>Que vidas realmente horríveis elas devem ter.”", threshold: 10, random: 1.0, depth: 2.0, size: 1.2, square: 0},
-        { index: 3, texture: "video", quote: "“Quando você para de correr atrás, <span style=\"color:#a87171; font-style: italic;\">começam a notar.</span>”", threshold: 100, random: 2.0, depth: 2.0, maxDepth: 60, size: 1.5, square: 0 },
+        { index: 3, texture: "video", quote: "“Quando você para de correr atrás, <span style=\"color:#a87171; font-style: italic;\">elas começam a notar.</span>”", threshold: 100, random: 2.0, depth: 2.0, maxDepth: 60, size: 1.5, square: 0 },
         { index: 4, texture: "image", quote: "“Preso à realidade, <span style=\"color:#f81b1b\">liberto pela imaginação</span>.”", threshold: 80, random: 1.0, depth: 4.0, maxDepth:120, size: 1.5, square: 0 },
         { index: 5, texture: "image", quote: "Um dia eu vou <span style=\"color:#c89c5b\">partir</span> para bem longe!", threshold: 30, random: 2.0, depth: 4.0, size: 1.5, square: 0 },
         { index: 6, texture: "image", quote: "Esta é a <span style=\"color:#f14646\">Lucy</span>, mas perdi alguns dos melhores pixels dela.", threshold: 30, random: 2.0, depth: 3.0, size: 1.0, square: 1 },
@@ -147,10 +134,10 @@ let tail = {};
         { index: 22, texture: "video", quote: "Se não for agora, <span style=\"font-style: italic; color:#3bbbd8\"><br>então quando?</span>", threshold: 30, random: 2.0, depth: 30.0, maxDepth: -50, size: 1.5, square: 0 },
         { index: 23, texture: "image", quote: "“De que adianta viver se você não tentar algumas <span style=\"color:#f2f637\">coisas</span>?”", threshold: 30, random: 2.0, depth: 4.0, size: 1.5, square: 0 },
         { index: 24, texture: "image", quote: "“Eu <span style=\"color:#ea1f66\">sempre</span> pego dois!”", threshold: 10, random: 2.0, depth: 4.0, size: 1.5, square: 0 },
-        { index: 25, texture: "image", quote: "“Minha mente é um lugar incrível. Pena que nem eu tenho acesso a tudo.”", threshold: 20, random: 2.0, depth: 4.0, size: 1.5, square: 0, a1: true },
+        { index: 25, texture: "image", quote: "“Na minha fantasia <span style=\"color:#ec1713\">sexual</span>, ninguém jamais me ama pela minha inteligência.”", threshold: 20, random: 2.0, depth: 4.0, size: 1.5, square: 0, a1: true },
         { index: 26, texture: "image", quote: "“Alguns caminhos bonitos não podem ser <span style=\"color:#D873EE\">descobertos</span> sem se <span style=\"color:#1BACBF\">perder.</span>”", threshold: 20, random: 2.0, depth: 4.0, maxDepth:150, size: 1.5, square: 0, a10:true },
-        { index: 27, texture: "video", quote: "Na teoria, tudo funciona. Na prática, precisamos de mais um café.", threshold: 30, random: 2.0, depth: 15.0, maxDepth: 50, size: 1.5, square: 0, a6:true },
-        { index: 28, texture: "video", quote: "Minha imaginação não tem limites. Meu tempo, infelizmente, tem.", threshold: 60, random: 2.0, depth: 18.0, size: 1.5, square: 0, a9:true },
+        { index: 27, texture: "video", quote: "Disseram: trabalhar com back-end dá dinheiro!<br>— Agora trabalho por comida.", threshold: 30, random: 2.0, depth: 15.0, maxDepth: 50, size: 1.5, square: 0, a6:true },
+        { index: 28, texture: "video", quote: "e sonho com a minha pintura e <span id=\"paint_only\" style=\"color:#D234EB\">só pinto</span> meu Pen.", threshold: 60, random: 2.0, depth: 18.0, size: 1.5, square: 0, a9:true },
         { index: 29, texture: "video", quote: "“Falar é fácil. Mostre a <span style=\"color:#f1ee46\">mágica!</span>”", threshold: 150, random: 2.0, depth: 20.0, maxDepth: 70, bg: '#000', size: 1.5, square: 0 },
         { index: 30, texture: "image", quote: "“As ações falam <span style=\"color:#ea1f66\">mais alto</span> que as palavras!”", threshold: 60, random: 2.0, depth: 4.0, size: 1.5, square: 0, a4:true, a1:true },
         { index: 31, texture: "video", quote: "“<span style=\"color:#f6a62c\">Criatividade</span> é saber esconder suas <span style=\"color:#f6a62c\">fontes</span>.”", threshold: 100, random: 2.0, depth: 10.0, maxDepth: 60, size: 1.5, square: 0, a1: true },
@@ -361,8 +348,7 @@ function changeTexture(e) {
         webgl.particlesMesh.material.uniforms.uTexture.value = t;
         webgl.totalPoints = webgl.width * webgl.height;
         //webgl.texture.needsUpdate = true; 
-        const playPromise = webgl.video.play();
-        if (playPromise && typeof playPromise.catch === "function") playPromise.catch(() => {});
+        webgl.video.play(); 
     } else {
         webgl.texture = t;
         webgl.particlesMesh.material.uniforms.uTexture.value = t;
@@ -404,15 +390,17 @@ function changeTexture(e) {
     tl.fromTo(webgl.quoteText, 0.5, { opacity: 1 }, { opacity: 0 }, 0);
     tl.fromTo(webgl.text, 1, { rotation: 0 }, { rotation: 180, transformOrigin: "center", ease: "power2.out" }, 0);
     tl.call(() => {
-        webgl.quoteText.innerHTML = opt.quote;
+        const celular = window.matchMedia("(max-width: 815px)").matches;
+        // No celular a quebra manual vira espaço, para as palavras não grudarem.
+        webgl.quoteText.innerHTML = celular ? opt.quote.replace(/<br\s*\/?>/gi, " ") : opt.quote;
         gsap.set(webgl.quoteText, { rotation: 180, opacity: 1, transformOrigin: "center" });
         let split = dividirEmPalavras(webgl.quoteText);
-        if (!opt.stagger) opt.stagger = 0.18;
+        if (!opt.stagger) opt.stagger = 0.3;
         if (opt.a4) {
-            webgl.texturaAnimation5 = gsap.from(split.words, { duration: 0.36, y: 100, rotationX: -60, stagger: opt.stagger });
+            webgl.texturaAnimation5 = gsap.from(split.words, { duration: 0.5, y: 100, rotationX: -60, stagger: opt.stagger });
         } else {
             gsap.set(".quoteText", { perspective: 400 });
-            gsap.from(split.words, { duration: 0.36, opacity: 0, rotationX: -60, force3D: true, transformOrigin: "0 center -150", stagger: opt.stagger });
+            gsap.from(split.words, { duration: 0.5, opacity: 0, rotationX: -60, force3D: true, transformOrigin: "0 center -150", stagger: opt.stagger });
         }
     }, null, 0.5);
 
@@ -517,19 +505,16 @@ function resize() {
 let fsEnter = document.getElementById('fullscr');
 fsEnter.addEventListener('click', function (e) {
     e.preventDefault();
-    e.stopPropagation();
-    if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen?.();
-    } else {
-        document.exitFullscreen?.();
+    if (!webgl.fullscreen) {
+        webgl.fullscreen = true;
+        document.documentElement.requestFullscreen();
+        fsEnter.innerHTML = "Sair da tela cheia";
     }
-});
-
-document.addEventListener("fullscreenchange", () => {
-    const emTelaCheia = !!document.fullscreenElement;
-    webgl.fullscreen = emTelaCheia;
-    fsEnter.setAttribute("aria-label", emTelaCheia ? "Sair da tela cheia" : "Expandir");
-    fsEnter.title = emTelaCheia ? "Sair da tela cheia" : "Expandir";
+    else {
+        webgl.fullscreen = false;
+        document.exitFullscreen();
+        fsEnter.innerHTML = "Ver em tela cheia";
+    }
 });
 
 
@@ -659,3 +644,7 @@ function fragmentShader() {
         }
     `
 }
+document.addEventListener("fullscreenchange", () => {
+  fsEnter.textContent = document.fullscreenElement ? "Sair da tela cheia" : "Ver em tela cheia";
+  webgl.fullscreen = !!document.fullscreenElement;
+});

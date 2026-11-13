@@ -102,50 +102,16 @@ canvas {
 
 @media only screen and (max-width:815px) {
   .text {
-    font-size: 1.1rem;
-    line-height: 1.4;
+    font-size: 1.2rem;
   }
-.clickInfo {
+
+  .text span {
+    afont-size: 0.8rem !important;
+  }
+
+  .clickInfo {
     font-size: 1rem;
   }
   .btn { right: 14px; bottom: calc(18px + env(safe-area-inset-bottom)); }
 }
 .erro-webgl{position:absolute;z-index:20;left:50%;bottom:22px;transform:translateX(-50%);width:min(90%,560px);padding:12px 16px;border-radius:14px;color:#fff;background:rgba(80,20,20,.88);text-align:center;font:500 13px/1.5 'Comfortaa',cursive}
-
-/* Controle de tela cheia: somente ícone no desktop. */
-#fullscr {
-  width: 44px;
-  height: 44px;
-  padding: 10px;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-}
-#fullscr svg {
-  width: 20px;
-  height: 20px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.8;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-:fullscreen #fullscr {
-  display: none;
-}
-@media (max-width: 815px) {
-  #fullscr { display: none !important; }
-}
-
-/* No celular, as frases fluem naturalmente sem quebras manuais. */
-@media only screen and (max-width: 815px) {
-  .quoteText br {
-    display: none !important;
-  }
-}
-
-
-/* Mantém as palavras animáveis sem remover os espaços originais do texto. */
-.quoteText .palavra-animada {
-  display: inline-block;
-}
