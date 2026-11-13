@@ -1044,6 +1044,31 @@ button, input, textarea, select {
     }
 }
 
+
+/* Ícones da pata de projetos: alternância pata / X igual ao menu da direita */
+#projetos-toggle svg {
+    width: 24px;
+    height: 24px;
+    position: absolute;
+    transition: opacity 0.15s ease;
+}
+
+#projetos-icone-pata {
+    opacity: 1;
+}
+
+#projetos-icone-x {
+    opacity: 0;
+}
+
+#projetos-flutuante.aberto #projetos-icone-pata {
+    opacity: 0;
+}
+
+#projetos-flutuante.aberto #projetos-icone-x {
+    opacity: 1;
+}
+
 /* =============================================
    RESPONSIVIDADE
    ============================================= */

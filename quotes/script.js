@@ -106,7 +106,7 @@ let tail = {};
         { index: 0, texture: "image", quote: "“As coisas nem sempre são <span style=\"color:#666666\">#000000</span> e <em>#FFFFFF</em>.”", threshold: 20, random: 4.0, depth: 30.0, size: 1.7, square: 0 },
         { index: 1, texture: "image", quote: "“Talvez você precise conhecer a <span style=\"color:#f4852a\">escuridão</span><br>antes de conseguir apreciar a luz.”", threshold: 60, random: 2.0, depth: 4.0, size: 1.5, square: 0 },
         { index: 2, texture: "image", quote: "“Algumas pessoas nunca ficam <span style=\"color:#3ac5f8\">loucas.</span><br>Que vidas realmente horríveis elas devem ter.”", threshold: 10, random: 1.0, depth: 2.0, size: 1.2, square: 0},
-        { index: 3, texture: "video", quote: "“Quando você para de correr atrás, <span style=\"color:#a87171; font-style: italic;\">começam a notar.</span>”", threshold: 100, random: 2.0, depth: 2.0, maxDepth: 60, size: 1.5, square: 0 },
+        { index: 3, texture: "video", quote: "“Quando você para de correr atrás, <span style=\"color:#a87171; font-style: italic;\">elas começam a notar.</span>”", threshold: 100, random: 2.0, depth: 2.0, maxDepth: 60, size: 1.5, square: 0 },
         { index: 4, texture: "image", quote: "“Preso à realidade, <span style=\"color:#f81b1b\">liberto pela imaginação</span>.”", threshold: 80, random: 1.0, depth: 4.0, maxDepth:120, size: 1.5, square: 0 },
         { index: 5, texture: "image", quote: "Um dia eu vou <span style=\"color:#c89c5b\">partir</span> para bem longe!", threshold: 30, random: 2.0, depth: 4.0, size: 1.5, square: 0 },
         { index: 6, texture: "image", quote: "Esta é a <span style=\"color:#f14646\">Lucy</span>, mas perdi alguns dos melhores pixels dela.", threshold: 30, random: 2.0, depth: 3.0, size: 1.0, square: 1 },
@@ -128,10 +128,10 @@ let tail = {};
         { index: 22, texture: "video", quote: "Se não for agora, <span style=\"font-style: italic; color:#3bbbd8\"><br>então quando?</span>", threshold: 30, random: 2.0, depth: 30.0, maxDepth: -50, size: 1.5, square: 0 },
         { index: 23, texture: "image", quote: "“De que adianta viver se você não tentar algumas <span style=\"color:#f2f637\">coisas</span>?”", threshold: 30, random: 2.0, depth: 4.0, size: 1.5, square: 0 },
         { index: 24, texture: "image", quote: "“Eu <span style=\"color:#ea1f66\">sempre</span> pego dois!”", threshold: 10, random: 2.0, depth: 4.0, size: 1.5, square: 0 },
-        { index: 25, texture: "image", quote: "“Minha mente é um lugar incrível. Pena que nem eu tenho acesso a tudo.”", threshold: 20, random: 2.0, depth: 4.0, size: 1.5, square: 0, a1: true },
+        { index: 25, texture: "image", quote: "“Na minha fantasia <span style=\"color:#ec1713\">sexual</span>, ninguém jamais me ama pela minha inteligência.”", threshold: 20, random: 2.0, depth: 4.0, size: 1.5, square: 0, a1: true },
         { index: 26, texture: "image", quote: "“Alguns caminhos bonitos não podem ser <span style=\"color:#D873EE\">descobertos</span> sem se <span style=\"color:#1BACBF\">perder.</span>”", threshold: 20, random: 2.0, depth: 4.0, maxDepth:150, size: 1.5, square: 0, a10:true },
-        { index: 27, texture: "video", quote: "Na teoria, tudo funciona. Na prática, precisamos de mais um café.", threshold: 30, random: 2.0, depth: 15.0, maxDepth: 50, size: 1.5, square: 0, a6:true },
-        { index: 28, texture: "video", quote: "Minha imaginação não tem limites. Meu tempo, infelizmente, tem.", threshold: 60, random: 2.0, depth: 18.0, size: 1.5, square: 0, a9:true },
+        { index: 27, texture: "video", quote: "Disseram: trabalhar com back-end dá dinheiro!<br>— Agora trabalho por comida.", threshold: 30, random: 2.0, depth: 15.0, maxDepth: 50, size: 1.5, square: 0, a6:true },
+        { index: 28, texture: "video", quote: "e sonho com a minha pintura e <span id=\"paint_only\" style=\"color:#D234EB\">só pinto</span> meu Pen.", threshold: 60, random: 2.0, depth: 18.0, size: 1.5, square: 0, a9:true },
         { index: 29, texture: "video", quote: "“Falar é fácil. Mostre a <span style=\"color:#f1ee46\">mágica!</span>”", threshold: 150, random: 2.0, depth: 20.0, maxDepth: 70, bg: '#000', size: 1.5, square: 0 },
         { index: 30, texture: "image", quote: "“As ações falam <span style=\"color:#ea1f66\">mais alto</span> que as palavras!”", threshold: 60, random: 2.0, depth: 4.0, size: 1.5, square: 0, a4:true, a1:true },
         { index: 31, texture: "video", quote: "“<span style=\"color:#f6a62c\">Criatividade</span> é saber esconder suas <span style=\"color:#f6a62c\">fontes</span>.”", threshold: 100, random: 2.0, depth: 10.0, maxDepth: 60, size: 1.5, square: 0, a1: true },
@@ -385,6 +385,7 @@ function changeTexture(e) {
     tl.fromTo(webgl.text, 1, { rotation: 0 }, { rotation: 180, transformOrigin: "center", ease: "power2.out" }, 0);
     tl.call(() => {
         webgl.quoteText.innerHTML = opt.quote;
+        ajustarFraseParaTela();
         gsap.set(webgl.quoteText, { rotation: 180, opacity: 1, transformOrigin: "center" });
         let split = dividirEmPalavras(webgl.quoteText);
         if (!opt.stagger) opt.stagger = 0.3;
@@ -495,20 +496,17 @@ function resize() {
 
 
 let fsEnter = document.getElementById('fullscr');
-fsEnter.addEventListener('click', function (e) {
-    e.preventDefault();
-    if (!webgl.fullscreen) {
-        webgl.fullscreen = true;
-        document.documentElement.requestFullscreen();
-        fsEnter.innerHTML = "Sair da tela cheia";
-    }
-    else {
-        webgl.fullscreen = false;
-        document.exitFullscreen();
-        fsEnter.innerHTML = "Ver em tela cheia";
-    }
-});
-
+if (fsEnter) {
+    fsEnter.addEventListener('click', async function (e) {
+        e.preventDefault();
+        try {
+            if (!document.fullscreenElement) await document.documentElement.requestFullscreen();
+            else await document.exitFullscreen();
+        } catch (error) {
+            console.warn('Não foi possível alternar a tela cheia:', error);
+        }
+    });
+}
 
 function vertexShader() {
     return `
@@ -637,6 +635,13 @@ function fragmentShader() {
     `
 }
 document.addEventListener("fullscreenchange", () => {
-  fsEnter.textContent = document.fullscreenElement ? "Sair da tela cheia" : "Ver em tela cheia";
-  webgl.fullscreen = !!document.fullscreenElement;
+  const isFullscreen = !!document.fullscreenElement;
+  webgl.fullscreen = isFullscreen;
+  if (fsEnter) {
+    fsEnter.setAttribute('aria-pressed', String(isFullscreen));
+    fsEnter.setAttribute('aria-label', isFullscreen ? 'Tela cheia ativa' : 'Expandir');
+    fsEnter.title = isFullscreen ? 'Tela cheia ativa' : 'Expandir';
+  }
 });
+window.addEventListener('resize', ajustarFraseParaTela);
+ajustarFraseParaTela();
