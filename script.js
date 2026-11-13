@@ -707,7 +707,7 @@ function initOdie(speechBubble, estadoEmocional) {
             setTimeout(() => {
                 garfieldInner.classList.remove('olho-esquerda');
                 garfieldInner.classList.add('olho-direita');
-            }, 1800);
+            }, 2200);
         } else {
             odieEl.style.right = '-130px';
             odieEl.style.left = 'auto';
@@ -716,7 +716,7 @@ function initOdie(speechBubble, estadoEmocional) {
             setTimeout(() => {
                 garfieldInner.classList.remove('olho-direita');
                 garfieldInner.classList.add('olho-esquerda');
-            }, 1800);
+            }, 2200);
         }
 
         // Depois que passar, faz a careta
@@ -744,7 +744,7 @@ function initOdie(speechBubble, estadoEmocional) {
                 // Agenda próximo em 15s
                 inatividade = setTimeout(apareceOdie, 15000);
             }, 1500);
-        }, 4000);
+        }, 4800);
     }
 
     // Qualquer interação reinicia o timer

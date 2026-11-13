@@ -964,165 +964,132 @@ button, input, textarea, select {
    ============================================= */
 #odie {
     position: fixed;
-    bottom: 110px;
+    bottom: 92px;
     z-index: 9998;
+    width: 230px;
+    height: 170px;
     pointer-events: none;
+    will-change: left, right, transform;
 }
 #odie.escondido { display: none; }
 
 #odie.correndo-direita {
-    animation: odie-vai-direita 4s linear forwards;
-    transform-origin: center;
+    animation: odie-vai-direita 4.8s linear forwards;
 }
 #odie.correndo-esquerda {
-    animation: odie-vai-esquerda 4s linear forwards;
+    animation: odie-vai-esquerda 4.8s linear forwards;
+}
+#odie.correndo-esquerda .odie-svg {
     transform: scaleX(-1);
-    transform-origin: center;
 }
 
 @keyframes odie-vai-direita {
-    from { left: -130px; }
+    from { left: -250px; }
     to   { left: calc(100vw + 20px); }
 }
 @keyframes odie-vai-esquerda {
-    from { right: -130px; }
+    from { right: -250px; }
     to   { right: calc(100vw + 20px); }
 }
 
-.odie-corpo {
-    position: relative;
-    width: 100px;
-    height: 90px;
-    animation: perninha 0.35s steps(2) infinite;
+.odie-svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    animation: odie-salto 0.34s ease-in-out infinite;
 }
+.odie-corpo-svg, .odie-cabeca-svg, .odie-pescoco, .odie-focinho {
+    fill: #fff0a0;
+    stroke: #211508;
+    stroke-width: 3.5;
+    stroke-linejoin: round;
+}
+.odie-corpo-svg { fill: #fff0a0; }
+.odie-barriga { fill: #f9dc83; opacity: .8; }
+.odie-cabeca-svg { fill: #fff0a0; }
+.odie-pescoco { fill: #fff0a0; }
+.odie-focinho { fill: #fff3ad; }
+.odie-orelha-svg {
+    fill: #a95422;
+    stroke: #211508;
+    stroke-width: 3.5;
+    stroke-linejoin: round;
+    transform-box: fill-box;
+    transform-origin: bottom center;
+}
+.odie-orelha-1 { animation: odie-orelha 0.34s ease-in-out infinite alternate; }
+.odie-orelha-2 { animation: odie-orelha 0.34s ease-in-out infinite alternate-reverse; }
+.odie-olho-svg { fill: #fff; stroke: #211508; stroke-width: 2.8; }
+.odie-pupila-svg { fill: #17110c; }
+.odie-nariz-svg { fill: #e75b63; stroke: #211508; stroke-width: 2.5; }
+.odie-lingua-svg {
+    fill: #ed5264;
+    stroke: #211508;
+    stroke-width: 2.5;
+    stroke-linejoin: round;
+    transform-box: fill-box;
+    transform-origin: top center;
+    animation: odie-lingua 0.22s ease-in-out infinite alternate;
+}
+.odie-lingua-detalhe {
+    fill: none;
+    stroke: #a82e48;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+}
+.odie-rabo-svg {
+    fill: none;
+    stroke: #fff0a0;
+    stroke-width: 11;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transform-box: fill-box;
+    transform-origin: right center;
+    animation: odie-rabo 0.28s ease-in-out infinite alternate;
+}
+.odie-perna {
+    fill: #fff0a0;
+    stroke: #211508;
+    stroke-width: 3;
+    stroke-linejoin: round;
+    transform-box: fill-box;
+    transform-origin: 50% 10%;
+}
+.odie-dedos {
+    fill: none;
+    stroke: #211508;
+    stroke-width: 2;
+    stroke-linecap: round;
+}
+.odie-perna-tras1 { animation: perna-corrida-a 0.34s ease-in-out infinite alternate; }
+.odie-perna-frente2 { animation: perna-corrida-a 0.34s ease-in-out infinite alternate; }
+.odie-perna-tras2 { animation: perna-corrida-b 0.34s ease-in-out infinite alternate; }
+.odie-perna-frente1 { animation: perna-corrida-b 0.34s ease-in-out infinite alternate; }
 
-@keyframes perninha {
-    0%   { transform: translateY(0px); }
-    50%  { transform: translateY(-4px); }
-    100% { transform: translateY(0px); }
+@keyframes odie-salto {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-7px) rotate(-1deg); }
 }
-
-.odie-cabeca {
-    position: absolute;
-    top: 0; left: 18px;
-    width: 62px; height: 52px;
-    background: #e8c87a;
-    border-radius: 50% 50% 45% 45%;
-    border: 3px solid #2a1a00;
+@keyframes perna-corrida-a {
+    from { transform: rotate(32deg) translateY(-2px); }
+    to { transform: rotate(-38deg) translateY(5px); }
 }
-
-.odie-orelha {
-    position: absolute;
-    width: 18px; height: 28px;
-    background: #c8a050;
-    border: 3px solid #2a1a00;
-    border-radius: 50% 50% 0 0;
-    top: -18px;
+@keyframes perna-corrida-b {
+    from { transform: rotate(-38deg) translateY(5px); }
+    to { transform: rotate(32deg) translateY(-2px); }
 }
-.orelha-esq { left: 6px; transform: rotate(-12deg); }
-.orelha-dir { right: 6px; transform: rotate(12deg); }
-
-.odie-olho {
-    position: absolute;
-    width: 16px; height: 18px;
-    background: #fff;
-    border-radius: 50%;
-    border: 2px solid #2a1a00;
-    top: 10px;
-    overflow: hidden;
+@keyframes odie-orelha {
+    from { transform: rotate(-13deg); }
+    to { transform: rotate(16deg); }
 }
-.olho-esq { left: 8px; }
-.olho-dir { right: 8px; }
-
-.odie-pupila {
-    position: absolute;
-    width: 8px; height: 10px;
-    background: #1a1a1a;
-    border-radius: 50%;
-    bottom: 2px; left: 50%;
-    transform: translateX(-50%);
+@keyframes odie-lingua {
+    from { transform: rotate(-9deg) translateY(0); }
+    to { transform: rotate(12deg) translateY(3px); }
 }
-
-.odie-nariz {
-    position: absolute;
-    width: 14px; height: 8px;
-    background: #d46060;
-    border-radius: 50%;
-    border: 2px solid #2a1a00;
-    bottom: 10px; left: 50%;
-    transform: translateX(-50%);
-}
-
-.odie-lingua {
-    position: absolute;
-    width: 18px; height: 14px;
-    background: #e05070;
-    border-radius: 0 0 50% 50%;
-    border: 2px solid #2a1a00;
-    border-top: none;
-    bottom: -10px; left: 50%;
-    transform: translateX(-50%);
-    animation: lingua-balanco 0.4s ease-in-out infinite alternate;
-}
-
-@keyframes lingua-balanco {
-    from { transform: translateX(-50%) rotate(-5deg); }
-    to   { transform: translateX(-50%) rotate(5deg); }
-}
-
-.odie-tronco {
-    position: absolute;
-    top: 38px; left: 10px;
-    width: 70px; height: 40px;
-    background: #e8c87a;
-    border-radius: 40% 40% 50% 50%;
-    border: 3px solid #2a1a00;
-}
-
-.odie-patas {
-    position: absolute;
-    top: 68px; left: 14px;
-    display: flex; gap: 24px;
-}
-.odie-patas-tras {
-    position: absolute;
-    top: 68px; left: 42px;
-    display: flex; gap: 20px;
-}
-
-.odie-pata {
-    width: 18px; height: 16px;
-    background: #e8c87a;
-    border-radius: 50%;
-    border: 3px solid #2a1a00;
-    animation: pata-correr 0.35s steps(2) infinite;
-}
-.pata-f-esq { animation-delay: 0s; }
-.pata-f-dir { animation-delay: 0.17s; }
-.pata-t-esq { animation-delay: 0.1s; }
-.pata-t-dir { animation-delay: 0.27s; }
-
-@keyframes pata-correr {
-    0%   { transform: translateY(0); }
-    50%  { transform: translateY(-6px); }
-    100% { transform: translateY(0); }
-}
-
-.odie-rabo {
-    position: absolute;
-    top: 30px; right: 0px;
-    width: 22px; height: 8px;
-    background: #e8c87a;
-    border-radius: 0 50% 50% 0;
-    border: 3px solid #2a1a00;
-    border-left: none;
-    transform-origin: left center;
-    animation: rabo-abanar 0.3s ease-in-out infinite alternate;
-}
-
-@keyframes rabo-abanar {
-    from { transform: rotate(-20deg); }
-    to   { transform: rotate(20deg); }
+@keyframes odie-rabo {
+    from { transform: rotate(-18deg); }
+    to { transform: rotate(22deg); }
 }
 
 /* =============================================
@@ -1177,133 +1144,5 @@ button, input, textarea, select {
 
     #dicas-lista li {
         max-width: 100%;
-    }
-}
-
-
-/* =============================================
-   MENU DE PROJETOS — PATA INFERIOR ESQUERDA
-   ============================================= */
-#projetos-flutuante {
-    position: fixed;
-    left: 20px;
-    bottom: 24px;
-    z-index: 10000;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 14px;
-}
-
-#projetos-toggle {
-    width: 52px;
-    height: 52px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex: 0 0 auto;
-    padding: 0;
-    background: var(--cor-vidro-bg);
-    border: 2px solid var(--cor-vidro-borda);
-    border-radius: 50%;
-    color: var(--cor-texto);
-    cursor: pointer;
-    backdrop-filter: var(--blur-vidro);
-    -webkit-backdrop-filter: var(--blur-vidro);
-    box-shadow: 0 16px 40px rgba(58, 26, 0, 0.2);
-    transition: background 0.2s ease, transform 0.2s ease;
-}
-
-#projetos-toggle:hover {
-    background: var(--cor-vidro-bg-hover);
-    transform: scale(1.08);
-}
-
-#projetos-toggle svg {
-    display: block;
-    width: 24px;
-    height: 24px;
-}
-
-#projetos-painel {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 4px;
-    min-width: 220px;
-    padding: 12px;
-    background: rgba(255, 255, 255, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    border-radius: 20px;
-    box-shadow: 0 16px 40px rgba(58, 26, 0, 0.25);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    transform-origin: bottom left;
-}
-
-#projetos-painel.escondido {
-    display: none;
-}
-
-#projetos-painel .menu-item {
-    display: flex;
-    width: 100%;
-    align-items: center;
-    gap: 12px;
-    padding: 10px 12px;
-    border: 0;
-    border-radius: 12px;
-    background: transparent;
-    color: var(--cor-texto);
-    font-family: var(--fonte-corpo);
-    font-size: 15px;
-    text-align: left;
-    text-decoration: none;
-    white-space: nowrap;
-    cursor: pointer;
-    transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
-}
-
-#projetos-painel .menu-item:hover {
-    background: rgba(255, 255, 255, 0.55);
-    transform: scale(1.03);
-    box-shadow: 0 6px 16px rgba(58, 26, 0, 0.15);
-}
-
-#projetos-painel .menu-item-icone {
-    width: 26px;
-    height: 26px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex: 0 0 26px;
-    font-size: 21px;
-}
-
-@media (max-width: 600px) {
-    #projetos-flutuante {
-        left: 16px;
-        bottom: calc(20px + env(safe-area-inset-bottom, 0px));
-    }
-
-    #projetos-toggle {
-        width: 58px;
-        height: 58px;
-    }
-
-    #projetos-toggle svg {
-        width: 27px;
-        height: 27px;
-    }
-
-    #projetos-painel {
-        min-width: min(240px, 78vw);
-        max-width: 82vw;
-        padding: 14px;
-    }
-
-    #projetos-painel .menu-item {
-        padding: 13px 12px;
-        font-size: 16px;
     }
 }

@@ -286,27 +286,49 @@
     <!-- ============================================= -->
     <!-- Odie -->
     <!-- ============================================= -->
-    <div id="odie" class="escondido">
-        <div class="odie-corpo">
-            <div class="odie-cabeca">
-                <div class="odie-orelha orelha-esq"></div>
-                <div class="odie-orelha orelha-dir"></div>
-                <div class="odie-olho olho-esq"><div class="odie-pupila"></div></div>
-                <div class="odie-olho olho-dir"><div class="odie-pupila"></div></div>
-                <div class="odie-nariz"></div>
-                <div class="odie-lingua"></div>
-            </div>
-            <div class="odie-tronco"></div>
-            <div class="odie-patas">
-                <div class="odie-pata pata-f-esq"></div>
-                <div class="odie-pata pata-f-dir"></div>
-            </div>
-            <div class="odie-patas-tras">
-                <div class="odie-pata pata-t-esq"></div>
-                <div class="odie-pata pata-t-dir"></div>
-            </div>
-            <div class="odie-rabo"></div>
-        </div>
+    <div id="odie" class="escondido" aria-hidden="true">
+        <svg class="odie-svg" viewBox="0 0 230 170" role="img" aria-label="Odie correndo">
+            <!-- Rabo -->
+            <path class="odie-rabo-svg" d="M42 91 Q12 72 18 49 Q24 31 38 48 Q49 62 43 79" />
+            <!-- Pernas de trás -->
+            <g class="odie-perna odie-perna-tras1">
+                <path d="M62 112 Q51 130 42 145 Q36 153 47 155 L67 155 Q76 151 71 143 L83 119Z"/>
+                <path class="odie-dedos" d="M43 150 Q50 147 57 153 M58 150 Q65 147 71 153"/>
+            </g>
+            <g class="odie-perna odie-perna-tras2">
+                <path d="M91 112 Q103 127 105 143 Q108 153 97 155 L80 155 Q73 151 80 143 L76 119Z"/>
+                <path class="odie-dedos" d="M80 151 Q87 147 94 153 M94 150 Q101 147 106 152"/>
+            </g>
+            <!-- Corpo -->
+            <path class="odie-corpo-svg" d="M42 78 Q53 61 91 66 Q124 65 147 83 Q163 96 150 119 Q136 137 92 134 Q49 134 34 113 Q25 96 42 78Z"/>
+            <path class="odie-barriga" d="M45 108 Q82 128 139 111 Q130 130 91 130 Q57 129 45 108Z"/>
+            <!-- Pernas da frente -->
+            <g class="odie-perna odie-perna-frente1">
+                <path d="M130 112 Q145 124 160 140 Q168 148 159 154 L140 156 Q130 154 136 144 L119 126Z"/>
+                <path class="odie-dedos" d="M139 151 Q146 147 153 154 M153 150 Q160 147 166 152"/>
+            </g>
+            <g class="odie-perna odie-perna-frente2">
+                <path d="M150 108 Q170 112 183 128 Q192 138 183 146 L166 151 Q156 151 161 139 L143 125Z"/>
+                <path class="odie-dedos" d="M165 146 Q172 142 179 149 M178 143 Q185 141 190 146"/>
+            </g>
+            <!-- Pescoço e cabeça -->
+            <path class="odie-pescoco" d="M112 82 Q117 54 143 48 L174 63 Q180 83 161 103 L137 111Z"/>
+            <path class="odie-cabeca-svg" d="M119 66 Q111 39 128 20 Q145 2 175 12 Q202 20 207 49 Q212 77 188 91 Q163 104 137 88Z"/>
+            <!-- Orelhas caídas -->
+            <path class="odie-orelha-svg odie-orelha-1" d="M133 31 Q107 4 96 15 Q87 27 113 57 Q123 66 137 54Z"/>
+            <path class="odie-orelha-svg odie-orelha-2" d="M166 23 Q181 -1 197 9 Q211 21 187 51 Q178 59 165 48Z"/>
+            <!-- Focinho -->
+            <path class="odie-focinho" d="M160 64 Q190 57 213 72 Q226 83 211 96 Q190 109 160 91 Q146 81 160 64Z"/>
+            <!-- Olhos -->
+            <ellipse class="odie-olho-svg" cx="151" cy="48" rx="9" ry="12"/>
+            <ellipse class="odie-olho-svg" cx="178" cy="46" rx="9" ry="12"/>
+            <ellipse class="odie-pupila-svg" cx="154" cy="51" rx="4" ry="7"/>
+            <ellipse class="odie-pupila-svg" cx="181" cy="49" rx="4" ry="7"/>
+            <!-- Nariz e língua -->
+            <ellipse class="odie-nariz-svg" cx="211" cy="81" rx="8" ry="6"/>
+            <path class="odie-lingua-svg" d="M190 96 Q202 98 204 110 Q204 122 195 119 Q187 114 190 96Z"/>
+            <path class="odie-lingua-detalhe" d="M197 103 Q199 110 196 115"/>
+        </svg>
     </div>
 
     <script src="script.js"></script>
