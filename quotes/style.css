@@ -102,14 +102,10 @@ canvas {
 
 @media only screen and (max-width:815px) {
   .text {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
+    line-height: 1.4;
   }
-
-  .text span {
-    afont-size: 0.8rem !important;
-  }
-
-  .clickInfo {
+.clickInfo {
     font-size: 1rem;
   }
   .btn { right: 14px; bottom: calc(18px + env(safe-area-inset-bottom)); }

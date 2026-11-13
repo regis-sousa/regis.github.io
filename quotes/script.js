@@ -36,7 +36,6 @@ let tail = {};
     webgl.container = document.getElementById("canvas_container");
     webgl.quoteText = document.querySelector(".quoteText");
     webgl.text = document.querySelector(".text");
-    webgl.text.addEventListener("click", event => event.stopPropagation());
 
     webgl.scene = new THREE.Scene();
     webgl.camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 10000);
@@ -101,7 +100,13 @@ let tail = {};
         let video = document.createElement("video");
         video.muted = true;
         video.loop = true;
-        video.playsinline = true;
+        video.autoplay = false;
+        video.controls = false;
+        video.playsInline = true;
+        video.setAttribute("playsinline", "");
+        video.setAttribute("webkit-playsinline", "");
+        video.setAttribute("muted", "");
+        video.setAttribute("disablepictureinpicture", "");
         video.crossOrigin = "anonymous";
         video.src = url;
         return new THREE.VideoTexture(video);
@@ -322,7 +327,7 @@ function changeTexture(e) {
     if (webgl.texturaAnimation5) webgl.texturaAnimation5.kill();
     webgl.particlesMesh.rotation.z = 0.0;
 
-    if (e.target.classList.contains("btn")) return;
+    if (e.target.closest && e.target.closest("#fullscr")) return;
 
     let opt = webgl.texturesOptions[webgl.textureIndex];
     let t = webgl.texturesArray[webgl.textureIndex];
@@ -347,7 +352,8 @@ function changeTexture(e) {
         webgl.particlesMesh.material.uniforms.uTexture.value = t;
         webgl.totalPoints = webgl.width * webgl.height;
         //webgl.texture.needsUpdate = true; 
-        webgl.video.play(); 
+        const playPromise = webgl.video.play();
+        if (playPromise && typeof playPromise.catch === "function") playPromise.catch(() => {});
     } else {
         webgl.texture = t;
         webgl.particlesMesh.material.uniforms.uTexture.value = t;
